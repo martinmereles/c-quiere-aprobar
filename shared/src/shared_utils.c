@@ -49,14 +49,11 @@ const char *op_ModuloToString(int opCode)
     {
         switch (opCode)
         {
-        case CONSOLA:
-            return "CONSOLA";
         case KERNEL:
             return "KERNEL";
         case CPU:
             return "CPU";
-        case FILESYSTEM:
-            return "FILESYSTEM";
+
         case MEMORIA:
             return "MEMORIA";
         default:

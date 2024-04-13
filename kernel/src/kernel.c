@@ -112,9 +112,9 @@ void atender_consola(void *arg)
     while (1)
     {
         log_info(logger, "Cliente %d", cliente_fd);
-        int code_op_consola = recibir_operacion(cliente_fd);
-        enum code_op_consola code;
-        code = code_op_consola;
+        int op_code = recibir_operacion(cliente_fd);
+        enum op_code code;
+        code = op_code;
         switch (code)
         {
         /*case MENSAJE:
@@ -162,7 +162,7 @@ t_kernel_config* levantar_config_kernel ()
     kernelConfig->algoritmo_planificacion = buscarEnConfig(config, "ALGORITMO_PLANIFICACION");
     kernelConfig->puerto_cpu_interrupt = buscarEnConfig(config, "PUERTO_CPU_INTERRUPT");
     kernelConfig->quantum= buscarEnConfig(config, "QUANTUM");
-    kernelConfig->grado_multiprogramacion = atoi(buscarEnConfig(config, "GRADO_MULTIPROGRAMACION"));
+    kernelConfig->grado_multiprogramacion = buscarEnConfig(config, "GRADO_MULTIPROGRAMACION");
     kernelConfig->recursos = buscarEnConfig(config, "RECURSOS");
     kernelConfig->instancias_recursos = buscarEnConfig(config, "INSTANCIAS_RECURSOS");
     
@@ -216,5 +216,5 @@ void atender_cpu(void *arg) // cliente cpu
 }
 
 
-    return 0;
+
 

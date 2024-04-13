@@ -24,7 +24,7 @@ typedef struct {
     char* grado_multiprogramacion;
     char* quantum;
     char* recursos;
-    char* instacias_recursos;
+    char* instancias_recursos;
 }t_kernel_config;
 
 t_kernel_config* levantar_config_kernel ();
