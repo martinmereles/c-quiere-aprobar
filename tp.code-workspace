@@ -20,9 +20,6 @@
 			"path": "entradasalida"
 		},
 		{
-			"path": "utils"
-		},
-		{
 			"path": "shared"
 		}
 	]
