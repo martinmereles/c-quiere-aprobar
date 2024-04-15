@@ -1,0 +1,50 @@
+[INFO] 04:19:51:146 memoria/(11361:11361): Se conecto un cliente!
+[INFO] 04:20:19:734 memoria/(11361:11361): Me llego el mensaje À
+[INFO] 04:25:55:657 memoria/(11773:11773): Se conecto un cliente!
+[INFO] 04:25:55:657 memoria/(11773:11773): Me llego el mensaje À
+[INFO] 04:27:02:911 memoria/(12118:12118): Se conecto un cliente!
+[INFO] 04:27:02:912 memoria/(12118:12118): Me llego el mensaje À
+[INFO] 04:34:05:360 memoria/(12487:12487): Se conecto un cliente!
+[INFO] 04:34:05:360 memoria/(12487:12487): Me llego el mensaje À
+[INFO] 04:34:37:494 memoria/(12786:12786): Se conecto un cliente!
+[INFO] 04:34:37:494 memoria/(12786:12786): Me llego el mensaje À
+[INFO] 04:45:47:544 memoria/(13193:13193): Se conecto un cliente!
+[INFO] 04:46:43:608 memoria/(13538:13538): Se conecto un cliente!
+[INFO] 04:46:43:608 memoria/(13538:13538): Me llego el mensaje UU
+[INFO] 04:47:29:204 memoria/(13815:13815): Se conecto un cliente!
+[INFO] 04:47:29:204 memoria/(13815:13815): Me llego el mensaje UU
+[INFO] 04:48:31:557 memoria/(14127:14127): Se conecto un cliente!
+[INFO] 04:48:31:557 memoria/(14127:14127): Me llego el mensaje À
+[INFO] 14:55:45:235 memoria/(2302:2302): Se conecto un cliente!
+[INFO] 14:55:45:249 memoria/(2302:2302): Me llego el mensaje À
+[INFO] 15:25:51:901 memoria/(3894:3894): Se conecto un cliente!
+[INFO] 15:25:51:902 memoria/(3894:3894): Me llego el mensaje À
+[INFO] 16:25:37:739 memoria/(8079:8079): Se conecto un cliente!
+[INFO] 16:25:37:739 memoria/(8079:8079): Me llego el mensaje À
+[WARNING] 16:25:37:739 memoria/(8079:8079): Operacion desconocida. No quieras meter la pata
+[WARNING] 16:25:37:739 memoria/(8079:8079): Operacion desconocida. No quieras meter la pata
+[WARNING] 16:25:37:740 memoria/(8079:8079): Operacion desconocida. No quieras meter la pata
+[WARNING] 16:25:37:743 memoria/(8079:8079): Operacion desconocida. No quieras meter la pata
+[ERROR] 16:25:37:744 memoria/(8079:8079): el cliente se desconecto. Terminando servidor
+[INFO] 16:30:06:105 memoria/(8612:8612): Se conecto un cliente!
+[INFO] 16:30:34:294 memoria/(8612:8612): Me llego el mensaje hola
+[INFO] 16:33:22:932 memoria/(9089:9089): Se conecto un cliente!
+[INFO] 16:33:34:427 memoria/(9089:9089): Me llego el mensaje 
+[ERROR] 16:33:39:082 memoria/(9089:9089): el cliente se desconecto. Terminando servidor
+[INFO] 16:35:28:900 memoria/(9600:9600): Se conecto un cliente!
+[INFO] 16:35:28:901 memoria/(9600:9600): Me llego el mensaje 8002
+[ERROR] 16:35:28:901 memoria/(9600:9600): el cliente se desconecto. Terminando servidor
+[INFO] 16:48:50:550 memoria/(10046:10046): Se conecto un cliente!
+[ERROR] 16:49:31:963 memoria/(10046:10046): el cliente se desconecto. Terminando servidor
+[INFO] 16:50:32:578 memoria/(10721:10721): Se conecto un cliente!
+[ERROR] 16:51:49:814 memoria/(10721:10721): el cliente se desconecto. Terminando servidor
+[INFO] 16:53:18:074 memoria/(11423:11423): Se conecto un cliente!
+[INFO] 16:53:18:075 memoria/(11423:11423): Me llego el mensaje hola
+[INFO] 16:53:46:162 memoria/(11423:11423): Me llegaron los siguientes valores:
+
+[INFO] 16:53:46:162 memoria/(11423:11423): hola
+[INFO] 16:53:46:162 memoria/(11423:11423): esta
+[INFO] 16:53:46:162 memoria/(11423:11423): es
+[INFO] 16:53:46:162 memoria/(11423:11423): una
+[INFO] 16:53:46:162 memoria/(11423:11423): prueba
+[ERROR] 16:53:46:162 memoria/(11423:11423): el cliente se desconecto. Terminando servidor
