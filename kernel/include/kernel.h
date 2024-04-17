@@ -11,7 +11,7 @@
 //#include "kernel_utils.h"
 
 
-void atender_consola(void *arg);
+void atender_cliente(void *arg);
 void atencion_consola(void* arg);
 typedef struct {
     char* ip_memoria;
@@ -28,12 +28,10 @@ typedef struct {
 }t_kernel_config;
 
 t_kernel_config* levantar_config_kernel ();
-char* buscarEnConfig(t_config* config,char* index);
 
 //funciones para recibir datos de consola
 t_list *recibir_instrucciones(int socket_cliente, t_log* logger);
 
 //Funcion de atencion a CPU
-char* buscarEnConfig(t_config* config,char* index);
 
 #endif

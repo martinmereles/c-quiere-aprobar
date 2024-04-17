@@ -12,17 +12,24 @@ int main(int argc, char* argv[]) {
     int conexion_memoria;
     int conexion_filesystem;
         
+
         t_log *logger = log_create("./cfg/kernel.log", "kernel", true, LOG_LEVEL_INFO);
         log_info(logger, "Soy el Kernel!");
+
 
         t_kernel_config* kernel_config;
         kernel_config = levantar_config_kernel();
         log_info(logger, "el puerto de escucha es %s", kernel_config->puerto_escucha);    
 
         log_info(logger, "levante la configuracion");
+        log_info(logger, "conecto a CPU");
+    
+        conexion_cpu = crear_conexion(kernel_config->ip_cpu, kernel_config-> puerto_cpu_interrupt);
+        log_info(logger, "cree conexion a CPU");
+    
+        enviar_mensaje("me conecte a CPU", conexion_cpu);
 
-        // conexion = crear_conexion(ip_kernel, puerto_kernel);
-
+        log_info(logger, "me conecte y mande un mensaje");
         log_info(logger, "levanto el servidor");
         int server_fd = iniciar_servidor(kernel_config->puerto_escucha, logger);
         log_info(logger, "Servidor listo para recibir al cliente");
@@ -39,9 +46,9 @@ int main(int argc, char* argv[]) {
             arg->socket_fd = cliente_fd;
             arg->logger = logger;
 
-            pthread_create(&hiloConsolas, // Crea hilo que crea hilos atendedores de consolas
+            pthread_create(&hiloConsolas, // Crea hilo que crea hilos atendedores de clientes
                            NULL,
-                           (void *)atender_consola,
+                           (void *)atender_cliente,
                            (void *)arg);
             // pthread_join(hiloConsolas, NULL);
         }
@@ -101,12 +108,11 @@ void atencion_consola(void *arg)
 
 
 
-void atender_consola(void *arg)
+void atender_cliente(void *arg)
 {
     int cliente_fd = ((pthread_arg *)arg)->socket_fd;
     t_log *logger = ((pthread_arg *)arg)->logger;
-    // int cliente_fd;
-    // cliente_fd = socket;
+
 
     t_list *lista;
     while (1)
@@ -170,18 +176,7 @@ t_kernel_config* levantar_config_kernel ()
     return kernelConfig;
 
 }
-char* buscarEnConfig(t_config* config,char* index){
-    char* valorObtenido;
-    valorObtenido = config_get_string_value(config, index);
-    return valorObtenido;
-}
-//int socket_servidor;
 
-/*void inicializar_conexiones(){
-
-  socket_servidor=inicializar_servidor(kernelconfig->puerto);
-}
-*/
 void atender_cpu(void *arg) // cliente cpu 
 {
     int cliente_fd = ((pthread_arg *)arg)->socket_fd;

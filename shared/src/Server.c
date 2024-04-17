@@ -116,3 +116,5 @@ void iterator(char *value, t_log *logger)
 {
     log_info(logger, "%s", value);
 }
+
+

@@ -61,3 +61,9 @@ const char *op_ModuloToString(int opCode)
         }
     }
 }
+
+char* buscarEnConfig(t_config* config,char* index){
+    char* valorObtenido;
+    valorObtenido = config_get_string_value(config, index);
+    return valorObtenido;
+}

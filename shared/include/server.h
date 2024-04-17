@@ -1,7 +1,8 @@
 #ifndef SERVER_H
 #define SERVER_H
 
-#include "typeDef.h"#include"estructuras_comunes.h"
+#include "typeDef.h"
+#include"estructuras_comunes.h"
 
 void iterator(char *value, t_log *logger);
 

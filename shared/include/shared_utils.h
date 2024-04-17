@@ -29,5 +29,7 @@ int handshakeCliente(int socket_cliente, int modulo);
 int handshakeServidor(int socket_cliente,  t_log *logger);
 
 const char *op_ModuloToString(int opCode);
+char* buscarEnConfig(t_config* config,char* index);
+
 
 #endif
