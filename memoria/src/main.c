@@ -1,12 +1,14 @@
 #include <main.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <utils/hello.h>
+#include <utils/client-server.h>
 
 t_log* logger;
 int main(int argc, char* argv[]) {
-    logger = log_create("tp0-log", "memoria", true, LOG_LEVEL_INFO);
-    int socket_servidor = iniciar_servidor();
+	logger = iniciar_logger("tp0-memoria-log.log", "memoria");
+	t_config* config = iniciar_config(logger, "memoria.config");
+	char* puerto = config_get_string_value(config, "PUERTO_ESCUCHA");
+    int socket_servidor = iniciar_servidor(puerto);
     int socket_cliente = esperar_cliente(socket_servidor);
 
 
@@ -33,6 +35,8 @@ t_list* lista;
 	}
 	return EXIT_SUCCESS;
 }
-void iterator(char* value) {
+
+void iterator(char* value) 
+{
 	log_info(logger,"%s", value);
 }

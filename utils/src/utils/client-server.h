@@ -1,11 +1,13 @@
-#ifndef UTILS_HELLO_H_
-#define UTILS_HELLO_H_
+#ifndef UTILS_CLIENT_SERVER_H_
+#define UTILS_CLIENT_SERVER_H_
 #include <stdlib.h>
 #include <stdio.h>
 #include<sys/socket.h>
 #include<unistd.h>
 #include<netdb.h>
 #include<commons/log.h>
+#include<commons/config.h>
+#include<readline/readline.h>
 #include<commons/collections/list.h>
 #include<string.h>
 #include<assert.h>
@@ -33,15 +35,14 @@ typedef struct
 
 extern t_log* logger;
 
-/**
-* @fn    decir_hola
-* @brief Imprime un saludo al nombre que se pase por parámetro por consola.
-*/
-void decir_hola(char* quien);
-
 void* recibir_buffer(int*, int);
 
-int iniciar_servidor(void);
+t_log* iniciar_logger(char *, char *);
+t_config* iniciar_config(t_log*, char *);
+void leer_consola(t_log*);
+void paquete(int);
+void terminar_programa(int, t_log*, t_config*);
+int iniciar_servidor(char *);
 int esperar_cliente(int);
 t_list* recibir_paquete(int);
 void recibir_mensaje(int);

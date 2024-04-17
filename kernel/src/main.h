@@ -14,9 +14,6 @@
 #include<signal.h>
 #include<unistd.h>
 
-t_log* iniciar_logger(void);
-t_config* iniciar_config(t_log*);
-void leer_consola(t_log*);
-void terminar_programa(int, t_log*, t_config*);
+void iterator(char*); 
 
 #endif

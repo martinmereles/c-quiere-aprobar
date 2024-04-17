@@ -1,7 +1,7 @@
 #include <main.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <utils/hello.h>
+#include <utils/client-server.h>
 #include <commons/config.h>
 #include <commons/log.h>
 #include <readline/readline.h>
@@ -10,88 +10,44 @@ t_log* logger;
 
 int main(int argc, char* argv[]) {
     
-   logger = iniciar_logger();
+   logger = iniciar_logger("tp0-kernel-log.log", "kernel");
 
     log_info(logger, "Soy un log");
     
-    t_config* config = iniciar_config(logger);
+    t_config* config = iniciar_config(logger, "kernel.config");
 
-    char* ip_memoria = config_get_string_value(config, "IP_MEMORIA");
-    char* puerto_memoria = config_get_string_value(config, "PUERTO_MEMORIA");
-    char* valor = config_get_string_value(config, "VALOR");
-    log_info(logger, ip_memoria);
-    log_info(logger, puerto_memoria);
-
+    char* valor = config_get_string_value(config, "CLAVE");
     leer_consola(logger);
     
+    //Inicia conexion con memoria
+    char* ip_memoria = config_get_string_value(config, "IP_MEMORIA");
+    char* puerto_memoria = config_get_string_value(config, "PUERTO_MEMORIA");
+    log_info(logger, "La IP de MEMORIA es : %s", ip_memoria);
+    log_info(logger, "El PUERTO de MEMORIA es : %s", puerto_memoria);
+    int socket_cliente_memoria = crear_conexion(ip_memoria,puerto_memoria);
+    enviar_mensaje(valor,socket_cliente_memoria);
+    paquete(socket_cliente_memoria);
+    liberar_conexion(socket_cliente_memoria);
 
-    int socket_cliente = crear_conexion(ip_memoria,puerto_memoria);
+    //Inicia conexion con cpu
+    char* ip_cpu = config_get_string_value(config, "IP_CPU");
+    char* puerto_cpu = config_get_string_value(config, "PUERTO_CPU");
+    log_info(logger, "La IP de CPU es : %s", ip_cpu);
+    log_info(logger, "El PUERTO de CPU es : %s", puerto_cpu);
+    int socket_cliente_cpu = crear_conexion(ip_cpu,puerto_cpu);
+    enviar_mensaje(valor,socket_cliente_cpu);
+    paquete(socket_cliente_cpu);
+    liberar_conexion(socket_cliente_cpu);
+    
 
-    enviar_mensaje("hola",socket_cliente);
-
-    paquete(socket_cliente);
-    terminar_programa(socket_cliente,logger,config);
+    //Cierre de log y config
+    log_destroy(logger);
+    config_destroy(config);
+    
     return EXIT_SUCCESS;
 }
 
-
-t_log* iniciar_logger(void)
+void iterator(char* value) 
 {
-    t_log* logger_nuevo = log_create("tp0-log", "kernel", true, LOG_LEVEL_INFO);
-
-	return logger_nuevo;
-}
-
-t_config* iniciar_config(t_log* logger)
-{
-	t_config* nuevo_config;
-
-    nuevo_config = config_create("kernel.config");
-
-    if (nuevo_config==NULL){
-        log_info(logger, "No existe el archivo kernel.config");
-        exit(EXIT_FAILURE);
-    }
-
-	return nuevo_config;
-}
-
-void leer_consola(t_log* logger)
-{
-	char* command;
-    command = readline("> ");
-    while(strcmp(command,"")){
-    log_info(logger, command);
-    free(command);
-    command = readline("> ");
-    }
-    free(command);
-}
-
-void paquete(int conexion)
-{
-	// Ahora toca lo divertido!
-	char* leido;
-	t_paquete* paquete = crear_paquete();
-
-	// Leemos y esta vez agregamos las lineas al paquete
-    char* command;
-    command = readline("> ");
-    while(strcmp(command,"")){
-    log_info(logger, command);
-    agregar_a_paquete(paquete,command,strlen(command)+1);
-    free(command);
-    command = readline("> ");
-    }
-    free(command);
-    enviar_paquete(paquete, conexion);
-	// ¡No te olvides de liberar las líneas y el paquete antes de regresar!
-	eliminar_paquete(paquete);
-}
-
-void terminar_programa(int conexion, t_log* logger, t_config* config)
-{
-	log_destroy(logger);
-    config_destroy(config);
-    liberar_conexion(conexion);
+	log_info(logger,"%s", value);
 }

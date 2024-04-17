@@ -1,12 +1,63 @@
-#include <utils/hello.h>
+#include <utils/client-server.h>
+#include <commons/config.h>
+#include <commons/log.h>
 
+t_log* iniciar_logger(char * archivo, char * nombre)
+{
+    t_log* logger_nuevo = log_create(archivo, nombre, true, LOG_LEVEL_INFO);
 
-
-void decir_hola(char* quien) {
-    printf("Hola desde %s!!\n", quien);
+	return logger_nuevo;
 }
 
-int iniciar_servidor(void)
+t_config* iniciar_config(t_log* logger, char * archivo)
+{
+	t_config* nuevo_config;
+
+    nuevo_config = config_create(archivo);
+
+    if (nuevo_config==NULL){
+        log_info(logger, "No existe el archivo %s", archivo);
+        exit(EXIT_FAILURE);
+    }
+
+	return nuevo_config;
+}
+
+void leer_consola(t_log* logger)
+{
+	char* command;
+    command = readline("> ");
+	//int resultado = strcmp(command,"");
+    while(strcmp(command,"")){
+    	log_info(logger, command);
+    	free(command);
+    	command = readline("> ");
+    }
+    free(command);
+}
+
+void paquete(int conexion)
+{
+	// Ahora toca lo divertido!
+	char* leido;
+	t_paquete* paquete = crear_paquete();
+
+	// Leemos y esta vez agregamos las lineas al paquete
+    char* command;
+    command = readline("> ");
+    while(strcmp(command,"")){
+    log_info(logger, command);
+    agregar_a_paquete(paquete,command,strlen(command)+1);
+    free(command);
+    command = readline("> ");
+    }
+    free(command);
+    enviar_paquete(paquete, conexion);
+	// ¡No te olvides de liberar las líneas y el paquete antes de regresar!
+	eliminar_paquete(paquete);
+}
+
+int iniciar_servidor(char * puerto)
 {
 
 
@@ -20,7 +71,7 @@ int iniciar_servidor(void)
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_flags = AI_PASSIVE;
 
-	err = getaddrinfo(NULL, PUERTO, &hints, &server_info);
+	err = getaddrinfo(NULL, puerto, &hints, &server_info);
 
 	// Creamos el socket de escucha del servidor
     socket_servidor = socket(server_info->ai_family,

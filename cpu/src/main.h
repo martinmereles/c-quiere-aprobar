@@ -1,5 +1,5 @@
-#ifndef MEMORIA_MAIN_H_
-#define MEMORIA_MAIN_H_
+#ifndef CPU_MAIN_H_
+#define CPU_MAIN_H_
 
 #include <stdlib.h>
 #include <stdio.h>
