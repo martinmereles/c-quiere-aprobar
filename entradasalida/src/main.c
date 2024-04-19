@@ -24,6 +24,17 @@ int main(int argc, char* argv[]) {
     paquete(socket_cliente_kernel);
     liberar_conexion(socket_cliente_kernel);
   
+
+  //Inicia conexion con memoria
+    char* ip_memoria = config_get_string_value(config, "IP_MEMORIA");
+    char* puerto_memoria = config_get_string_value(config, "PUERTO_MEMORIA");
+    log_info(logger, "La IP de Memoria es : %s", ip_memoria);
+    log_info(logger, "El PUERTO de Memoria es : %s", puerto_memoria);
+    int socket_cliente_memoria = crear_conexion(ip_memoria,puerto_memoria);
+    enviar_mensaje(valor,socket_cliente_memoria);
+    paquete(socket_cliente_memoria);
+    liberar_conexion(socket_cliente_memoria);
+  
     
     //Cierre de log y config     
     cerrar_log_config (logger,config);     

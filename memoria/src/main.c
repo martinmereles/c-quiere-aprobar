@@ -13,9 +13,11 @@ int main(int argc, char* argv[]) {
 
 
 
+
+
 t_list* lista;
 	while (1) {
-		int cod_op = recibir_operacion(socket_cliente);
+		int cod_op = recibir_operacion(socket_cliente);; 
 		switch (cod_op) {
 		case MENSAJE:
 			recibir_mensaje(socket_cliente);
@@ -27,7 +29,8 @@ t_list* lista;
 			break;
 		case -1:
 			log_error(logger, "el cliente se desconecto. Terminando servidor");
-			return EXIT_FAILURE;
+			socket_cliente = esperar_cliente(socket_servidor);
+			break; 
 		default:
 			log_warning(logger,"Operacion desconocida. No quieras meter la pata");
 			break;
@@ -39,6 +42,7 @@ t_list* lista;
 
 	return EXIT_SUCCESS;
 }
+
 
 void iterator(char* value) 
 {
