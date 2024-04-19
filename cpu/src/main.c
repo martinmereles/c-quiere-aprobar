@@ -31,6 +31,10 @@ int main(int argc, char* argv[]) {
 			break;
 		}
 	}
+
+	//Cierre de log y config
+    cerrar_log_config (logger,config); 
+
 	return EXIT_SUCCESS;
 }
 

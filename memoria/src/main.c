@@ -33,6 +33,10 @@ t_list* lista;
 			break;
 		}
 	}
+
+	//Cierre de log y config
+    cerrar_log_config (logger,config); 
+
 	return EXIT_SUCCESS;
 }
 

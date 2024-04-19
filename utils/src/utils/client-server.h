@@ -14,7 +14,6 @@
 #include<signal.h>
 #include<unistd.h>
 
-#define PUERTO "8002"
 typedef enum
 {
 	MENSAJE,
