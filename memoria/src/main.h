@@ -14,6 +14,7 @@
 #include<signal.h>
 #include<unistd.h>
 #include<utils/client-server.h>
+#include<utils/admin.h>
 
 void iterator(char*); 
 

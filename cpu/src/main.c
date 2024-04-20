@@ -5,9 +5,25 @@
 
 t_log* logger;
 int main(int argc, char* argv[]) {
+
+	
     logger = iniciar_logger("tp0-cpu-log.log", "cpu");
     t_config* config = iniciar_config(logger, "cpu.config");
-    char* puerto = config_get_string_value(config, "PUERTO_ESCUCHA");
+	char* valor = config_get_string_value(config, "CLAVE");
+    
+	//Se conecta como cliente ante memoria
+	char* ip_memoria = config_get_string_value(config, "IP_MEMORIA");
+	char* puerto_memoria = config_get_string_value(config, "PUERTO_MEMORIA");
+	log_info(logger, "La IP de MEMORIA es : %s", ip_memoria);
+    log_info(logger, "El PUERTO de MEMORIA es : %s", puerto_memoria);
+    int socket_cliente_memoria = crear_conexion(ip_memoria,puerto_memoria);
+    enviar_mensaje(valor,socket_cliente_memoria);
+    paquete(socket_cliente_memoria);
+    liberar_conexion(socket_cliente_memoria);
+
+
+	//Inicia escucha servidor
+	char* puerto = config_get_string_value(config, "PUERTO_ESCUCHA");
     int socket_servidor = iniciar_servidor(puerto);
     int socket_cliente = esperar_cliente(socket_servidor);
 
@@ -34,6 +50,7 @@ int main(int argc, char* argv[]) {
 
 	//Cierre de log y config
     cerrar_log_config (logger,config); 
+
 
 	return EXIT_SUCCESS;
 }
