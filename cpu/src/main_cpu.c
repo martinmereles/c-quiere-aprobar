@@ -1,4 +1,4 @@
-#include <main.h>
+#include "../include/main_cpu.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <utils/client-server.h>
@@ -7,8 +7,8 @@ t_log* logger;
 int main(int argc, char* argv[]) {
 
 	
-    logger = iniciar_logger("tp0-cpu-log.log", "cpu");
-    t_config* config = iniciar_config(logger, "cpu.config");
+    logger = iniciar_logger("./cfg/cpu-log.log", "cpu");
+    t_config* config = iniciar_config(logger, "./cfg/cpu.config");
 	char* valor = config_get_string_value(config, "CLAVE");
     
 	//Se conecta como cliente ante memoria

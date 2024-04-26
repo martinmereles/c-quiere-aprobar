@@ -1,4 +1,4 @@
-#include <main.h>
+#include "../include/main_kernel.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <utils/client-server.h>
@@ -10,11 +10,11 @@ t_log* logger;
 
 int main(int argc, char* argv[]) {
     
-   logger = iniciar_logger("tp0-kernel-log.log", "kernel");
+   logger = iniciar_logger("./cfg/kernel-log.log", "kernel");
 
     log_info(logger, "Soy un log");
     
-    t_config* config = iniciar_config(logger, "kernel.config");
+    t_config* config = iniciar_config(logger, "./cfg/kernel.config");
 
     char* valor = config_get_string_value(config, "CLAVE");
     leer_consola(logger);
