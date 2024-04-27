@@ -1,5 +1,5 @@
-#ifndef ENTRADASALIDA_MAIN_H_
-#define ENTRADASALIDA_MAIN_H_
+#ifndef _MAIN_ENTRADASALIDA_H_
+#define _MAIN_ENTRADASALIDA_H_
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -15,8 +15,7 @@
 #include <unistd.h>
 #include <utils/client-server.h>
 #include <readline/readline.h>
-#include<utils/admin.h>
-
+#include <utils/admin.h>
 
 void iterator(char*); 
 

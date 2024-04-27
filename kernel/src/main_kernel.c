@@ -1,16 +1,10 @@
 #include "../include/main_kernel.h"
-#include <stdlib.h>
-#include <stdio.h>
-#include <utils/client-server.h>
-#include <commons/config.h>
-#include <commons/log.h>
-#include <readline/readline.h>
 
 t_log* logger;
 
 int main(int argc, char* argv[]) {
     
-   logger = iniciar_logger("./cfg/kernel-log.log", "kernel");
+    logger = iniciar_logger("./cfg/kernel-log.log", "kernel");
 
     log_info(logger, "Soy un log");
     
