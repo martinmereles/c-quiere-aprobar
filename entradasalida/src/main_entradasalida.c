@@ -1,4 +1,4 @@
-#include "main.h"
+#include "../include/main_entradasalida.h"
 
 t_log * logger;
 
@@ -6,11 +6,11 @@ int main(int argc, char* argv[]) {
 
     t_config * config;
 
-    logger = iniciar_logger("entradaSalida-log.log", "entradaSalida");
+    logger = iniciar_logger("./cfg/entradaSalida-log.log", "entradaSalida");
     log_info(logger, "Soy un log");
 
 
-    config = iniciar_config(logger, "entradaSalida.config");
+    config = iniciar_config(logger, "./cfg/entradaSalida.config");
     char* valor = config_get_string_value(config, "TIPO_INTERFAZ");
     leer_consola(logger);
     

@@ -1,12 +1,12 @@
-#include <main.h>
+#include "../include/main_memoria.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <utils/client-server.h>
 
 t_log* logger;
 int main(int argc, char* argv[]) {
-	logger = iniciar_logger("tp0-memoria-log.log", "memoria");
-	t_config* config = iniciar_config(logger, "memoria.config");
+	logger = iniciar_logger("./cfg/memoria-log.log", "memoria");
+	t_config* config = iniciar_config(logger, "./cfg/memoria.config");
 	char* puerto = config_get_string_value(config, "PUERTO_ESCUCHA");
     int socket_servidor = iniciar_servidor(puerto);
     int socket_cliente = esperar_cliente(socket_servidor);
