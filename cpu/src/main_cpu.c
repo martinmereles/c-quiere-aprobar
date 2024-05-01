@@ -1,11 +1,16 @@
 #include "../include/main_cpu.h"
-#include <stdlib.h>
-#include <stdio.h>
-#include <utils/client-server.h>
+
 
 t_log* logger;
-int main(int argc, char* argv[]) {
+registros_t *reg;
 
+int main(int argc, char* argv[]) {
+	
+	//printf("Antes de setear: %d",reg->reg_generales->AX);
+	set("AX","7");
+	//printf("\n Despues de setear: %d",reg->reg_generales->AX);
+
+/*
 	
     logger = iniciar_logger("./cfg/cpu-log.log", "cpu");
     t_config* config = iniciar_config(logger, "./cfg/cpu.config");
@@ -51,7 +56,7 @@ int main(int argc, char* argv[]) {
 	//Cierre de log y config
     cerrar_log_config (logger,config); 
 
-
+	*/
 	return EXIT_SUCCESS;
 }
 

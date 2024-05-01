@@ -16,6 +16,9 @@
 #include <utils/client-server.h>
 #include <utils/admin.h>
 
+//prueba de funcionamiento de registros
+#include <utils/estructuras/estructuras.h>
+#include <../include/instrucciones_cpu.h>
 void iterator(char*); 
 
 #endif

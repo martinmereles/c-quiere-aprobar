@@ -1,6 +1,7 @@
 #ifndef INSTRUCCIONES_CPU_H
 #define INSTRUCCIONES_CPU_H
-
+#include <utils/estructuras/estructuras.h>
+#include <stdint.h>
 typedef enum{
     AX,  //1
     BX,  //2
