@@ -5,11 +5,10 @@ t_log* logger;
 registros_t *reg;
 
 int main(int argc, char* argv[]) {
-	
-	//printf("Antes de setear: %d",reg->reg_generales->AX);
+	reg = malloc(sizeof(registros_t));
+	reg->reg_generales = malloc(sizeof(reg_general_t));
+	reg->reg_generales->AX = 12;//para pruebas
 	set("AX","7");
-	//printf("\n Despues de setear: %d",reg->reg_generales->AX);
-
 /*
 	
     logger = iniciar_logger("./cfg/cpu-log.log", "cpu");

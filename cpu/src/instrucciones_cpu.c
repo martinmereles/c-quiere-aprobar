@@ -5,11 +5,6 @@
 
 extern registros_t *reg;
 
-//void recibirInstruccion(){
-
-
-//}
-
 int deCharAEnum(char* registro){
     if(strcmp(registro,"AX")==0){
         return AX;
@@ -47,20 +42,17 @@ int deCharAEnum(char* registro){
     } */
     
 }
+
 void set (char * registro, char * valor)    
 {
     switch (deCharAEnum(registro))
     {
     case AX:
-        
-        printf("El registro es: %d\n", deCharAEnum(registro));
-        //uint8_t valorASetear = 88;
+        printf("El registro es: %d\n", deCharAEnum(registro));//reemplazar por logger
         int valorASetear = atoi(valor);
-        //uint8_t* var= reg->reg_generales->AX;
-        //*var = (uint8_t)valorASetear;
-        //reg->reg_generales->AX=valorASetear;
-        printf("El registro es: %d\n", reg->reg_generales->AX);
-        
+        printf("El nuevo actual de registro AX es: %d\n", reg->reg_generales->AX);//reemplazar por logger
+        reg->reg_generales->AX=valorASetear;
+        printf("El nuevo valor de registro AX es: %d\n", reg->reg_generales->AX);//reemplazar por logger
         break;
     default:
         break;
