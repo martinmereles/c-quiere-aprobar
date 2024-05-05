@@ -5,14 +5,20 @@ t_log* logger;
 registros_t *reg;
 
 int main(int argc, char* argv[]) {
-	reg = malloc(sizeof(registros_t));
-	reg->reg_generales = malloc(sizeof(reg_general_t));
-	reg->reg_generales->AX = 12;//para pruebas
-	set("AX","7");
-/*
-	
-    logger = iniciar_logger("./cfg/cpu-log.log", "cpu");
+	logger = iniciar_logger("./cfg/cpu-log.log", "cpu");
     t_config* config = iniciar_config(logger, "./cfg/cpu.config");
+	reg = malloc(sizeof(registros_t));
+
+//ARRANCA BLOQUE DE PRUEBAS
+	
+	reg->PC = 12;//para pruebas
+	printf("El valor de registro PC es: %d\n", reg->PC);
+	set("PC","0");
+	jnz("PC","11");
+	printf("El valor de registro PC es: %d\n", reg->PC);
+
+
+/*
 	char* valor = config_get_string_value(config, "CLAVE");
     
 	//Se conecta como cliente ante memoria

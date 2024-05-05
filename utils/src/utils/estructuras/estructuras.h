@@ -2,7 +2,9 @@
 #define UTILS_ESTRUCTURAS_H_
 
 #include <stdint.h>
-typedef struct
+
+
+typedef struct 
 {
     uint8_t AX;
     uint8_t BX;
@@ -12,23 +14,30 @@ typedef struct
     uint32_t EBX;
     uint32_t ECX;
     uint32_t EDX;
-}reg_general_t;
-
-typedef struct 
-{
     uint32_t PC;
     uint32_t SI;
     uint32_t DI;
-    reg_general_t *reg_generales;
 }registros_t;
 
-
+typedef enum{
+    AX,  //1
+    BX,  //2
+    CX,  //3
+    DX,  //4
+    EAX, //5
+    EBX, //6
+    ECX, //7
+    EDX, //8
+    PC,  //9
+    SI,  //10
+    DI   //11
+}enum_registro;
 typedef struct 
 {
     int pid;
     uint32_t PCB_PC;
     int quantum;
-    reg_general_t *reg_generales;
+    registros_t *reg_generales;
 }pcb_t;
 
 

@@ -2,18 +2,12 @@
 #define INSTRUCCIONES_CPU_H
 #include <utils/estructuras/estructuras.h>
 #include <stdint.h>
-typedef enum{
-    AX,  //1
-    BX,  //2
-    CX,  //3
-    DX,  //4
-    EAX, //5
-    EBX, //6
-    ECX, //7
-    EDX, //8
-    PC   //9
+#include <commons/log.h>
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
 
-    //PREGUNTAR SI y DI (se puede setear??)
-}enum_registro;
+extern registros_t *reg;
+extern t_log* logger;
 
 #endif
