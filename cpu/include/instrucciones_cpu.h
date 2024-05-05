@@ -6,6 +6,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <commons/string.h>
 
 extern registros_t *reg;
 extern t_log* logger;

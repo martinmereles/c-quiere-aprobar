@@ -14,9 +14,15 @@ int main(int argc, char* argv[]) {
 	reg->PC = 12;//para pruebas
 	printf("El valor de registro PC es: %d\n", reg->PC);
 	set("PC","0");
+	set("AX","0");
+	set("BX","5");
 	jnz("PC","11");
 	printf("El valor de registro PC es: %d\n", reg->PC);
-
+	ejecutarSentencia("SUM AX BX");
+	printf("El valor de registro AX es: %d\n", reg->AX);
+	ejecutarSentencia("SET BX 3");
+	ejecutarSentencia("SUB AX BX");
+	printf("El valor de registro AX es: %d\n", reg->AX);
 
 /*
 	char* valor = config_get_string_value(config, "CLAVE");
