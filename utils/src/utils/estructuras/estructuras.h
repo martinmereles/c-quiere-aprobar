@@ -40,6 +40,21 @@ typedef struct
     registros_t *reg_generales;
 }pcb_t;
 
+typedef enum
+{
+    CPU,
+    MEMORIA,
+    ENTRADASALIDA,
+    KERNEL
+}e_tipo_modulo;
+
+typedef struct
+{
+    int socket_fd;
+
+} pthread_arg;
+
+
 
 #endif
 

@@ -27,7 +27,6 @@ void leer_consola(t_log* logger)
 {
 	char* command;
     command = readline("> ");
-	//int resultado = strcmp(command,"");
     while(strcmp(command,"")){
     	log_info(logger, command);
     	free(command);

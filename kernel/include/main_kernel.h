@@ -15,7 +15,9 @@
 #include <commons/config.h>
 #include <commons/log.h>
 #include <readline/readline.h>
+#include <utils/estructuras/estructuras.h>
 
-void iterator(char*); 
+void iterator(char*);
+void atender_clientes(void *arg);
 
 #endif
