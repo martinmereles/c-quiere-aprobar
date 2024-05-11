@@ -17,7 +17,4 @@
 #include <readline/readline.h>
 #include <utils/estructuras/estructuras.h>
 
-void iterator(char*);
-void atender_clientes(void *arg);
-
 #endif

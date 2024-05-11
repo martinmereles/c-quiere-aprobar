@@ -262,3 +262,68 @@ void liberar_conexion(int socket_cliente)
 {
 	close(socket_cliente);
 }
+
+void esperar_modulos(int socket_servidor, e_tipo_modulo servidor){
+    pthread_t hilo_kernel, hilo_cpu, hilo_io, hilo_memoria;
+    int socket_cpu, socket_io, socket_kernel, socket_memoria, socket_cliente;
+	
+    //for (int i = 0; i < 3; i++)
+	socket_cliente = esperar_cliente(socket_servidor);
+	switch (servidor)
+	{
+	case ENTRADASALIDA:
+		log_info(logger, "Inicio servidor entrada salida");
+		socket_io = socket_servidor;
+		pthread_create(&hilo_io, NULL, (void *)recibir_modulo, &socket_io);
+		pthread_detach(hilo_io);
+		break;
+	case CPU:
+		log_info(logger, "Inicio servidor cpu");
+		socket_cpu = socket_servidor;
+		pthread_create(&hilo_cpu, NULL, (void *)recibir_modulo, &socket_cpu);
+		pthread_detach(hilo_cpu);
+		break;
+	case KERNEL:
+		log_info(logger, "Inicio servidor kernel");
+		socket_kernel = socket_servidor;
+		pthread_create(&hilo_kernel, NULL, (void *)recibir_modulo, &socket_kernel);
+		pthread_join(hilo_kernel, NULL);
+		break;
+	case MEMORIA:
+		log_info(logger, "Inicio servidor memoria");
+		socket_kernel = socket_servidor;
+		pthread_create(&hilo_memoria, NULL, (void *)recibir_modulo, &socket_memoria);
+		pthread_join(hilo_memoria, NULL);
+		break;
+	}
+}
+ 
+void recibir_modulo(int socket_servidor){  
+	int socket_cliente = esperar_cliente(socket_servidor);
+	t_list* lista;
+	while (1) {
+		int cod_op = recibir_operacion(socket_cliente);
+		switch (cod_op) {
+		case MENSAJE:
+			recibir_mensaje(socket_cliente);
+			break;
+		case PAQUETE:
+			lista = recibir_paquete(socket_cliente );
+			log_info(logger, "Me llegaron los siguientes valores:\n");
+			list_iterate(lista, (void*) iterator);
+			break;
+		case -1:
+			log_error(logger, "el cliente se desconecto");
+			break;
+		default:
+			log_warning(logger,"Operacion desconocida. No quieras meter la pata");
+			break;
+		}
+		socket_cliente = esperar_cliente(socket_servidor);
+	}
+}
+
+void iterator(char* value) 
+{
+	log_info(logger,"%s", value);
+}
