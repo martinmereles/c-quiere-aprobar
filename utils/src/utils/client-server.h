@@ -59,4 +59,7 @@ void esperar_modulos(int socket_servidor, e_tipo_modulo servidor);
 void recibir_modulo(int socket_servidor);
 void iterator(char*);
 
+void iniciar_hilo_server(char* puerto);
+void atender_cliente(int socket_cliente);
+
 #endif

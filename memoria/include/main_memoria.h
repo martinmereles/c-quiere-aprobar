@@ -15,6 +15,7 @@
 #include <unistd.h>
 #include <utils/client-server.h>
 #include <utils/admin.h>
+#include <pthread.h>
 
 void iterator(char*); 
 

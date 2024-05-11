@@ -13,6 +13,7 @@
 #include <assert.h>
 #include <signal.h>
 #include <unistd.h>
+#include <pthread.h>
 #include <utils/client-server.h>
 #include <utils/admin.h>
 #include <utils/estructuras/estructuras.h>

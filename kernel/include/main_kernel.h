@@ -14,6 +14,7 @@
 #include <utils/client-server.h>
 #include <commons/config.h>
 #include <commons/log.h>
+#include <pthread.h>
 #include <readline/readline.h>
 #include <utils/estructuras/estructuras.h>
 

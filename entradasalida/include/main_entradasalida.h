@@ -16,6 +16,7 @@
 #include <utils/client-server.h>
 #include <readline/readline.h>
 #include <utils/admin.h>
+#include <pthread.h>
 
 void iterator(char*); 
 
