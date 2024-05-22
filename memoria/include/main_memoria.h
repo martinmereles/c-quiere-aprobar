@@ -16,6 +16,8 @@
 #include <utils/client-server.h>
 #include <utils/admin.h>
 #include <pthread.h>
+#include <../include/memoria_estructuras.h>
+#include <../include/auxiliares.h>
 
 void iterator(char*); 
 
