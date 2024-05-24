@@ -39,13 +39,13 @@ int main(int argc, char* argv[]) {
     enviar_mensaje("Me conecto desde Kernel",socket_cliente_memoria);
 
     //Inicia conexion con cpu
-    char* ip_cpu = config_get_string_value(config, "IP_CPU");
+    /*char* ip_cpu = config_get_string_value(config, "IP_CPU");
     char* puerto_cpu = config_get_string_value(config, "PUERTO_CPU");
     log_info(logger, "La IP de CPU es : %s", ip_cpu);
     log_info(logger, "El PUERTO de CPU es : %s", puerto_cpu);
     int socket_cliente_cpu = crear_conexion(ip_cpu,puerto_cpu);
     enviar_mensaje("Me conecto desde Kernel",socket_cliente_cpu);
-    
+    */
     iniciar_proceso("./test/pruebas_instrucciones.txt", quantum, socket_cliente_memoria);
     
     pthread_join(hiloServidor, NULL);

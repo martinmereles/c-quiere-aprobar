@@ -27,6 +27,9 @@ void atender_cliente_memoria(int socket_cliente){
             if(strcmp(mensaje_split[0], "INICIAR_PROCESO") == 0){
                 iniciar_proceso(mensaje_split[1], mensaje_split[2]);
             }
+            if(strcmp(mensaje_split[0], "PROXIMA_INSTRUCCION") == 0){
+                proxima_instruccion(mensaje_split[1], mensaje_split[2]);
+            }
             free(buffer);
 			break;
 		case PAQUETE:
@@ -35,7 +38,7 @@ void atender_cliente_memoria(int socket_cliente){
 			list_iterate(lista, (void*) iterator);
 			break;
 		case -1:
-			log_error(logger, "el cliente se desconecto.");
+			log_error(logger, "El cliente se desconecto.");
 			return EXIT_FAILURE;
 		default:
 			log_warning(logger,"Operacion desconocida. No quieras meter la pata");
@@ -53,13 +56,44 @@ void iniciar_proceso(char* process_id, char* path){
     }
 
     t_instruccion_memoria* instruccion = malloc(sizeof(t_instruccion_memoria));
-    instruccion->lista_intrucciones = list_create();
+    instruccion->lista_instrucciones = list_create();
     instruccion->process_id = process;
     char linea[256];
     while(fgets(linea, sizeof(linea), f) != NULL){
-        list_add(instruccion->lista_intrucciones, linea);
-        printf("Linea=>%s",linea);
+        size_t tamano = strcspn(linea, "\n");
+        char* frase = malloc(tamano);
+        frase = string_substring(linea, 0, tamano);
+
+        list_add(instruccion->lista_instrucciones, frase);
+        
+        log_info(logger, "Instrucción cargada=>%s - Proceso %d",frase, process);
     }
     fclose(f);
     list_add(lista_instrucciones, instruccion);
 }
+
+char* proxima_instruccion(char* process_id_find, char* program_counter){
+    t_instruccion_memoria* proceso = malloc(sizeof(t_instruccion_memoria));
+    proceso->lista_instrucciones = list_create();
+    int i = 0;
+    bool encontrado =false;
+    while(!encontrado && list_size(lista_instrucciones)>i){
+        proceso = list_get(lista_instrucciones,i);
+        int pid = proceso->process_id;
+        if(pid == atoi(process_id_find)) {encontrado=true;} else {i++;}
+    }
+    if(!encontrado){
+        log_error(logger, "No existe el PID %s", process_id_find);
+    }else{
+        int pc = atoi(program_counter);
+        proceso = list_get(lista_instrucciones,i);
+        char* instruccion = list_get(proceso->lista_instrucciones,pc);
+        log_info(logger, "Instruccion a devolver=>%s ",instruccion);
+        //enviar_mensaje(instruccion,socket_servidor_cpu);
+        
+    }
+    list_destroy(proceso->lista_instrucciones);
+    free(proceso);
+    
+}
+
