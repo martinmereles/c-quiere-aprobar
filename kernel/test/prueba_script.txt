@@ -1,0 +1,14 @@
+INICIAR_PROCESO ./test/pruebas_instrucciones.txt
+INICIAR_PROCESO ./test/pruebas_instrucciones.txt
+INICIAR_PROCESO ./test/pruebas_instrucciones.txt
+INICIAR_PROCESO ./test/pruebas_instrucciones.txt
+INICIAR_PROCESO ./test/pruebas_instrucciones.txt
+INICIAR_PROCESO ./test/pruebas_instrucciones.txt
+INICIAR_PROCESO ./test/pruebas_instrucciones.txt
+INICIAR_PROCESO ./test/pruebas_instrucciones.txt
+INICIAR_PROCESO ./test/pruebas_instrucciones.txt
+INICIAR_PROCESO ./test/pruebas_instrucciones.txt
+INICIAR_PROCESO ./test/pruebas_instrucciones.txt
+INICIAR_PROCESO ./test/pruebas_instrucciones.txt
+INICIAR_PROCESO ./test/pruebas_instrucciones.txt
+INICIAR_PROCESO ./test/pruebas_instrucciones.txt

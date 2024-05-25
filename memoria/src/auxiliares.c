@@ -67,6 +67,7 @@ void iniciar_proceso(char* process_id, char* path){
         list_add(instruccion->lista_instrucciones, frase);
         
         log_info(logger, "Instrucción cargada=>%s - Proceso %d",frase, process);
+        free(frase);
     }
     fclose(f);
     list_add(lista_instrucciones, instruccion);
