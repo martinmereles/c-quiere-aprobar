@@ -8,9 +8,8 @@ void atender_cliente_cpu(int socket_cliente){
             int size;
             char* buffer = recibir_buffer(&size, socket_cliente);
             log_info(logger, "Me llego el mensaje %s", buffer);
-            free(instruccion_exec);
-            instruccion_exec = malloc(sizeof(buffer));
-            instruccion_exec = buffer;
+            realloc(instruccion_exec,&size);
+            strcpy(instruccion_exec,buffer);
             free(buffer);
             break;
         case PAQUETE:

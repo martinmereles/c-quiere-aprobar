@@ -10,5 +10,13 @@
 
 extern registros_t *reg;
 extern t_log* logger;
+extern char* instruccion_exec;
+
+void ejecutarSentencia();
+void set (char * registro, char * valor);
+void sum (char * registroDestino, char * registroOrigen);
+void sub (char * registroDestino, char * registroOrigen);
+void jnz (char * registro, char * instruccion);
+void io_gen_sleep (char * interfaz, char * unidadesDeTrabajo);
 
 #endif

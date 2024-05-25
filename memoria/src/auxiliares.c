@@ -59,20 +59,6 @@ void iniciar_proceso(char* process_id, char* path){
     instruccion->lista_instrucciones = list_create();
     instruccion->process_id = process;
 
-/*
-    char linea[256];
-    while(fgets(linea, sizeof(linea), f) != NULL){
-        size_t tamano = strcspn(linea, "\n");
-        char* frase = malloc(tamano);
-        frase = string_substring(linea, 0, tamano);
-
-        list_add(instruccion->lista_instrucciones, frase);
-        
-        log_info(logger, "Instrucción cargada=>%s - Proceso %d",frase, process);
-        free(frase);
-    }
-*/  
-
     fseek(f, 0L, SEEK_END);
     int size_file = ftell(f);
     rewind(f);
@@ -93,7 +79,8 @@ void iniciar_proceso(char* process_id, char* path){
     
 }
 
-char* proxima_instruccion(char* process_id_find, char* program_counter, int socket_cliente){
+void proxima_instruccion(char* process_id_find, char* program_counter, int socket_cliente){
+
     t_instruccion_memoria* proceso = malloc(sizeof(t_instruccion_memoria));
     proceso->lista_instrucciones = list_create();
     int i = 0;
@@ -114,7 +101,10 @@ char* proxima_instruccion(char* process_id_find, char* program_counter, int sock
         sleep(retardo_respuesta_sec);
         enviar_mensaje(instruccion,socket_cliente);
     }
-    list_destroy(proceso->lista_instrucciones);
-    free(proceso);
+/*CONSULTAR PORQUE EL FREE ROMPE
+list_destroy(proceso->lista_instrucciones);
+free(proceso);
+*/
+
 }
 

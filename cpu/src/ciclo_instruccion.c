@@ -1,5 +1,5 @@
 
-#include "../include/ciclo_instruccion.h"
+#include <../include/ciclo_instruccion.h>
 
 void fetch(int socket_cliente_memoria){
     char* pid = string_itoa(contexto->pid);
@@ -21,8 +21,7 @@ void decode(int socket_cliente_memoria){
 }
 
 void execute(){
-    //TO DO
-    ejecutarSentencia(instruccion_exec);
+    ejecutarSentencia();
 }
 
 void check_interrupt(int socket_cliente_memoria){

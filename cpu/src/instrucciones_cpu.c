@@ -1,4 +1,4 @@
-#include "../include/instrucciones_cpu.h"
+#include <../include/instrucciones_cpu.h>
 
 int deCharAEnum(char* registro){
     if(strcmp(registro,"AX")==0){
@@ -37,8 +37,9 @@ int deCharAEnum(char* registro){
     
 }
 
-void ejecutarSentencia(char * sentencia){
-    char ** sentenciasSplit = string_split(sentencia, " ");
+void ejecutarSentencia(){
+
+    char ** sentenciasSplit = string_split(instruccion_exec, " ");
     if(strcmp(sentenciasSplit[0],"SET")==0) set(sentenciasSplit[1],sentenciasSplit[2]);
     if(strcmp(sentenciasSplit[0],"SUM")==0) sum(sentenciasSplit[1],sentenciasSplit[2]);
     if(strcmp(sentenciasSplit[0],"SUB")==0) sub(sentenciasSplit[1],sentenciasSplit[2]);

@@ -1,10 +1,10 @@
 #include "../include/main_cpu.h"
 
-
 t_log* logger;
 registros_t *reg;
 pcb_t * contexto;
 char* instruccion_exec;
+
 
 int main(int argc, char* argv[]) {
 	logger = iniciar_logger("./cfg/cpu-log.log", "cpu");

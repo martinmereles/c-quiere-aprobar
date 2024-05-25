@@ -16,5 +16,5 @@ extern int retardo_respuesta_sec;
 void iniciar_hilo_server_memoria(char* puerto);
 void atender_cliente_memoria(int socket_cliente);
 void iniciar_proceso(char* process_id, char* path);
-char* proxima_instruccion(char* process_id_find, char* program_counter, int socket_cliente);
+void proxima_instruccion(char* process_id_find, char* program_counter, int socket_cliente);
 #endif
