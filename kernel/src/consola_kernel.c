@@ -81,7 +81,7 @@ void finalizar_proceso(int pid){
     list_remove_by_condition(QUEUE_READY, _es_pid_buscado);
     list_remove_by_condition(QUEUE_RUNNING, _es_pid_buscado);
     list_remove_by_condition(QUEUE_BLOCKED, _es_pid_buscado);
-    list_remove_by_condition(QUEUE_TERMINATE, _es_pid_buscadoD);
+    list_remove_by_condition(QUEUE_TERMINATED, _es_pid_buscado);
 }
 
 

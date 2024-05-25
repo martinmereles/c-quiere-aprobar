@@ -2,7 +2,6 @@
 
 void atender_cliente_cpu(int socket_cliente){
 	t_list* lista;
-    while(1){
         int cod_op = recibir_operacion(socket_cliente);; 
         switch (cod_op) {
         case MENSAJE:
@@ -26,5 +25,5 @@ void atender_cliente_cpu(int socket_cliente){
             log_warning(logger,"Operacion desconocida. No quieras meter la pata");
             break;
         }
-    }
+    
 }
