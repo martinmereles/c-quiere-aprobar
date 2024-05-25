@@ -10,7 +10,7 @@
 #include <../include/memoria_estructuras.h>
 #include <utils/client-server.h>
 
-extern t_list* lista_instrucciones;
+extern t_list* memoria_instrucciones;
 extern int retardo_respuesta_sec;
 
 void iniciar_hilo_server_memoria(char* puerto);

@@ -58,6 +58,8 @@ void iniciar_proceso(char* process_id, char* path){
     t_instruccion_memoria* instruccion = malloc(sizeof(t_instruccion_memoria));
     instruccion->lista_instrucciones = list_create();
     instruccion->process_id = process;
+
+/*
     char linea[256];
     while(fgets(linea, sizeof(linea), f) != NULL){
         size_t tamano = strcspn(linea, "\n");
@@ -67,35 +69,52 @@ void iniciar_proceso(char* process_id, char* path){
         list_add(instruccion->lista_instrucciones, frase);
         
         log_info(logger, "Instrucción cargada=>%s - Proceso %d",frase, process);
+        free(frase);
     }
+*/  
+
+    fseek(f, 0L, SEEK_END);
+    int size_file = ftell(f);
+    rewind(f);
+    char* texto_completo = malloc(size_file);
+    fread(texto_completo,sizeof(char),size_file,f);
+    char ** instrucciones_split = string_split(texto_completo, "\n");
+
+    int i = 0;
+    int length = string_array_size(instrucciones_split);
+    while(i<length){
+        list_add(instruccion->lista_instrucciones, instrucciones_split[i]);
+        log_info(logger, "Instrucción cargada=> %s - Proceso %d",instrucciones_split[i], process);
+        i++;
+    }
+
+    list_add(memoria_instrucciones, instruccion);
     fclose(f);
-    list_add(lista_instrucciones, instruccion);
+    
 }
 
 char* proxima_instruccion(char* process_id_find, char* program_counter, int socket_cliente){
     t_instruccion_memoria* proceso = malloc(sizeof(t_instruccion_memoria));
     proceso->lista_instrucciones = list_create();
     int i = 0;
+    int pid = 0;
     bool encontrado =false;
-    while(!encontrado && list_size(lista_instrucciones)>i){
-        proceso = list_get(lista_instrucciones,i);
-        int pid = proceso->process_id;
+    while(!encontrado && list_size(memoria_instrucciones)>i){
+        proceso = list_get(memoria_instrucciones,i);
+        pid = proceso->process_id;
         if(pid == atoi(process_id_find)) {encontrado=true;} else {i++;}
     }
     if(!encontrado){
         log_error(logger, "No existe el PID %s", process_id_find);
     }else{
         int pc = atoi(program_counter);
-        proceso = list_get(lista_instrucciones,i);
         char* instruccion = list_get(proceso->lista_instrucciones,pc);
-        log_info(logger, "Instruccion a devolver=>%s ",instruccion);
-        log_info(logger, "Retardo%d ",retardo_respuesta_sec);
+        log_info(logger, "Instruccion a devolver=> %s",instruccion);
+        log_info(logger, "Retardo %d ",retardo_respuesta_sec);
         sleep(retardo_respuesta_sec);
         enviar_mensaje(instruccion,socket_cliente);
-        
     }
     list_destroy(proceso->lista_instrucciones);
     free(proceso);
-    
 }
 
