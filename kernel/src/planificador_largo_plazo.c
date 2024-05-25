@@ -17,6 +17,7 @@ pcb_t* crear_pcb (int quantum){
     pcb_t* new_pcb = malloc(sizeof(pcb_t));
     new_pcb->reg_generales = malloc (sizeof(registros_t));
     GLOBAL_PID ++;
+    new_pcb->PCB_PC = 0;
     new_pcb->pid = GLOBAL_PID;
     new_pcb->quantum = quantum;
 
