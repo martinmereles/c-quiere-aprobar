@@ -28,9 +28,7 @@ int main(int argc, char* argv[]) {
     int socket_cliente_memoria = crear_conexion(ip_memoria,puerto_memoria);
     enviar_mensaje("Me conecto desde CPU\n",socket_cliente_memoria);
 
-	enviar_mensaje("PROXIMA_INSTRUCCION 1 2",socket_cliente_memoria);
-
-	atender_cliente(socket_cliente_memoria);
+	
 	
 	pthread_join(hiloServidor, NULL);
 	//Cierre de log y config

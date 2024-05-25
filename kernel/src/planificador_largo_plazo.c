@@ -9,8 +9,6 @@ void iniciar_proceso (char* ruta, char* quantum, int socket_cliente_memoria) {
     string_append(&mensaje, string_itoa(pcb_proceso->pid));
     string_append(&mensaje, " ");
     string_append(&mensaje, ruta);
-    //enviar_mensaje("INICIAR_PROCESO 1 ./test/pruebas_instrucciones.txt",socket_cliente_memoria);
-    //enviar_mensaje("INICIAR_PROCESO "+itoa(pcb_proceso->pid)+' '+ruta ,socket_cliente_memoria);
     enviar_mensaje(mensaje ,socket_cliente_memoria);
 } 
 
