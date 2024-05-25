@@ -54,6 +54,14 @@ typedef struct
 
 } pthread_arg;
 
+typedef struct
+{
+
+    char* nombre_interfaz;
+    t_config* configuracion
+
+}t_interfaz;
+
 
 
 #endif

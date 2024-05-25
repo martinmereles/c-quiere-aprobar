@@ -1032,9 +1032,19 @@ void jnz (char * registro, char * instruccion)
     log_info(logger, "Se ejecuto la instrucción JNZ con los parametros registro %s e instrucción %s", registro, instruccion);
 }
 
-void io_gen_sleep (char * interfaz, char * unidadesDeTrabajo)    
+void io_gen_sleep (t_interfaz * interfaz, char * unidadesDeTrabajo)    
 {
-    // Falta implementar
+    interfaz = malloc(sizeof(t_interfaz));
+    
+    int tiempo_espera = atoi (unidadesDeTrabajo);
+
+    log_info(logger, "se dormira '%d ' unidades de tiempo", tiempo_espera);
+
+    sleep (unidadesDeTrabajo/1000);
+
+
+int tiempo_espera = (interfaz
+    
     log_info(logger, "Se ejecuto la instrucción IO_GEN_SLEEP con los parametros interfaz %s y unidades de trabajo %s", interfaz, unidadesDeTrabajo);
 }
 

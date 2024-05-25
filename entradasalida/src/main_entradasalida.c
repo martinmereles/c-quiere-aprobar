@@ -23,6 +23,7 @@ int main(int argc, char* argv[]) {
     log_info(logger, "El PUERTO de Memoria es : %s", puerto_memoria);
     int socket_cliente_memoria = crear_conexion(ip_memoria,puerto_memoria);
     enviar_mensaje("Me conecto desde IO",socket_cliente_memoria);
+    atender_cliente (socket_cliente_memoria);
     
     //Cierre de log y config     
     cerrar_log_config (logger,config);     
