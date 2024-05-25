@@ -8,4 +8,9 @@ typedef struct{
     t_list* lista_instrucciones;
 }t_instruccion_memoria;
 
+typedef struct{
+    char* puerto;
+    char* retardo_respuesta;
+}t_parametros_memoria;
+
 #endif

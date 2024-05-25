@@ -28,7 +28,7 @@ void atender_cliente_memoria(int socket_cliente){
                 iniciar_proceso(mensaje_split[1], mensaje_split[2]);
             }
             if(strcmp(mensaje_split[0], "PROXIMA_INSTRUCCION") == 0){
-                proxima_instruccion(mensaje_split[1], mensaje_split[2]);
+                proxima_instruccion(mensaje_split[1], mensaje_split[2], socket_cliente);
             }
             free(buffer);
 			break;
@@ -72,7 +72,7 @@ void iniciar_proceso(char* process_id, char* path){
     list_add(lista_instrucciones, instruccion);
 }
 
-char* proxima_instruccion(char* process_id_find, char* program_counter){
+char* proxima_instruccion(char* process_id_find, char* program_counter, int socket_cliente){
     t_instruccion_memoria* proceso = malloc(sizeof(t_instruccion_memoria));
     proceso->lista_instrucciones = list_create();
     int i = 0;
@@ -89,7 +89,9 @@ char* proxima_instruccion(char* process_id_find, char* program_counter){
         proceso = list_get(lista_instrucciones,i);
         char* instruccion = list_get(proceso->lista_instrucciones,pc);
         log_info(logger, "Instruccion a devolver=>%s ",instruccion);
-        //enviar_mensaje(instruccion,socket_servidor_cpu);
+        log_info(logger, "Retardo%d ",retardo_respuesta_sec);
+        sleep(retardo_respuesta_sec);
+        enviar_mensaje(instruccion,socket_cliente);
         
     }
     list_destroy(proceso->lista_instrucciones);
