@@ -69,24 +69,25 @@ void iniciar_proceso(char* process_id, char* path){
         log_info(logger, "Instrucción cargada=>%s - Proceso %d",frase, process);
     }
     fclose(f);
-    list_add(lista_instrucciones, instruccion);
+    list_add(memoria_instrucciones, instruccion);
 }
 
 char* proxima_instruccion(char* process_id_find, char* program_counter, int socket_cliente){
     t_instruccion_memoria* proceso = malloc(sizeof(t_instruccion_memoria));
     proceso->lista_instrucciones = list_create();
     int i = 0;
+    int pid = 0;
     bool encontrado =false;
-    while(!encontrado && list_size(lista_instrucciones)>i){
-        proceso = list_get(lista_instrucciones,i);
-        int pid = proceso->process_id;
+    while(!encontrado && list_size(memoria_instrucciones)>i){
+        proceso = list_get(memoria_instrucciones,i);
+        pid = proceso->process_id;
         if(pid == atoi(process_id_find)) {encontrado=true;} else {i++;}
     }
     if(!encontrado){
         log_error(logger, "No existe el PID %s", process_id_find);
     }else{
         int pc = atoi(program_counter);
-        proceso = list_get(lista_instrucciones,i);
+        proceso = list_get(memoria_instrucciones,i);
         char* instruccion = list_get(proceso->lista_instrucciones,pc);
         log_info(logger, "Instruccion a devolver=>%s ",instruccion);
         log_info(logger, "Retardo%d ",retardo_respuesta_sec);

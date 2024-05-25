@@ -3,11 +3,16 @@
 
 t_log* logger;
 registros_t *reg;
+pcb_t * contexto;
+char* instruccion_exec;
 
 int main(int argc, char* argv[]) {
 	logger = iniciar_logger("./cfg/cpu-log.log", "cpu");
     t_config* config = iniciar_config(logger, "./cfg/cpu.config");
 	reg = malloc(sizeof(registros_t));
+
+	contexto = malloc(sizeof(pcb_t));
+	instruccion_exec = malloc(sizeof(char));
 	
 	//Inicio hilo server
 	char* puerto = config_get_string_value(config, "PUERTO_ESCUCHA");
@@ -27,9 +32,30 @@ int main(int argc, char* argv[]) {
     log_info(logger, "El PUERTO de Memoria es : %s", puerto_memoria);
     int socket_cliente_memoria = crear_conexion(ip_memoria,puerto_memoria);
     enviar_mensaje("Me conecto desde CPU\n",socket_cliente_memoria);
+	
+	//Para prueba inicio
+	contexto->pid =1;
+	contexto->PCB_PC = 2;
+	contexto->quantum = 2000;
+	
+	registros_t* prueba = malloc(sizeof(registros_t));
+	prueba->AX = 3;
+	prueba->BX = 4;
+	prueba->PC = 0;
+	contexto->reg_generales = prueba;
 
-	
-	
+	reg->AX = 3;
+	reg->BX = 4;
+	reg->PC = 0;
+	//Para prueba fin
+
+	while(1){
+		fetch(socket_cliente_memoria);
+		decode(socket_cliente_memoria);
+		execute();
+		check_interrupt(socket_cliente_memoria);
+	}
+
 	pthread_join(hiloServidor, NULL);
 	//Cierre de log y config
 	liberar_conexion(socket_cliente_memoria);
