@@ -19,5 +19,6 @@
 #include <pthread.h>
 
 void iterator(char*); 
+void interfaz_generica (char * intruccion, t_config * config);
 
 #endif

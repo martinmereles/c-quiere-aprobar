@@ -29,3 +29,19 @@ int main(int argc, char* argv[]) {
     
     return EXIT_SUCCESS;
 }
+
+
+void interfaz_generica (char * intruccion, t_config * config){
+    
+    char* ip_kernel = config_get_string_value(config, "IP_KERNEL");
+    char* puerto_kernel = config_get_string_value(config, "PUERTO_KERNEL");
+    char* tipo_interfaz = config_get_string_value(config, "TIPO_INTERFAZ");
+    char* tiempo_unidad_trabajo = config_get_string_value(config, "TIEMPO_UNIDAD_TRABAJO");
+
+    if(intruccion == "IO_GEN_SLEEP") {
+        int tiempo = atoi(tiempo_unidad_trabajo);
+
+        sleep (tiempo/100);
+    }
+
+}
