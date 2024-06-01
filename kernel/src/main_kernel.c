@@ -7,6 +7,7 @@ t_list* QUEUE_READY;
 t_list* QUEUE_RUNNING;
 t_list* QUEUE_BLOCKED;
 t_list* QUEUE_TERMINATED;
+t_list* INTERFACES;
 
 int main(int argc, char* argv[]) {
     QUEUE_NEW = list_create();
@@ -14,6 +15,7 @@ int main(int argc, char* argv[]) {
     QUEUE_RUNNING = list_create();
     QUEUE_BLOCKED = list_create();
     QUEUE_TERMINATED = list_create();
+    INTERFACES = list_create();
     
     logger = iniciar_logger("./cfg/kernel-log.log", "kernel");
     t_config* config = iniciar_config(logger, "./cfg/kernel.config");

@@ -20,4 +20,12 @@
 #include "planificador_largo_plazo.h"
 #include <../include/consola_kernel.h>
 
+typedef struct
+{
+    int socket;
+    char* tipo_interfaz;
+    char* identificador;
+}t_interfaz;
+
+
 #endif
