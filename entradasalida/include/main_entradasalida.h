@@ -17,8 +17,10 @@
 #include <readline/readline.h>
 #include <utils/admin.h>
 #include <pthread.h>
+#include <commons/string.h>
+#include <../include/auxiliares.h>
+
 
 void iterator(char*); 
-void interfaz_generica (char * intruccion, t_config * config);
 
 #endif

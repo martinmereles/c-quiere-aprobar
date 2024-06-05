@@ -101,10 +101,5 @@ void proxima_instruccion(char* process_id_find, char* program_counter, int socke
         sleep(retardo_respuesta_sec);
         enviar_mensaje(instruccion,socket_cliente);
     }
-/*CONSULTAR PORQUE EL FREE ROMPE
-list_destroy(proceso->lista_instrucciones);
-free(proceso);
-*/
-
 }
 

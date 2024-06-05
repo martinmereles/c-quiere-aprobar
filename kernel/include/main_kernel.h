@@ -19,6 +19,7 @@
 #include <utils/estructuras/estructuras.h>
 #include "planificador_largo_plazo.h"
 #include <../include/consola_kernel.h>
+#include <../include/manage_clients.h>
 
 typedef struct
 {

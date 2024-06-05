@@ -20,8 +20,8 @@ void decode(int socket_cliente_memoria){
     //TO DO
 }
 
-void execute(){
-    ejecutarSentencia();
+void execute(int socket_cliente_kernel){
+    ejecutarSentencia(socket_cliente_kernel);
 }
 
 void check_interrupt(int socket_cliente_memoria){

@@ -12,7 +12,7 @@ extern char * instruccion_exec;
 
 void fetch(int socket_cliente_memoria);
 void decode(int socket_cliente_memoria);
-void execute();
+void execute(int socket_cliente_kernel);
 void check_interrupt(int socket_cliente_memoria);
 
 #endif

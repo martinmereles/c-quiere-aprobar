@@ -7,7 +7,8 @@
 #include <../include/main_kernel.h>
 
 extern t_list* INTERFACES;
-
+void atender_cliente_kernel(int socket_cliente);
+void iniciar_hilo_server_kernel(int socket_cliente);
 
 
 #endif

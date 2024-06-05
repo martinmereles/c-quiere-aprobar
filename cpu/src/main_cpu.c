@@ -14,6 +14,8 @@ int main(int argc, char* argv[]) {
 	contexto = malloc(sizeof(pcb_t));
 	instruccion_exec = malloc(sizeof(char));
 	
+
+	/*
 	//Inicio hilo server
 	char* puerto = config_get_string_value(config, "PUERTO_ESCUCHA");
 	char *param = (char*)malloc(sizeof(puerto));
@@ -23,7 +25,20 @@ int main(int argc, char* argv[]) {
                         NULL,
                         iniciar_hilo_server,
                         param);
+	*/
+
+	char* puerto = config_get_string_value(config, "PUERTO_ESCUCHA");
+	int socket_servidor = iniciar_servidor(puerto);
+     pthread_t hiloAtencion;
+     int *socket_cliente_kernel = (int)malloc(sizeof(int));
+     socket_cliente_kernel = esperar_cliente(socket_servidor);
+     pthread_create(&hiloAtencion,
+                    NULL,
+                    (void*) atender_cliente,
+                    socket_cliente_kernel);
+     pthread_detach(hiloAtencion);
 	
+
 	
 	//Inicia conexion con memoria
     char* ip_memoria = config_get_string_value(config, "IP_MEMORIA");
@@ -52,11 +67,11 @@ int main(int argc, char* argv[]) {
 	while(1){
 		fetch(socket_cliente_memoria);
 		decode(socket_cliente_memoria);
-		execute();
+		execute(socket_cliente_kernel);
 		check_interrupt(socket_cliente_memoria);
 	}
 
-	pthread_join(hiloServidor, NULL);
+	pthread_join(hiloAtencion, NULL);
 	//Cierre de log y config
 	liberar_conexion(socket_cliente_memoria);
     cerrar_log_config (logger,config); 

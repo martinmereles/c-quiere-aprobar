@@ -37,14 +37,14 @@ int deCharAEnum(char* registro){
     
 }
 
-void ejecutarSentencia(){
+void ejecutarSentencia(int socket_kernel){
 
     char ** sentenciasSplit = string_split(instruccion_exec, " ");
     if(strcmp(sentenciasSplit[0],"SET")==0) set(sentenciasSplit[1],sentenciasSplit[2]);
     if(strcmp(sentenciasSplit[0],"SUM")==0) sum(sentenciasSplit[1],sentenciasSplit[2]);
     if(strcmp(sentenciasSplit[0],"SUB")==0) sub(sentenciasSplit[1],sentenciasSplit[2]);
     if(strcmp(sentenciasSplit[0],"JNZ")==0) jnz(sentenciasSplit[1],sentenciasSplit[2]);
-    if(strcmp(sentenciasSplit[0],"IO_GEN_SLEEP")==0) io_gen_sleep(sentenciasSplit[1],sentenciasSplit[2]);
+    if(strcmp(sentenciasSplit[0],"IO_GEN_SLEEP")==0) io_gen_sleep(sentenciasSplit[1],sentenciasSplit[2], socket_kernel);
 }
 
 void set (char * registro, char * valor)    
@@ -1033,9 +1033,12 @@ void jnz (char * registro, char * instruccion)
     log_info(logger, "Se ejecuto la instrucción JNZ con los parametros registro %s e instrucción %s", registro, instruccion);
 }
 
-void io_gen_sleep (char * interfaz, char * unidadesDeTrabajo)    
-{
-    // Falta implementar
+void io_gen_sleep (char * interfaz, char * unidadesDeTrabajo, int socket_kernel)
+{   char* mensaje = string_new();
+    string_append(&mensaje, "IO_GEN_SLEEP ");
+    string_append(&mensaje, interfaz);
+    string_append(&mensaje, " ");
+    string_append(&mensaje, unidadesDeTrabajo);
+    enviar_mensaje(mensaje, socket_kernel);
     log_info(logger, "Se ejecuto la instrucción IO_GEN_SLEEP con los parametros interfaz %s y unidades de trabajo %s", interfaz, unidadesDeTrabajo);
 }
-

@@ -30,7 +30,7 @@ void atender_cliente_kernel(int socket_cliente){
 
             }
             if(strcmp(mensaje_split[0], "CONECTAR_INTERFAZ") == 0){
-                conectar_interfaz(mensaje_split[1], socket_cliente);
+                conectar_interfaz(mensaje_split[1], mensaje_split[2], socket_cliente);
             }
             free(buffer);
 			break;
@@ -49,25 +49,22 @@ void atender_cliente_kernel(int socket_cliente){
 	}
 }
 
-void conectar_interfaz (char* tipo_interfaz, int socket_interfaz){
+void conectar_interfaz (char* tipo_interfaz, char* identificador, int socket_interfaz){
     t_interfaz* interfaz = malloc(sizeof(t_interfaz));
 
     interfaz->socket = socket_interfaz;
     interfaz->tipo_interfaz = tipo_interfaz;
-    interfaz->identificador = proxima_interfaz_disponible();
+    interfaz->identificador = identificador;
 
     list_add (INTERFACES, interfaz);
 
-    
+    //Corroborar que la lista se cargue
 }
 
-void proxima_interfaz_disponible () {
 
-}
 
 void io_gen_sleep(char * interfaz, char* unidad_tiempo, int socket_cliente){
 
+    //Remitir mensaje a Interfaz del parametro TODO
    
 }
-
-string_substring_from(char *text, int start);
