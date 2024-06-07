@@ -6,7 +6,9 @@ void iniciar_hilo_kernel(t_config* config){
     char* tipo_interfaz = config_get_string_value(config, "TIPO_INTERFAZ");
     char* tiempo_unidad_trabajo_string = config_get_string_value(config, "TIEMPO_UNIDAD_TRABAJO");
     int tiempo_unidad_trabajo = atoi(tiempo_unidad_trabajo_string);
-    tiempo_unidad_trabajo = tiempo_unidad_trabajo/1000;
+    double tiempo_segundos;
+    int ms = 1000;
+    tiempo_segundos = (double)tiempo_unidad_trabajo / (double)ms;
     log_info(logger, "La IP de Kernel es : %s", ip_kernel);
     log_info(logger, "El PUERTO de Kernel es : %s", puerto_kernel);
     char* nombre;
@@ -35,7 +37,7 @@ void iniciar_hilo_kernel(t_config* config){
             int size;
             char* buffer = recibir_buffer(&size, socket_cliente_kernel);
             log_info(logger, "Me llego el mensaje %s", buffer);
-                entender_mensajes(buffer,socket_cliente_kernel, tiempo_unidad_trabajo);
+            entender_mensajes(buffer,socket_cliente_kernel, tiempo_segundos);
             free(buffer);
             break;
         case PAQUETE:
@@ -54,16 +56,17 @@ void iniciar_hilo_kernel(t_config* config){
 
 }
 
-void entender_mensajes(char* mensaje, int socket_cliente,int tiempo_unidad_trabajo){
+void entender_mensajes(char* mensaje, int socket_cliente,double tiempo_segundos){
     char ** mensaje_split = string_split(mensaje, " ");
-            if(strcmp(mensaje_split[0], "IO_GEN_SLEEP") == 0){
-                io_gen_sleep(mensaje_split[1], tiempo_unidad_trabajo, socket_cliente);
-            }
+    if(strcmp(mensaje_split[0], "IO_GEN_SLEEP") == 0){
+        io_gen_sleep(mensaje_split[1], tiempo_segundos, socket_cliente);
+    }
 }
 
-void io_gen_sleep(int unidades_tiempo, int tiempo_unidad_trabajo, int socket_cliente){
-
-    sleep (tiempo_unidad_trabajo*unidades_tiempo);
+void io_gen_sleep(char* unidades_tiempo, double tiempo_unidad_trabajo, int socket_cliente){
+    int unidades_tiempo_int = atoi(unidades_tiempo);
+    log_info(logger, "Se inicia tarea IO_GEN_SLEEP");
+    sleep(tiempo_unidad_trabajo*unidades_tiempo_int);
     enviar_mensaje("Termino el IO_GEN_SLEEP",socket_cliente);
-
+    log_info(logger, "Se termino tarea IO_GEN_SLEEP");
 }

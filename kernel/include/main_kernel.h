@@ -20,13 +20,16 @@
 #include "planificador_largo_plazo.h"
 #include <../include/consola_kernel.h>
 #include <../include/manage_clients.h>
+#include <semaphore.h>
 
 typedef struct
 {
     int socket;
     char* tipo_interfaz;
     char* identificador;
+    sem_t sem_uso;
 }t_interfaz;
+
 
 
 #endif
