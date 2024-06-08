@@ -35,9 +35,13 @@ void atender_cliente_kernel(int socket_cliente){
             free(buffer);
 			break;
 		case PAQUETE:
-			lista = recibir_paquete(socket_cliente );
-			log_info(logger, "Me llegaron los siguientes valores:\n");
-			list_iterate(lista, (void*) iterator);
+            //TO DO: Guardar pcb lista
+            int size2;
+            pcb_t * pcb = malloc (sizeof(pcb_t));
+	        pcb->reg_generales = malloc(sizeof(registros_t));
+            pcb = recibir_buffer_pcb (&size2, socket_cliente);
+            printf ("El PID es: %d \n", pcb->pid);
+            free (pcb);
 			break;
 		case -1:
 			log_error(logger, "El cliente se desconecto.");

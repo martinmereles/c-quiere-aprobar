@@ -76,7 +76,12 @@ void devolver_contexto_a_kernel (int socket_kernel) {
 void enviar_pcb_contexto(int socket_kernel){
 
     t_paquete* paquete_pcb = crear_paquete();
-    agregar_a_paquete(paquete_pcb, contexto, sizeof(contexto));
+    agregar_a_paquete(paquete_pcb, contexto, sizeof(pcb_t));
+    agregar_a_paquete(paquete_pcb, contexto->reg_generales, sizeof(registros_t));
 
+    log_info (logger, "Se enviara el PCB con id: %d a Kernel", contexto->pid);
+    
     enviar_paquete(paquete_pcb, socket_kernel);    
+
+    eliminar_paquete (paquete_pcb);
 }

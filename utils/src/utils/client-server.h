@@ -62,4 +62,6 @@ void iterator(char*);
 void iniciar_hilo_server(char* puerto);
 void atender_cliente(int socket_cliente);
 
+void* recibir_buffer_pcb(int* size, int socket_cliente);
+
 #endif

@@ -119,6 +119,25 @@ void* recibir_buffer(int* size, int socket_cliente)
 	return buffer;
 }
 
+void* recibir_buffer_pcb(int* size, int socket_cliente)
+{
+	void * buffer;
+
+	recv(socket_cliente, size, sizeof(int), MSG_WAITALL);
+	buffer = malloc(*size);
+	recv(socket_cliente, buffer, *size, MSG_WAITALL);
+
+	
+
+	pcb_t * pcb = malloc (sizeof(pcb_t));
+	pcb->reg_generales = malloc(sizeof(registros_t));
+
+	memcpy(pcb, buffer+4, sizeof(pcb_t));
+	memcpy(pcb->reg_generales, buffer+8+sizeof(pcb_t), sizeof(registros_t));
+
+	return pcb;
+}
+
 void recibir_mensaje(int socket_cliente)
 {
 	int size;

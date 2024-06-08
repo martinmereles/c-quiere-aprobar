@@ -13,6 +13,7 @@ int main(int argc, char* argv[]) {
 
 	contexto = malloc(sizeof(pcb_t));
 	instruccion_exec = malloc(sizeof(char));
+	contexto->reg_generales = malloc (sizeof(registros_t));
 	
 
 	/*
@@ -53,15 +54,24 @@ int main(int argc, char* argv[]) {
 	contexto->PCB_PC = 2;
 	contexto->quantum = 2000;
 	
-	registros_t* prueba = malloc(sizeof(registros_t));
-	prueba->AX = 3;
-	prueba->BX = 4;
-	prueba->PC = 0;
-	contexto->reg_generales = prueba;
 
-	reg->AX = 3;
-	reg->BX = 4;
-	reg->PC = 0;
+	reg->AX = (uint8_t)1;
+	reg->BX = (uint8_t)2;
+	reg->PC = 50;
+    reg->CX = (uint8_t)3;
+    reg->DX = (uint8_t)4;
+    reg->EAX = 5;
+    reg->EBX = 6;
+    reg->ECX = 7;
+    reg->EDX = 8;
+    reg->SI = 9;
+    reg->DI = 10;
+
+	contexto->reg_generales = reg;
+
+	//PRUEBA DE ENVIO DE CONTEXTO A KERNEL
+	enviar_pcb_contexto (socket_cliente_kernel);
+
 	//Para prueba fin - revisar estructura
 
 	while(1){
