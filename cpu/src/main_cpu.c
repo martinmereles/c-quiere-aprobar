@@ -57,7 +57,7 @@ int main(int argc, char* argv[]) {
 
 	reg->AX = (uint8_t)1;
 	reg->BX = (uint8_t)2;
-	reg->PC = 50;
+	reg->PC = 0;
     reg->CX = (uint8_t)3;
     reg->DX = (uint8_t)4;
     reg->EAX = 5;
