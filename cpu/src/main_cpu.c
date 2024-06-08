@@ -62,7 +62,7 @@ int main(int argc, char* argv[]) {
 	reg->AX = 3;
 	reg->BX = 4;
 	reg->PC = 0;
-	//Para prueba fin
+	//Para prueba fin - revisar estructura
 
 	while(1){
 		fetch(socket_cliente_memoria);
