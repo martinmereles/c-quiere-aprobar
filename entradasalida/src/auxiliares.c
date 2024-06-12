@@ -18,7 +18,9 @@ void iniciar_hilo_kernel(t_config* config){
     	free(nombre);
     	nombre = readline("Ingrese el nombre de la interfaz > ");
     }
-    log_info(logger, "Se ingreso como nombre de la interfaz: %s", nombre);
+    nombre_interfaz = malloc(sizeof(nombre));
+    strcpy(nombre_interfaz, nombre);
+    log_info(logger, "Se ingreso como nombre de la interfaz: %s", nombre_interfaz);
     
     int socket_cliente_kernel = crear_conexion(ip_kernel,puerto_kernel);
     char* msj_conexion = string_new();
@@ -67,6 +69,10 @@ void io_gen_sleep(char* unidades_tiempo, double tiempo_unidad_trabajo, int socke
     int unidades_tiempo_int = atoi(unidades_tiempo);
     log_info(logger, "Se inicia tarea IO_GEN_SLEEP");
     sleep(tiempo_unidad_trabajo*unidades_tiempo_int);
-    enviar_mensaje("Termino el IO_GEN_SLEEP",socket_cliente);
+    char* mensaje = string_new();
+    string_append(&mensaje, "FIN_IO ");
+    string_append(&mensaje, nombre_interfaz);
+    log_info(logger, "Se envia el mensaje=> %s", mensaje);
+    enviar_mensaje(mensaje, socket_cliente);
     log_info(logger, "Se termino tarea IO_GEN_SLEEP");
 }

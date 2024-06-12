@@ -14,32 +14,30 @@ int main(int argc, char* argv[]) {
 	contexto = malloc(sizeof(pcb_t));
 	instruccion_exec = malloc(sizeof(char));
 	contexto->reg_generales = malloc (sizeof(registros_t));
-	
 
-	/*
-	//Inicio hilo server
-	char* puerto = config_get_string_value(config, "PUERTO_ESCUCHA");
-	char *param = (char*)malloc(sizeof(puerto));
-	param=puerto;
-	pthread_t hiloServidor;
-	pthread_create(&hiloServidor,
-                        NULL,
-                        iniciar_hilo_server,
-                        param);
-	*/
+	//Inicia servidor Puerto escucha dispatch
+	char* puerto_dispatch = config_get_string_value(config, "PUERTO_ESCUCHA_DISPATCH");
+	int socket_servidor_dispatch = iniciar_servidor(puerto_dispatch);
+	pthread_t hilo_atencion_dispatch;
+	int *socket_kernel_dispatch = (int)malloc(sizeof(int));
+	socket_kernel_dispatch = esperar_cliente(socket_servidor_dispatch);
+	pthread_create(&hilo_atencion_dispatch,
+					NULL,
+					(void*) atender_cliente,
+					socket_kernel_dispatch);
+	pthread_detach(hilo_atencion_dispatch);
 
-	char* puerto = config_get_string_value(config, "PUERTO_ESCUCHA");
-	int socket_servidor = iniciar_servidor(puerto);
-     pthread_t hiloAtencion;
-     int *socket_cliente_kernel = (int)malloc(sizeof(int));
-     socket_cliente_kernel = esperar_cliente(socket_servidor);
-     pthread_create(&hiloAtencion,
-                    NULL,
-                    (void*) atender_cliente,
-                    socket_cliente_kernel);
-     pthread_detach(hiloAtencion);
-	
-
+	//Inicia servidor Puerto escucha interrupt
+	char* puerto_interrupt = config_get_string_value(config, "PUERTO_ESCUCHA_INTERRUPT");
+	int socket_servidor_interrupt = iniciar_servidor(puerto_interrupt);
+	pthread_t hilo_atencion_interrupt;
+	int *socket_kernel_interrupt = (int)malloc(sizeof(int));
+	socket_kernel_interrupt = esperar_cliente(socket_servidor_interrupt);
+	pthread_create(&hilo_atencion_interrupt,
+					NULL,
+					(void*) atender_cliente,
+					socket_kernel_interrupt);
+	pthread_detach(hilo_atencion_interrupt);
 	
 	//Inicia conexion con memoria
     char* ip_memoria = config_get_string_value(config, "IP_MEMORIA");
@@ -70,20 +68,23 @@ int main(int argc, char* argv[]) {
 	contexto->reg_generales = reg;
 
 	//PRUEBA DE ENVIO DE CONTEXTO A KERNEL
-	enviar_pcb_contexto (socket_cliente_kernel);
+	enviar_pcb_contexto (socket_kernel_dispatch, contexto);
 
 	//Para prueba fin - revisar estructura
 
 	while(1){
 		fetch(socket_cliente_memoria);
 		decode(socket_cliente_memoria);
-		execute(socket_cliente_kernel);
+		execute(socket_kernel_dispatch);
 		check_interrupt(socket_cliente_memoria);
 	}
 
-	pthread_join(hiloAtencion, NULL);
+	//pthread_join(hilo_atencion_dispatch, NULL);
+	//pthread_join(hilo_atencion_interrupt, NULL);
 	//Cierre de log y config
 	liberar_conexion(socket_cliente_memoria);
+	liberar_conexion(socket_kernel_dispatch);
+	liberar_conexion(socket_kernel_interrupt);
     cerrar_log_config (logger,config); 
 
 	

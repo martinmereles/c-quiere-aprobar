@@ -63,5 +63,6 @@ void iniciar_hilo_server(char* puerto);
 void atender_cliente(int socket_cliente);
 
 void* recibir_buffer_pcb(int* size, int socket_cliente);
+void enviar_pcb_contexto(int socket_kernel, pcb_t* pcb_a_enviar);
 
 #endif

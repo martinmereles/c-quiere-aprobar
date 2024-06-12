@@ -21,7 +21,10 @@ void decode(int socket_cliente_memoria){
 }
 
 void execute(int socket_cliente_kernel){
+    
     ejecutarSentencia(socket_cliente_kernel);
+    contexto->reg_generales = reg;//Actualizamos contexto
+
 }
 
 void check_interrupt(int socket_cliente_memoria){

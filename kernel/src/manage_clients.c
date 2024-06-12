@@ -18,7 +18,7 @@ void iniciar_hilo_server_kernel(char* puerto){
 void atender_cliente_kernel(int socket_cliente){
 	t_list* lista;
 	while (1) {
-		int cod_op = recibir_operacion(socket_cliente);; 
+		int cod_op = recibir_operacion(socket_cliente);
 		switch (cod_op) {
 		case MENSAJE:
             int size;
@@ -31,6 +31,9 @@ void atender_cliente_kernel(int socket_cliente){
             }
             if(strcmp(mensaje_split[0], "CONECTAR_INTERFAZ") == 0){
                 conectar_interfaz(mensaje_split[1], mensaje_split[2], socket_cliente);
+            }
+            if(strcmp(mensaje_split[0], "FIN_IO") == 0){
+                liberar_interfaz(mensaje_split[1]);
             }
             free(buffer);
 			break;
@@ -90,26 +93,19 @@ void io_gen_sleep(char * interfaz, char* unidad_tiempo, int socket_cliente){
     log_info(logger, "Se envio el mensaje a %s", interfaz);
     enviar_mensaje(mensaje, socket_interfaz);
 
-    t_list* lista;
-    int cod_op = recibir_operacion(socket_interfaz);//Recibe los siguientes mensajes de CPU
-    switch (cod_op) {
-    case MENSAJE:
-        int size;
-        char* buffer = recibir_buffer(&size, socket_interfaz);
-        log_info(logger, "Kernel recibio la finalizacion de %s", buffer);
-        sem_post(&interfaz_encontrada->sem_uso);
-        free(buffer);
-        break;
-    case PAQUETE:
-        lista = recibir_paquete(socket_interfaz );
-        log_info(logger, "Me llegaron los siguientes valores:\n");
-        list_iterate(lista, (void*) iterator);
-        break;
-    case -1:
-        log_error(logger, "El cliente se desconecto.");
-        return EXIT_FAILURE;
-    default:
-        log_warning(logger,"Operacion desconocida. No quieras meter la pata");
-        break;
+    
+}
+
+void liberar_interfaz(char * interfaz){
+
+    bool _es_interfaz_buscada(void* elemento){
+        return es_interfaz_buscada(interfaz, elemento);
     }
+
+    t_interfaz* interfaz_encontrada =  malloc(sizeof(t_interfaz));
+    interfaz_encontrada = list_find(INTERFACES, _es_interfaz_buscada);
+
+    log_info(logger, "Kernel recibio la finalizacion de %s", interfaz);
+    sem_post(&interfaz_encontrada->sem_uso);
+    
 }

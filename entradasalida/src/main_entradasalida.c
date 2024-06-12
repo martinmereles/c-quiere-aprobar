@@ -1,7 +1,7 @@
 #include "../include/main_entradasalida.h"
 
 t_log * logger;
-
+char* nombre_interfaz;
 int main(int argc, char* argv[]) {
 
     t_config * config;
@@ -34,7 +34,8 @@ int main(int argc, char* argv[]) {
     pthread_join(hiloKernel, NULL);
 
     //Cierre de log y config     
-    cerrar_log_config (logger,config);     
+    cerrar_log_config (logger,config);   
+    free(nombre_interfaz);  
     
     return EXIT_SUCCESS;
 }

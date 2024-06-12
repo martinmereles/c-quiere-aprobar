@@ -74,6 +74,10 @@ int iniciar_servidor(char * puerto)
     socket_servidor = socket(server_info->ai_family,
                             server_info->ai_socktype,
                             server_info->ai_protocol);
+	
+	//Para reutilizar socket sin esperar
+	if (setsockopt(socket_servidor, SOL_SOCKET, SO_REUSEADDR, &(int){1}, sizeof(int)) < 0) 
+    error("setsockopt(SO_REUSEADDR) failed");
 
 	// Asociamos el socket a un puerto
     err = bind(socket_servidor,server_info->ai_addr, server_info->ai_addrlen);
@@ -322,4 +326,17 @@ void atender_cliente(int socket_cliente){
 			break;
 		}
 	}
+}
+
+void enviar_pcb_contexto(int socket_kernel, pcb_t* pcb_a_enviar){
+
+    t_paquete* paquete_pcb = crear_paquete();
+    agregar_a_paquete(paquete_pcb, pcb_a_enviar, sizeof(pcb_t));
+    agregar_a_paquete(paquete_pcb, pcb_a_enviar->reg_generales, sizeof(registros_t));
+
+    log_info (logger, "Se enviara el PCB con id: %d al socket %d", pcb_a_enviar->pid, socket_kernel);
+    
+    enviar_paquete(paquete_pcb, socket_kernel);    
+
+    eliminar_paquete (paquete_pcb);
 }
