@@ -23,7 +23,7 @@ int main(int argc, char* argv[]) {
 	socket_kernel_dispatch = esperar_cliente(socket_servidor_dispatch);
 	pthread_create(&hilo_atencion_dispatch,
 					NULL,
-					(void*) atender_cliente,
+					(void*) atender_cliente_dispatch,
 					socket_kernel_dispatch);
 	pthread_detach(hilo_atencion_dispatch);
 
@@ -48,7 +48,7 @@ int main(int argc, char* argv[]) {
     enviar_mensaje("Me conecto desde CPU\n",socket_cliente_memoria);
 	
 	//Para prueba inicio
-	contexto->pid =1;
+	contexto->pid =100;
 	contexto->PCB_PC = 2;
 	contexto->quantum = 2000;
 	

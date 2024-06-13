@@ -62,3 +62,31 @@ bool es_intruccion (char* palabra) {
         return false;
     }
 }
+
+void atender_cliente_dispatch(int socket_cliente){
+    t_list* lista;
+	while (1) {
+		int cod_op = recibir_operacion(socket_cliente);; 
+		switch (cod_op) {
+		case MENSAJE:
+			recibir_mensaje(socket_cliente);
+			break;
+		case PAQUETE:
+			int size2;
+            pcb_t * pcb = malloc (sizeof(pcb_t));
+	        pcb->reg_generales = malloc(sizeof(registros_t));
+            pcb = recibir_buffer_pcb (&size2, socket_cliente);
+            reg = pcb->reg_generales;
+            contexto = pcb;
+            log_info(logger, "Se recibió el PCB con PID %d", contexto->pid);
+            free (pcb);
+			break;
+		case -1:
+			log_error(logger, "El cliente se desconecto.");
+			return EXIT_FAILURE;
+		default:
+			log_warning(logger,"Operacion desconocida. No quieras meter la pata");
+			break;
+		}
+	}
+}

@@ -18,6 +18,7 @@
 #include <utils/admin.h>
 #include <utils/estructuras/estructuras.h>
 #include <../include/instrucciones_cpu.h>
+#include <../include/auxiliares.h>
 
 
 

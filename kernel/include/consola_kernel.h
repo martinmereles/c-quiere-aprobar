@@ -17,9 +17,10 @@ extern t_list* QUEUE_RUNNING;
 extern t_list* QUEUE_BLOCKED;
 extern t_list* QUEUE_TERMINATED;
 
-void lanzar_consola(char* quantum, int socket_cliente_memoria, t_config* config);
-void entender_comando(char* command, char* quantum, int socket_cliente_memoria,t_config* config);
+void lanzar_consola (char* quantum, int socket_cliente_memoria, int socket_cpu_dispatch, t_config* config);
+void entender_comando(char* command, char* quantum, int socket_cliente_memoria, t_config* config);
 void ejecutar_script(char* path, char* quantum, int socket_cliente_memoria, t_config* config);
 void finalizar_proceso(int pid);
+void iniciar_planificacion();
 bool es_pid_buscado(int pid, void* elemento);
 #endif

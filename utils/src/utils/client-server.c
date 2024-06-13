@@ -328,15 +328,15 @@ void atender_cliente(int socket_cliente){
 	}
 }
 
-void enviar_pcb_contexto(int socket_kernel, pcb_t* pcb_a_enviar){
+void enviar_pcb_contexto(int socket_destino, pcb_t* pcb_a_enviar){
 
     t_paquete* paquete_pcb = crear_paquete();
     agregar_a_paquete(paquete_pcb, pcb_a_enviar, sizeof(pcb_t));
     agregar_a_paquete(paquete_pcb, pcb_a_enviar->reg_generales, sizeof(registros_t));
 
-    log_info (logger, "Se enviara el PCB con id: %d al socket %d", pcb_a_enviar->pid, socket_kernel);
+    log_info (logger, "Se enviara el PCB con id: %d al socket %d", pcb_a_enviar->pid, socket_destino);
     
-    enviar_paquete(paquete_pcb, socket_kernel);    
+    enviar_paquete(paquete_pcb, socket_destino);    
 
     eliminar_paquete (paquete_pcb);
 }

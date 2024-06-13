@@ -27,7 +27,6 @@ void atender_cliente_kernel(int socket_cliente){
             char ** mensaje_split = string_split(buffer, " ");
             if(strcmp(mensaje_split[0], "IO_GEN_SLEEP") == 0){
                 io_gen_sleep(mensaje_split[1], mensaje_split[2], socket_cliente);
-
             }
             if(strcmp(mensaje_split[0], "CONECTAR_INTERFAZ") == 0){
                 conectar_interfaz(mensaje_split[1], mensaje_split[2], socket_cliente);

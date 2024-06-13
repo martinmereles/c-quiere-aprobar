@@ -1,6 +1,6 @@
 #include "../include/consola_kernel.h"
 
-void lanzar_consola (char* quantum, int socket_cliente_memoria, t_config* config) {
+void lanzar_consola (char* quantum, int socket_cliente_memoria, int socket_cpu_dispatch, t_config* config) {
 	char* command;
     command = readline("> ");
     while(1){
@@ -8,6 +8,10 @@ void lanzar_consola (char* quantum, int socket_cliente_memoria, t_config* config
         entender_comando(command, quantum, socket_cliente_memoria, config);
     	free(command);
     	command = readline("> ");
+        //PARA PRUEBA
+
+
+        enviar_pcb_contexto(socket_cpu_dispatch, (pcb_t *)list_get(QUEUE_NEW, 0));
     }
     free(command);
 }
@@ -15,7 +19,7 @@ void lanzar_consola (char* quantum, int socket_cliente_memoria, t_config* config
 void entender_comando(char* command, char* quantum, int socket_cliente_memoria, t_config* config){
     char ** command_split = string_split(command, " ");
     if(!strcmp(command_split[0],"EJECUTAR_SCRIPT")){
-        ejecutar_script(command_split[1],quantum, socket_cliente_memoria, config);
+        ejecutar_script(command_split[1],quantum, socket_cliente_memoria, config);  
     };
     if(!strcmp(command_split[0],"INICIAR_PROCESO")){ 
         iniciar_proceso(command_split[1], quantum, socket_cliente_memoria);
@@ -27,7 +31,7 @@ void entender_comando(char* command, char* quantum, int socket_cliente_memoria, 
         
     };
     if(!strcmp(command_split[0],"INICIAR_PLANIFICACION")){
-        
+        iniciar_planificacion();
     };
     if(!strcmp(command_split[0],"MULTIPROGRAMACION")){
         
@@ -46,6 +50,10 @@ void entender_comando(char* command, char* quantum, int socket_cliente_memoria, 
     exit(-1);
     };
     
+}
+
+void iniciar_planificacion(){
+   
 }
 
 void ejecutar_script(char* path, char* quantum, int socket_cliente_memoria, t_config* config){

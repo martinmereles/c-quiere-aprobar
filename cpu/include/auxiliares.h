@@ -6,8 +6,8 @@
 
 extern char* instruccion_exec;
 extern pcb_t* contexto;
-
 void atender_cliente_cpu(int socket_cliente);
+void atender_cliente_dispatch(int socket_cliente);
 bool es_intruccion (char* palabra);
 
 #endif

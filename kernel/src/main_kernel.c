@@ -66,8 +66,8 @@ int main(int argc, char* argv[]) {
     int socket_cpu_interrupt = crear_conexion(ip_cpu, puerto_cpu_interrupt);
     enviar_mensaje("Me conecto desde Kernel a PUERTO_CPU_INTERRUPT", socket_cpu_interrupt);
     
-
-    lanzar_consola(quantum, socket_cliente_memoria, config);
+    
+    lanzar_consola(quantum, socket_cliente_memoria, socket_cpu_dispatch, config);
     
     pthread_join(hiloServidor, NULL);
     //Cierre de log y config
