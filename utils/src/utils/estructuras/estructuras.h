@@ -32,12 +32,20 @@ typedef enum{
     SI,  //10
     DI   //11
 }enum_registro;
+
+typedef enum{
+    SIN_MOTIVO,
+    MOTIVO_QUANTUM,
+    MOTIVO_EXIT,
+    MOTIVO_IO
+}enum_motivo_pcb;
 typedef struct 
 {
     int pid;
     uint32_t PCB_PC;
     int quantum;
     registros_t *reg_generales;
+    enum_motivo_pcb motivo;
 }pcb_t;
 
 typedef enum

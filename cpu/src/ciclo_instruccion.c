@@ -25,8 +25,17 @@ void execute(int socket_cliente_kernel){
 
 }
 
-void check_interrupt(int socket_cliente_memoria){
-    if(strcmp(instruccion_exec,"EXIT")==0){
-        sem_wait(&sem_execute);
+void check_interrupt(int socket_cliente_memoria, int socket_kernel_dispatch){
+    for(int i=0; i< list_size(INTERRUPCIONES); i++){
+        char ** interrupcion_split = string_split(list_get(INTERRUPCIONES, i), " ");
+        if(!strcmp(interrupcion_split[0],"EXIT") && interrupcion_split[1] == string_itoa(contexto->pid)){
+            contexto->motivo = MOTIVO_EXIT;
+            enviar_pcb_contexto(contexto, socket_kernel_dispatch);
+            sem_wait(&sem_execute);
+        }
     }
+
+    /*if(strcmp(instruccion_exec,"EXIT")==0){
+        sem_wait(&sem_execute);
+    }*/
 }

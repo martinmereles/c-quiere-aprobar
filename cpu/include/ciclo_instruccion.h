@@ -9,10 +9,11 @@
 extern pcb_t* contexto;
 extern registros_t* reg;
 extern char * instruccion_exec;
+extern t_list* INTERRUPCIONES;
 
 void fetch(int socket_cliente_memoria);
 void decode(int socket_cliente_memoria);
 void execute(int socket_cliente_kernel);
-void check_interrupt(int socket_cliente_memoria);
+void check_interrupt(int socket_cliente_memoria, int socket_kernel_dispatch);
 
 #endif

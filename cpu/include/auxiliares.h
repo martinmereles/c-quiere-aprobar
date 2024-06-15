@@ -8,8 +8,12 @@
 extern char* instruccion_exec;
 extern pcb_t* contexto;
 extern sem_t sem_execute;
+extern int socket_kernel_dispatch;
+extern t_list* INTERRUPCIONES;
+
 void atender_cliente_cpu(int socket_cliente);
 void atender_cliente_dispatch(int socket_cliente);
 bool es_intruccion (char* palabra);
+void atender_cliente_interrupt(int socket_servidor_interrupt);
 
 #endif

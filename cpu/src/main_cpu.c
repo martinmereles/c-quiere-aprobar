@@ -5,8 +5,12 @@ registros_t *reg;
 pcb_t * contexto;
 char* instruccion_exec;
 sem_t sem_execute;
+int socket_kernel_dispatch;
+t_list* INTERRUPCIONES;
 
 int main(int argc, char* argv[]) {
+	INTERRUPCIONES = list_create();
+	socket_kernel_dispatch = -1;
 	logger = iniciar_logger("./cfg/cpu-log.log", "cpu");
     t_config* config = iniciar_config(logger, "./cfg/cpu.config");
 	reg = malloc(sizeof(registros_t));
@@ -19,24 +23,20 @@ int main(int argc, char* argv[]) {
 	char* puerto_dispatch = config_get_string_value(config, "PUERTO_ESCUCHA_DISPATCH");
 	int socket_servidor_dispatch = iniciar_servidor(puerto_dispatch);
 	pthread_t hilo_atencion_dispatch;
-	int *socket_kernel_dispatch = (int)malloc(sizeof(int));
-	socket_kernel_dispatch = esperar_cliente(socket_servidor_dispatch);
 	pthread_create(&hilo_atencion_dispatch,
 					NULL,
 					(void*) atender_cliente_dispatch,
-					socket_kernel_dispatch);
+					socket_servidor_dispatch);
 	pthread_detach(hilo_atencion_dispatch);
 
 	//Inicia servidor Puerto escucha interrupt
 	char* puerto_interrupt = config_get_string_value(config, "PUERTO_ESCUCHA_INTERRUPT");
 	int socket_servidor_interrupt = iniciar_servidor(puerto_interrupt);
 	pthread_t hilo_atencion_interrupt;
-	int *socket_kernel_interrupt = (int)malloc(sizeof(int));
-	socket_kernel_interrupt = esperar_cliente(socket_servidor_interrupt);
 	pthread_create(&hilo_atencion_interrupt,
 					NULL,
-					(void*) atender_cliente,
-					socket_kernel_interrupt);
+					(void*) atender_cliente_interrupt,
+					socket_servidor_interrupt);
 	pthread_detach(hilo_atencion_interrupt);
 	
 	//Inicia conexion con memoria
@@ -71,7 +71,7 @@ int main(int argc, char* argv[]) {
 		fetch(socket_cliente_memoria);
 		decode(socket_cliente_memoria);
 		execute(socket_kernel_dispatch);
-		check_interrupt(socket_cliente_memoria);
+		check_interrupt(socket_cliente_memoria, socket_kernel_dispatch);
 	}
 
 	//pthread_join(hilo_atencion_dispatch, NULL);
@@ -80,9 +80,7 @@ int main(int argc, char* argv[]) {
 	//Cierre de log y config
 	liberar_conexion(socket_cliente_memoria);
 	liberar_conexion(socket_kernel_dispatch);
-	liberar_conexion(socket_kernel_interrupt);
     cerrar_log_config (logger,config); 
-
 	
 	return EXIT_SUCCESS;
 }

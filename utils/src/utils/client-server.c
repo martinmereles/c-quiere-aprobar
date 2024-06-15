@@ -69,21 +69,26 @@ int iniciar_servidor(char * puerto)
 	hints.ai_flags = AI_PASSIVE;
 
 	err = getaddrinfo(NULL, puerto, &hints, &server_info);
+	log_info(logger, "getaddrinfo %d", err);
 
 	// Creamos el socket de escucha del servidor
     socket_servidor = socket(server_info->ai_family,
                             server_info->ai_socktype,
                             server_info->ai_protocol);
+	log_info(logger, "socket_servidor %d", socket_servidor);
 	
 	//Para reutilizar socket sin esperar
-	if (setsockopt(socket_servidor, SOL_SOCKET, SO_REUSEADDR, &(int){1}, sizeof(int)) < 0) 
+	int verdadero = 1;
+	if (setsockopt(socket_servidor, SOL_SOCKET, SO_REUSEPORT, &verdadero, sizeof(int)) < 0) 
     error("setsockopt(SO_REUSEADDR) failed");
 
 	// Asociamos el socket a un puerto
     err = bind(socket_servidor,server_info->ai_addr, server_info->ai_addrlen);
+	log_info(logger, "Bind %d", err);
 
 	// Escuchamos las conexiones entrantes
     err = listen(socket_servidor, SOMAXCONN);
+	log_info(logger, "Listen %d", err);
 
 	freeaddrinfo(server_info);
 	log_trace(logger, "Listo para escuchar a mi cliente");
@@ -137,7 +142,7 @@ void* recibir_buffer_pcb(int* size, int socket_cliente)
 	pcb->reg_generales = malloc(sizeof(registros_t));
 
 	memcpy(pcb, buffer+4, sizeof(pcb_t));
-	memcpy(pcb->reg_generales, buffer+8+sizeof(pcb_t), sizeof(registros_t));
+	memcpy(pcb->reg_generales, buffer+12+sizeof(pcb_t), sizeof(registros_t));
 
 	return pcb;
 }
@@ -227,7 +232,7 @@ void enviar_mensaje(char* mensaje, int socket_cliente)
 	int bytes = paquete->buffer->size + 2*sizeof(int);
 
 	void* a_enviar = serializar_paquete(paquete, bytes);
-
+	log_info(logger, "El socket_cliente es : %d", socket_cliente);
 	send(socket_cliente, a_enviar, bytes, 0);
 
 	free(a_enviar);
@@ -308,6 +313,7 @@ while (1) {
 void atender_cliente(int socket_cliente){
 	t_list* lista;
 	while (1) {
+		log_info(logger, "El SOCKET INTERRUPT cliente es : %d", socket_cliente);
 		int cod_op = recibir_operacion(socket_cliente);; 
 		switch (cod_op) {
 		case MENSAJE:

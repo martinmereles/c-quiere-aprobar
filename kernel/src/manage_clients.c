@@ -43,6 +43,12 @@ void atender_cliente_kernel(int socket_cliente){
 	        pcb->reg_generales = malloc(sizeof(registros_t));
             pcb = recibir_buffer_pcb (&size2, socket_cliente);
             printf ("El PID es: %d \n", pcb->pid);
+            if(pcb->motivo = MOTIVO_EXIT){
+                list_add(QUEUE_TERMINATED, pcb);
+                sem_post(&sem_sincro_cpu);
+                //PARA PRUEBA
+                enviar_pcb_contexto(socket_cliente, list_get(QUEUE_READY,0));
+            }
             free (pcb);
 			break;
 		case -1:
