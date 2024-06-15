@@ -1,5 +1,5 @@
-#ifndef KERNEL_MAIN_H_
-#define KERNEL_MAIN_H_
+#ifndef MAIN_KERNEL_H_
+#define MAIN_KERNEL_H_
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -17,19 +17,10 @@
 #include <pthread.h>
 #include <readline/readline.h>
 #include <utils/estructuras/estructuras.h>
-#include "planificador_largo_plazo.h"
+#include <../include/planificador_largo_plazo.h>
 #include <../include/consola_kernel.h>
 #include <../include/manage_clients.h>
 #include <semaphore.h>
-
-typedef struct
-{
-    int socket;
-    char* tipo_interfaz;
-    char* identificador;
-    sem_t sem_uso;
-}t_interfaz;
-
 
 
 #endif

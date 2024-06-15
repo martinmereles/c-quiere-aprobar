@@ -1,4 +1,4 @@
-#include "../include/main_kernel.h"
+#include <../include/main_kernel.h>
 
 t_log* logger;
 int GLOBAL_PID;
@@ -8,6 +8,15 @@ t_list* QUEUE_RUNNING;
 t_list* QUEUE_BLOCKED;
 t_list* QUEUE_TERMINATED;
 t_list* INTERFACES;
+sem_t sem_grado_multiprog;
+t_sem_estados sem_array_estados[5]; /*
+                        0 = New
+                        1 = Ready
+                        2 = Running
+                        3 = Blocked
+                        4 = Terminated
+*/
+
 
 int main(int argc, char* argv[]) {
     QUEUE_NEW = list_create();
@@ -19,6 +28,21 @@ int main(int argc, char* argv[]) {
     logger = iniciar_logger("./cfg/kernel-log.log", "kernel");
     t_config* config = iniciar_config(logger, "./cfg/kernel.config");
     char* quantum = config_get_string_value(config, "QUANTUM");
+    int grado_multiprog = config_get_int_value(config, "GRADO_MULTIPROGRAMACION");
+    sem_init(&sem_grado_multiprog, 0, grado_multiprog);
+    for(int i = 0; i < 5; i++){
+        sem_init(&((sem_array_estados[i]).mutex), 0, 1);
+        sem_init(&((sem_array_estados[i]).contador), 0, 0);
+    }
+
+    //Incio hilo planificador largo plazo
+    char * param_largo_plazo = malloc(sizeof(char));
+	pthread_t hilo_plani_largo_plazo;
+	pthread_create(&hilo_plani_largo_plazo,
+                        NULL,
+                        planificador_largo_plazo,
+                        param_largo_plazo);
+	pthread_detach(hilo_plani_largo_plazo);
 
     //Inicio hilo server
     char* puerto = config_get_string_value(config, "PUERTO_ESCUCHA");

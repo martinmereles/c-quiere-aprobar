@@ -8,6 +8,8 @@ void lanzar_consola (char* quantum, int socket_cliente_memoria, int socket_cpu_d
         entender_comando(command, quantum, socket_cliente_memoria, config);
     	free(command);
     	command = readline("> ");
+        //PARA PRUEBA
+        enviar_pcb_contexto(socket_cpu_dispatch, list_get(QUEUE_READY,0));
     }
     free(command);
 }
