@@ -19,7 +19,8 @@
 #include <utils/estructuras/estructuras.h>
 #include <../include/instrucciones_cpu.h>
 #include <../include/auxiliares.h>
-
+#include <semaphore.h>
+#include <../include/ciclo_instruccion.h>
 
 
 void iterator(char*); 

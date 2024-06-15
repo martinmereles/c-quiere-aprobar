@@ -14,8 +14,6 @@ void atender_cliente_cpu(int socket_cliente){
             realloc(instruccion_exec,&size);
             strcpy(instruccion_exec,buffer);
             }
-            
-            
             free(buffer);
             break;
         case PAQUETE:
@@ -79,7 +77,7 @@ void atender_cliente_dispatch(int socket_cliente){
             reg = pcb->reg_generales;
             contexto = pcb;
             log_info(logger, "Se recibió el PCB con PID %d", contexto->pid);
-            free (pcb);
+            sem_post(&sem_execute);
 			break;
 		case -1:
 			log_error(logger, "El cliente se desconecto.");

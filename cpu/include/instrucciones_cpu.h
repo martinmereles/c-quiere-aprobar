@@ -12,12 +12,14 @@
 extern registros_t *reg;
 extern t_log* logger;
 extern char* instruccion_exec;
+extern pcb_t* contexto;
 
 void ejecutarSentencia(int socket_kernel);
-void set (char * registro, char * valor);
-void sum (char * registroDestino, char * registroOrigen);
-void sub (char * registroDestino, char * registroOrigen);
-void jnz (char * registro, char * instruccion);
-void io_gen_sleep (char * interfaz, char * unidadesDeTrabajo, int socket_kernel);
+void set(char * registro, char * valor);
+void sum(char * registroDestino, char * registroOrigen);
+void sub(char * registroDestino, char * registroOrigen);
+void jnz(char * registro, char * instruccion);
+void io_gen_sleep(char * interfaz, char * unidadesDeTrabajo, int socket_kernel);
+void exit_inst(int socket_kernel);
 
 #endif

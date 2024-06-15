@@ -1042,3 +1042,8 @@ void io_gen_sleep (char * interfaz, char * unidadesDeTrabajo, int socket_kernel)
     enviar_mensaje(mensaje, socket_kernel);
     log_info(logger, "Se ejecuto la instrucción IO_GEN_SLEEP con los parametros interfaz %s y unidades de trabajo %s", interfaz, unidadesDeTrabajo);
 }
+
+void exit_inst(int socket_kernel){
+    //TODO Ver que implica el exit
+    enviar_pcb_contexto(socket_kernel, contexto);
+}

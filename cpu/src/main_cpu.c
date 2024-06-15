@@ -4,16 +4,16 @@ t_log* logger;
 registros_t *reg;
 pcb_t * contexto;
 char* instruccion_exec;
-
+sem_t sem_execute;
 
 int main(int argc, char* argv[]) {
 	logger = iniciar_logger("./cfg/cpu-log.log", "cpu");
     t_config* config = iniciar_config(logger, "./cfg/cpu.config");
 	reg = malloc(sizeof(registros_t));
-
 	contexto = malloc(sizeof(pcb_t));
 	instruccion_exec = malloc(sizeof(char));
 	contexto->reg_generales = malloc (sizeof(registros_t));
+	sem_init(&sem_execute,0,0);
 
 	//Inicia servidor Puerto escucha dispatch
 	char* puerto_dispatch = config_get_string_value(config, "PUERTO_ESCUCHA_DISPATCH");
@@ -47,31 +47,26 @@ int main(int argc, char* argv[]) {
     int socket_cliente_memoria = crear_conexion(ip_memoria,puerto_memoria);
     enviar_mensaje("Me conecto desde CPU\n",socket_cliente_memoria);
 	
-	//Para prueba inicio
-	contexto->pid =100;
-	contexto->PCB_PC = 2;
-	contexto->quantum = 2000;
-	
-
-	reg->AX = (uint8_t)1;
-	reg->BX = (uint8_t)2;
+	//Seteo inicial contexto
+	contexto->pid =0;
+	contexto->PCB_PC = 0;
+	contexto->quantum = 0;
+	reg->AX = (uint8_t)0;
+	reg->BX = (uint8_t)0;
+    reg->CX = (uint8_t)0;
+    reg->DX = (uint8_t)0;
+    reg->EAX = 0;
+    reg->EBX = 0;
+    reg->ECX = 0;
+    reg->EDX = 0;
 	reg->PC = 0;
-    reg->CX = (uint8_t)3;
-    reg->DX = (uint8_t)4;
-    reg->EAX = 5;
-    reg->EBX = 6;
-    reg->ECX = 7;
-    reg->EDX = 8;
-    reg->SI = 9;
-    reg->DI = 10;
-
+    reg->SI = 0;
+    reg->DI = 0;
 	contexto->reg_generales = reg;
 
-	//PRUEBA DE ENVIO DE CONTEXTO A KERNEL
-	enviar_pcb_contexto (socket_kernel_dispatch, contexto);
+	sem_wait(&sem_execute);
 
-	//Para prueba fin - revisar estructura
-
+	//Inicio de ciclo de instruccion
 	while(1){
 		fetch(socket_cliente_memoria);
 		decode(socket_cliente_memoria);
@@ -81,6 +76,7 @@ int main(int argc, char* argv[]) {
 
 	//pthread_join(hilo_atencion_dispatch, NULL);
 	//pthread_join(hilo_atencion_interrupt, NULL);
+
 	//Cierre de log y config
 	liberar_conexion(socket_cliente_memoria);
 	liberar_conexion(socket_kernel_dispatch);

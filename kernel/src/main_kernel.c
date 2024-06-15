@@ -16,10 +16,8 @@ int main(int argc, char* argv[]) {
     QUEUE_BLOCKED = list_create();
     QUEUE_TERMINATED = list_create();
     INTERFACES = list_create();
-    
     logger = iniciar_logger("./cfg/kernel-log.log", "kernel");
     t_config* config = iniciar_config(logger, "./cfg/kernel.config");
-
     char* quantum = config_get_string_value(config, "QUANTUM");
 
     //Inicio hilo server
@@ -41,6 +39,7 @@ int main(int argc, char* argv[]) {
     int socket_cliente_memoria = crear_conexion(ip_memoria,puerto_memoria);
     enviar_mensaje("Me conecto desde Kernel",socket_cliente_memoria);
 
+    
     char* ip_cpu = config_get_string_value(config, "IP_CPU");
     log_info(logger, "La IP de CPU es : %s", ip_cpu);
 
