@@ -9,7 +9,7 @@ int main(int argc, char* argv[]) {
 	logger = iniciar_logger("./cfg/memoria-log.log", "memoria");
 	t_config* config = iniciar_config(logger, "./cfg/memoria.config");
 
-	//Inicio de hilo server // OJO QUE EN FUNCION COME MEMORIA
+	//Inicio de hilo server
 	char* puerto = config_get_string_value(config, "PUERTO_ESCUCHA");
 	char* retardo = config_get_string_value(config, "RETARDO_RESPUESTA");
 

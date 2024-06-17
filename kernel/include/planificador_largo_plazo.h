@@ -5,7 +5,6 @@
 #include <stdlib.h>
 #include <commons/string.h>
 #include <utils/estructuras/estructuras.h>
-//#include <../include/main_kernel.h>
 #include <utils/client-server.h>
 #include <semaphore.h>
 

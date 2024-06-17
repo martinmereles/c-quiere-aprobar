@@ -116,14 +116,7 @@ void atender_cliente_interrupt(int socket_servidor_interrupt){
             
 			break;
 		case PAQUETE:
-			/*int size2;
-            pcb_t * pcb = malloc (sizeof(pcb_t));
-	        pcb->reg_generales = malloc(sizeof(registros_t));
-            pcb = recibir_buffer_pcb (&size2, socket_kernel_interrupt);
-            reg = pcb->reg_generales;
-            contexto = pcb;
-            log_info(logger, "Se recibió el PCB con PID %d", contexto->pid);
-            sem_post(&sem_execute);*/
+            //En principio, interrupt no recibe paquetes
 			break;
 		case -1:
 			log_error(logger, "El cliente se desconecto.");

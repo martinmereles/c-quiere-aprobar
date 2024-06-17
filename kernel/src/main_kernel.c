@@ -14,8 +14,7 @@ t_sem_estados sem_array_estados[5]; /*
                         1 = Ready
                         2 = Running
                         3 = Blocked
-                        4 = Terminated
-*/
+                        4 = Terminated*/
 sem_t sem_sincro_cpu;
 
 int main(int argc, char* argv[]) {
@@ -84,8 +83,6 @@ int main(int argc, char* argv[]) {
                     (void*) atender_cliente_kernel,
                     socket_cliente_hilo);
     pthread_detach(hilo_atencion_cpu_dispatch);
-
-    //sleep(10);
 
     //Inicia conexion con puerto interrupt de CPU
     char* puerto_cpu_interrupt = config_get_string_value(config, "PUERTO_CPU_INTERRUPT");

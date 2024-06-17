@@ -142,7 +142,7 @@ void* recibir_buffer_pcb(int* size, int socket_cliente)
 	pcb->reg_generales = malloc(sizeof(registros_t));
 
 	memcpy(pcb, buffer+4, sizeof(pcb_t));
-	memcpy(pcb->reg_generales, buffer+12+sizeof(pcb_t), sizeof(registros_t));
+	memcpy(pcb->reg_generales, buffer+8+sizeof(pcb_t), sizeof(registros_t));
 
 	return pcb;
 }

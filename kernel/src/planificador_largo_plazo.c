@@ -39,7 +39,6 @@ pcb_t* crear_pcb (int quantum){
 	new_pcb->reg_generales->PC = 0;
     new_pcb->reg_generales->SI = 0;
     new_pcb->reg_generales->DI = 0;
-    new_pcb->motivo = SIN_MOTIVO;
     return new_pcb;
 }
 

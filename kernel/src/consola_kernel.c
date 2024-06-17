@@ -9,9 +9,11 @@ void lanzar_consola (char* quantum, int socket_cliente_memoria, int socket_cpu_d
     	free(command);
     	command = readline("> ");
         //PARA PRUEBA ANTES DE ENVIAR DEJAMOS "CORRIENDO" EL PROCESO
+        if(!strcmp(command,"INICIAR")){
         list_add(QUEUE_RUNNING, list_get(QUEUE_READY,0));
         list_remove(QUEUE_READY, 0);
         enviar_pcb_contexto(socket_cpu_dispatch, list_get(QUEUE_RUNNING,0));
+        }
     }
     free(command);
 }
