@@ -44,9 +44,13 @@ typedef struct
     int pid;
     uint32_t PCB_PC;
     int quantum;
-    registros_t *reg_generales;
+    registros_t* reg_generales;
 }pcb_t;
-
+typedef struct 
+{
+    pcb_t* pcb;
+    char* motivo;
+}pcb_motivo_t;
 typedef enum
 {
     CPU,

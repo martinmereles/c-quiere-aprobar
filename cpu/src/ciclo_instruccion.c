@@ -26,17 +26,23 @@ void execute(int socket_cliente_kernel){
 }
 
 void check_interrupt(int socket_cliente_memoria, int socket_kernel_dispatch){
-    /*
-    for(int i=0; i< list_size(INTERRUPCIONES); i++){
+    
+    int i = 0;
+    
+    for(i; i< list_size(INTERRUPCIONES); i++){
         char ** interrupcion_split = string_split(list_get(INTERRUPCIONES, i), " ");
         if(!strcmp(interrupcion_split[0],"EXIT") && interrupcion_split[1] == string_itoa(contexto->pid)){
-            contexto->motivo = MOTIVO_EXIT;
-            enviar_pcb_contexto(contexto, socket_kernel_dispatch);
+            enviar_pcb_contexto_motivo(contexto, socket_kernel_dispatch, "INTERRUPTED_BY_USER");
+            log_info (logger, "Se ejecuto la Interrupcion: %s", list_get(INTERRUPCIONES, i));
             sem_wait(&sem_execute);
+            break;
         }
     }
 
-    if(strcmp(instruccion_exec,"EXIT")==0){
-        sem_wait(&sem_execute);
-    }*/
+    for(int j=0; j < i; j++){
+        log_info (logger, "Se descarta la Interrupcion: %s", list_remove(INTERRUPCIONES, j));
+    }
+    if(list_size(INTERRUPCIONES) > 0){
+        list_remove(INTERRUPCIONES, i);
+    }
 }

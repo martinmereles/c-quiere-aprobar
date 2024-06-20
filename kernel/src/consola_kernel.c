@@ -12,7 +12,12 @@ void lanzar_consola (char* quantum, int socket_cliente_memoria, int socket_cpu_d
         if(!strcmp(command,"INICIAR")){
         list_add(QUEUE_RUNNING, list_get(QUEUE_READY,0));
         list_remove(QUEUE_READY, 0);
-        enviar_pcb_contexto(socket_cpu_dispatch, list_get(QUEUE_RUNNING,0));
+        pcb_t* new_pcb = malloc(sizeof(pcb_t));
+        new_pcb->reg_generales = malloc(sizeof(registros_t));
+        new_pcb = list_get(QUEUE_RUNNING,0);
+        new_pcb->reg_generales->EAX = 2;
+        enviar_pcb_contexto(socket_cpu_dispatch, new_pcb);
+        //enviar_pcb_contexto(socket_cpu_dispatch, list_get(QUEUE_RUNNING,0));
         }
     }
     free(command);

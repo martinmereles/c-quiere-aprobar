@@ -136,15 +136,13 @@ void* recibir_buffer_pcb(int* size, int socket_cliente)
 	buffer = malloc(*size);
 	recv(socket_cliente, buffer, *size, MSG_WAITALL);
 
+	pcb_t* pcb_new = malloc(sizeof(pcb_t));
+	memcpy(pcb_new, buffer+4, sizeof(pcb_t));
 	
+	pcb_new->reg_generales = malloc(sizeof(registros_t));
+	memcpy(pcb_new->reg_generales, buffer+8+sizeof(pcb_t), sizeof(registros_t));
 
-	pcb_t * pcb = malloc (sizeof(pcb_t));
-	pcb->reg_generales = malloc(sizeof(registros_t));
-
-	memcpy(pcb, buffer+4, sizeof(pcb_t));
-	memcpy(pcb->reg_generales, buffer+8+sizeof(pcb_t), sizeof(registros_t));
-
-	return pcb;
+	return pcb_new;
 }
 
 void recibir_mensaje(int socket_cliente)
@@ -356,6 +354,7 @@ void enviar_pcb_contexto_motivo(int socket_destino, pcb_t* pcb_a_enviar, char* m
 	
 	agregar_a_paquete(paquete_pcb, motivo, string_length(motivo));
 
+	log_info (logger, "un motivo pesa %d", string_length(motivo));
     log_info (logger, "Se enviara el PCB y el motivo con id: %d al socket %d", pcb_a_enviar->pid, socket_destino);
     
     enviar_paquete(paquete_pcb, socket_destino);    
@@ -371,25 +370,23 @@ void* recibir_buffer_pcb_motivo(int* size, int socket_cliente)
 	buffer = malloc(*size);
 	recv(socket_cliente, buffer, *size, MSG_WAITALL);
 
-	
+	pcb_motivo_t* pcb_deserealizado = malloc(sizeof(pcb_motivo_t));
+	pcb_deserealizado->pcb = malloc (sizeof(pcb_t));
+	pcb_deserealizado->pcb->reg_generales = malloc(sizeof(registros_t));
+	pcb_deserealizado->motivo = string_new();
 
-	pcb_t * pcb = malloc (sizeof(pcb_t));
-	pcb->reg_generales = malloc(sizeof(registros_t));
+	memcpy(pcb_deserealizado->pcb, buffer+4, sizeof(pcb_t));
+	memcpy(pcb_deserealizado->pcb->reg_generales, buffer+8+sizeof(pcb_t), sizeof(registros_t));
 
-	memcpy(pcb, buffer+4, sizeof(pcb_t));
-	memcpy(pcb->reg_generales, buffer+8+sizeof(pcb_t), sizeof(registros_t));
 	int tamanio_motivo;
-	int peso_pcb = sizeof(pcb_t);
-	int peso_registros = sizeof(registros_t);
-	log_info(logger, "el PCB pesa %d, y los regitros pesan %d", peso_pcb, peso_registros);
-	log_info(logger, "un int pesa %d", sizeof(int));
+	memcpy(&tamanio_motivo, buffer+64, sizeof(int));
 
-	memcpy(&tamanio_motivo, buffer+68, sizeof(int));
-	char* motivo_recibido = malloc(5);
-	memcpy(motivo_recibido, buffer+12+sizeof(pcb_t) + sizeof(registros_t), 5);
+	char motivo_recibido[tamanio_motivo+1];
+	memcpy(motivo_recibido, buffer+12+sizeof(pcb_t) + sizeof(registros_t), tamanio_motivo);
+	motivo_recibido[tamanio_motivo] = '\0';
+	log_info(logger, "el valor de motivo_recibido es: %s", motivo_recibido);
 
+	string_append(&pcb_deserealizado->motivo, motivo_recibido);
 
-
-
-	return pcb;
+	return pcb_deserealizado;
 }
