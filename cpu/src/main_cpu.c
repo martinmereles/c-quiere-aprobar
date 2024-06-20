@@ -64,6 +64,11 @@ int main(int argc, char* argv[]) {
     reg->DI = 0;
 	contexto->reg_generales = reg;
 
+		char* mensaje = string_new();
+	string_append(&mensaje, "TEST");
+
+	enviar_pcb_contexto_motivo(socket_kernel_dispatch, contexto, mensaje);
+
 	sem_wait(&sem_execute);
 
 	//Inicio de ciclo de instruccion

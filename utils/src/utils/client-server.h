@@ -7,6 +7,7 @@
 #include<netdb.h>
 #include<commons/log.h>
 #include<commons/config.h>
+#include<commons/string.h>
 #include<readline/readline.h>
 #include<commons/collections/list.h>
 #include<string.h>
@@ -64,5 +65,8 @@ void atender_cliente(int socket_cliente);
 
 void* recibir_buffer_pcb(int* size, int socket_cliente);
 void enviar_pcb_contexto(int socket_destino, pcb_t* pcb_a_enviar);
+void enviar_pcb_contexto_motivo(int socket_destino, pcb_t* pcb_a_enviar, char* motivo);
+void* recibir_buffer_pcb_motivo(int* size, int socket_cliente);
+
 
 #endif
