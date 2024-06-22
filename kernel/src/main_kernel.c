@@ -4,18 +4,22 @@ t_log* logger;
 int GLOBAL_PID;
 t_list* QUEUE_NEW;
 t_list* QUEUE_READY;
+t_list* QUEUE_READY_PLUS;
 t_list* QUEUE_RUNNING;
 t_list* QUEUE_BLOCKED;
 t_list* QUEUE_TERMINATED;
 t_list* INTERFACES;
 sem_t sem_grado_multiprog;
-t_sem_estados sem_array_estados[5]; /*
+sem_t sem_multiprocesamiento;
+t_sem_estados sem_array_estados[6]; /*
                         0 = New
                         1 = Ready
                         2 = Running
                         3 = Blocked
-                        4 = Terminated*/
+                        4 = Terminated
+                        5 = Ready+*/
 sem_t sem_sincro_cpu;
+int socket_memoria;
 
 int main(int argc, char* argv[]) {
     QUEUE_NEW = list_create();
@@ -23,6 +27,7 @@ int main(int argc, char* argv[]) {
     QUEUE_RUNNING = list_create();
     QUEUE_BLOCKED = list_create();
     QUEUE_TERMINATED = list_create();
+    QUEUE_READY_PLUS = list_create();
     INTERFACES = list_create();
     logger = iniciar_logger("./cfg/kernel-log.log", "kernel");
     t_config* config = iniciar_config(logger, "./cfg/kernel.config");
@@ -30,7 +35,8 @@ int main(int argc, char* argv[]) {
     int grado_multiprog = config_get_int_value(config, "GRADO_MULTIPROGRAMACION");
     sem_init(&sem_grado_multiprog, 0, grado_multiprog);
     sem_init(&sem_sincro_cpu, 0, 0);
-    for(int i = 0; i < 5; i++){
+    sem_init(&sem_multiprocesamiento, 0, 1);
+    for(int i = 0; i < 6; i++){
         sem_init(&sem_array_estados[i].mutex, 0, 1);
         sem_init(&sem_array_estados[i].contador, 0, 0);
     }
@@ -61,6 +67,7 @@ int main(int argc, char* argv[]) {
     log_info(logger, "La IP de MEMORIA es : %s", ip_memoria);
     log_info(logger, "El PUERTO de MEMORIA es : %s", puerto_memoria);
     int socket_cliente_memoria = crear_conexion(ip_memoria,puerto_memoria);
+    socket_memoria = socket_cliente_memoria;
     enviar_mensaje("Me conecto desde Kernel",socket_cliente_memoria);
 
     
@@ -90,7 +97,19 @@ int main(int argc, char* argv[]) {
     int socket_cpu_interrupt = crear_conexion(ip_cpu, puerto_cpu_interrupt);
     log_info(logger, "El SOCKET de CPU INTERRUPT es : %d", socket_cpu_interrupt);
     enviar_mensaje("Me conecto desde Kernel a PUERTO_CPU_INTERRUPT", socket_cpu_interrupt);
+
     
+    //Incio hilo planificador corto plazo
+    socket_info_t* params = malloc(sizeof(socket_info_t));
+    params->socket_dispatch = socket_cpu_dispatch;
+    params->socket_interrupt = socket_cpu_interrupt;
+
+	pthread_t hilo_plani_corto_plazo;
+	pthread_create(&hilo_plani_corto_plazo,
+                        NULL,
+                        planificador_corto_plazo,
+                        params);
+	pthread_detach(hilo_plani_corto_plazo);
     
     lanzar_consola(quantum, socket_cliente_memoria, socket_cpu_dispatch, socket_cpu_interrupt, config);
     

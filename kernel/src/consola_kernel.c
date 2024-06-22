@@ -8,7 +8,7 @@ void lanzar_consola (char* quantum, int socket_cliente_memoria, int socket_cpu_d
         entender_comando(command, quantum, socket_cliente_memoria, socket_cpu_interrupt, config);
     	free(command);
     	command = readline("> ");
-        //PARA PRUEBA ANTES DE ENVIAR DEJAMOS "CORRIENDO" EL PROCESO
+        /*PARA PRUEBA ANTES DE ENVIAR DEJAMOS "CORRIENDO" EL PROCESO
         if(!strcmp(command,"INICIAR")){
         list_add(QUEUE_RUNNING, list_get(QUEUE_READY,0));
         list_remove(QUEUE_READY, 0);
@@ -18,7 +18,7 @@ void lanzar_consola (char* quantum, int socket_cliente_memoria, int socket_cpu_d
         new_pcb->reg_generales->EAX = 2;
         enviar_pcb_contexto(socket_cpu_dispatch, new_pcb);
         //enviar_pcb_contexto(socket_cpu_dispatch, list_get(QUEUE_RUNNING,0));
-        }
+        }*/
     }
     free(command);
 }
@@ -101,6 +101,7 @@ void finalizar_proceso(int pid, int socket_cpu_interrupt, int socket_cliente_mem
     sem_wait(&sem_array_estados[2].mutex);
     sem_wait(&sem_array_estados[3].mutex);
     sem_wait(&sem_array_estados[4].mutex);
+    sem_wait(&sem_array_estados[5].mutex);
     encontrado = list_remove_by_condition(QUEUE_NEW, _es_pid_buscado);
     if(encontrado != NULL){
         sem_wait(&sem_array_estados[0].contador);
@@ -118,10 +119,6 @@ void finalizar_proceso(int pid, int socket_cpu_interrupt, int socket_cliente_mem
         string_append(&mensaje, "EXIT ");
         string_append(&mensaje, string_itoa(pid));
         enviar_mensaje(mensaje, socket_cpu_interrupt);
-        sem_wait(&sem_sincro_cpu);
-        enviar_mensaje(mensaje, socket_cliente_memoria);
-        sem_wait(&sem_array_estados[2].contador);
-        sem_post(&sem_grado_multiprog);
     }
     encontrado = NULL;
     encontrado = list_remove_by_condition(QUEUE_BLOCKED, _es_pid_buscado);
@@ -134,11 +131,18 @@ void finalizar_proceso(int pid, int socket_cpu_interrupt, int socket_cliente_mem
     if(encontrado != NULL){
         sem_wait(&sem_array_estados[4].contador);
     }
+    encontrado = NULL;
+    encontrado = list_remove_by_condition(QUEUE_READY_PLUS, _es_pid_buscado);
+    if(encontrado != NULL){
+        sem_wait(&sem_array_estados[5].contador);
+        sem_post(&sem_grado_multiprog);
+    }
     sem_post(&sem_array_estados[0].mutex);
     sem_post(&sem_array_estados[1].mutex);
     sem_post(&sem_array_estados[2].mutex);
     sem_post(&sem_array_estados[3].mutex);
     sem_post(&sem_array_estados[4].mutex);
+    sem_post(&sem_array_estados[5].mutex);
 
     //free(encontrado->reg_generales);
     //free(encontrado);

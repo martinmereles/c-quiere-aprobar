@@ -39,11 +39,45 @@ void atender_cliente_kernel(int socket_cliente){
 		case PAQUETE:
             //TO DO: Guardar pcb lista
             int size2;
-           /* pcb_t * pcb = malloc (sizeof(pcb_t));
-	        pcb->reg_generales = malloc(sizeof(registros_t));
-            pcb = recibir_buffer_pcb (&size2, socket_cliente);
-            printf ("El PID es: %d \n", pcb->pid);*/
-            recibir_buffer_pcb_motivo(&size2, socket_cliente);
+
+            pcb_motivo_t* pcb_deserealizado = malloc(sizeof(pcb_motivo_t));
+            pcb_deserealizado->pcb = malloc (sizeof(pcb_t));
+            pcb_deserealizado->pcb->reg_generales = malloc(sizeof(registros_t));
+            pcb_deserealizado->motivo = string_new();
+
+            pcb_deserealizado = recibir_buffer_pcb_motivo(&size2, socket_cliente);
+
+            if(strcmp(pcb_deserealizado->motivo, "INTERRUPTED_BY_USER") == 0){
+                //agregar el pcb a TERMINATED
+                sem_wait(&sem_array_estados[4].mutex);
+                list_add(QUEUE_TERMINATED, pcb_deserealizado->pcb);
+                sem_post(&sem_array_estados[4].mutex);
+                sem_post(&sem_array_estados[4].contador);
+
+                char* mensaje = string_new();
+                string_append(&mensaje, "EXIT ");
+                string_append(&mensaje, string_itoa(pcb_deserealizado->pcb->pid));
+                enviar_mensaje(mensaje, socket_memoria);
+
+                sem_wait(&sem_array_estados[2].contador);
+                sem_post(&sem_grado_multiprog);
+                sem_post(&sem_multiprocesamiento);
+            }
+            if(strcmp(pcb_deserealizado->motivo, "FIN_QUANTUM") == 0){
+                //agregar el pcb a READY 
+                sem_wait(&sem_array_estados[2].mutex);
+                list_remove(QUEUE_RUNNING, 0);
+                sem_post(&sem_array_estados[2].mutex);
+                sem_wait(&sem_array_estados[2].contador);
+
+                sem_wait(&sem_array_estados[1].mutex);
+                list_add(QUEUE_READY, pcb_deserealizado->pcb);
+                sem_post(&sem_array_estados[1].mutex);
+                sem_post(&sem_array_estados[1].contador);
+
+                sem_post(&sem_multiprocesamiento);
+            }
+
             //free (pcb);
 			break;
 		case -1:

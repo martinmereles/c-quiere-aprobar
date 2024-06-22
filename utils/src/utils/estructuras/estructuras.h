@@ -2,7 +2,7 @@
 #define UTILS_ESTRUCTURAS_H_
 
 #include <stdint.h>
-
+#include <semaphore.h>
 
 typedef struct 
 {
@@ -65,8 +65,25 @@ typedef struct
 
 } pthread_arg;
 
+typedef struct
+{
+    int socket;
+    char* tipo_interfaz;
+    char* identificador;
+    sem_t sem_uso;
+}t_interfaz;
 
+typedef struct 
+{
+    sem_t mutex;
+    sem_t contador;
+}t_sem_estados;
 
+typedef struct 
+{
+    int socket_dispatch;
+    int socket_interrupt;
+}socket_info_t;
 
 
 #endif

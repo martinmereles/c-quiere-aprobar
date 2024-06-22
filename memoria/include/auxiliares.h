@@ -11,7 +11,7 @@
 #include <utils/client-server.h>
 
 extern t_list* memoria_instrucciones;
-extern int retardo_respuesta_sec;
+extern int retardo_respuesta;
 
 void iniciar_hilo_server_memoria(char* puerto);
 void atender_cliente_memoria(int socket_cliente);

@@ -3,7 +3,7 @@
 
 t_log* logger;
 t_list* memoria_instrucciones;
-int retardo_respuesta_sec;
+int retardo_respuesta;
 int main(int argc, char* argv[]) {
 	memoria_instrucciones = list_create();
 	logger = iniciar_logger("./cfg/memoria-log.log", "memoria");
@@ -13,7 +13,7 @@ int main(int argc, char* argv[]) {
 	char* puerto = config_get_string_value(config, "PUERTO_ESCUCHA");
 	char* retardo = config_get_string_value(config, "RETARDO_RESPUESTA");
 
-	retardo_respuesta_sec = atoi(retardo)/1000;
+	retardo_respuesta = atoi(retardo);
 
 	pthread_t hiloServidor;
 	pthread_create(&hiloServidor,

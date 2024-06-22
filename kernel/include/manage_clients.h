@@ -5,8 +5,11 @@
 #include <commons/config.h>
 #include <commons/log.h>
 #include <../include/main_kernel.h>
+#include <utils/estructuras/estructuras.h>
 
 extern t_list* INTERFACES;
+extern int socket_memoria;
+
 void atender_cliente_kernel(int socket_cliente);
 void iniciar_hilo_server_kernel(char* socket_cliente);
 void conectar_interfaz(char* tipo_interfaz, char* identificador, int socket_interfaz);

@@ -62,13 +62,15 @@ void iniciar_proceso(char* process_id, char* path){
     fseek(f, 0L, SEEK_END);
     int size_file = ftell(f);
     rewind(f);
-    char* texto_completo = malloc(size_file);
-    fread(texto_completo,sizeof(char),size_file,f);
-    char ** instrucciones_split = string_split(texto_completo, "\n");
+    char* texto_completo = malloc(size_file+1);
+    size_t bytes_leidos = fread(texto_completo,sizeof(char),size_file,f);
+    texto_completo[bytes_leidos] = '\0';
+    char ** instrucciones_split = string_array_new();
+    instrucciones_split = string_split(texto_completo, "\n");
 
     int i = 0;
     int length = string_array_size(instrucciones_split);
-    while(i<length){
+    while(i < length){
         list_add(instruccion->lista_instrucciones, instrucciones_split[i]);
         log_info(logger, "Instrucción cargada=> %s - Proceso %d",instrucciones_split[i], process);
         i++;
@@ -97,8 +99,8 @@ void proxima_instruccion(char* process_id_find, char* program_counter, int socke
         int pc = atoi(program_counter);
         char* instruccion = list_get(proceso->lista_instrucciones,pc);
         log_info(logger, "Instruccion a devolver=> %s",instruccion);
-        log_info(logger, "Retardo %d ",retardo_respuesta_sec);
-        sleep(retardo_respuesta_sec);
+        log_info(logger, "Retardo %d ",retardo_respuesta);
+        usleep(retardo_respuesta * 1000);
         enviar_mensaje(instruccion,socket_cliente);
     }
 }
