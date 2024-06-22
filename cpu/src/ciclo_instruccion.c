@@ -27,22 +27,32 @@ void execute(int socket_cliente_kernel){
 
 void check_interrupt(int socket_cliente_memoria, int socket_kernel_dispatch){
     
-    int i = 0;
+    bool existe_finalizar = false;
+    bool existe_fin_quantum = false;
     
-    for(i; i< list_size(INTERRUPCIONES); i++){
+    for(int i = 0; i < list_size(INTERRUPCIONES); i++){
+        
         char ** interrupcion_split = string_split(list_get(INTERRUPCIONES, i), " ");
-        if(!strcmp(interrupcion_split[0],"EXIT") && interrupcion_split[1] == string_itoa(contexto->pid)){
-            enviar_pcb_contexto_motivo(contexto, socket_kernel_dispatch, "INTERRUPTED_BY_USER");
-            log_info (logger, "Se ejecuto la Interrupcion: %s", list_get(INTERRUPCIONES, i));
-            sem_wait(&sem_execute);
-            break;
+
+        if(!strcmp(interrupcion_split[0],"EXIT") && !strcmp(interrupcion_split[1], string_itoa(contexto->pid))){
+            existe_finalizar = true;
+
+        }else if(!strcmp(interrupcion_split[0],"FIN_QUANTUM") && !strcmp(interrupcion_split[1], string_itoa(contexto->pid))){
+            existe_fin_quantum = true;
+
         }
+        list_remove(INTERRUPCIONES, i);
     }
 
-    for(int j=0; j < i; j++){
-        log_info (logger, "Se descarta la Interrupcion: %s", list_remove(INTERRUPCIONES, j));
-    }
-    if(list_size(INTERRUPCIONES) > 0){
-        list_remove(INTERRUPCIONES, i);
+    if(existe_finalizar){
+        enviar_pcb_contexto_motivo(socket_kernel_dispatch, contexto, "INTERRUPTED_BY_USER");
+        log_info (logger, "Finaliza el proceso %s - Motivo: INTERRUPTED_BY_USER", string_itoa(contexto->pid));
+        sem_wait(&sem_execute);
+
+    }else if(existe_fin_quantum){
+        enviar_pcb_contexto_motivo(socket_kernel_dispatch, contexto, "FIN_QUANTUM");
+        log_info (logger, "PID: %s - Desalojado por fin de Quantum", string_itoa(contexto->pid));
+        sem_wait(&sem_execute);
+
     }
 }

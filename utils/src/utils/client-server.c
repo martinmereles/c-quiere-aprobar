@@ -354,7 +354,6 @@ void enviar_pcb_contexto_motivo(int socket_destino, pcb_t* pcb_a_enviar, char* m
 	
 	agregar_a_paquete(paquete_pcb, motivo, string_length(motivo));
 
-	log_info (logger, "un motivo pesa %d", string_length(motivo));
     log_info (logger, "Se enviara el PCB y el motivo con id: %d al socket %d", pcb_a_enviar->pid, socket_destino);
     
     enviar_paquete(paquete_pcb, socket_destino);    
