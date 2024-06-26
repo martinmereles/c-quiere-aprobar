@@ -62,6 +62,7 @@ void ejecutar_round_robin(int socket_cpu_dispatch, int socket_cpu_interrupt, int
         string_append(&mensaje, "FIN_QUANTUM ");
         string_append(&mensaje, string_itoa(pcb_a_enviar->pid));
         enviar_mensaje(mensaje, socket_cpu_interrupt);
+        log_info(logger, "Se envia el mensaje %s" , mensaje);
     }
 }
 

@@ -107,7 +107,7 @@ void atender_cliente_interrupt(int socket_servidor_interrupt){
             char* buffer = recibir_buffer(&size, socket_kernel_interrupt);
             log_info(logger, "CPU recibio el mensaje por el puerto Interrupt %s", buffer);
             char ** buffer_split = string_split(buffer, " ");
-            if(!strcmp(buffer_split[0],"EXIT")){
+            if(!strcmp(buffer_split[0],"EXIT") || !strcmp(buffer_split[0],"FIN_QUANTUM")){
                 char* duplicado = string_new();
                 duplicado = string_duplicate(buffer);
                 list_add(INTERRUPCIONES, duplicado);
