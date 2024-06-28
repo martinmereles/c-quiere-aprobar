@@ -58,17 +58,19 @@ void iniciar_hilo_kernel(t_config* config){
 void entender_mensajes(char* mensaje, int socket_cliente,int tiempo_unidad_trabajo){
     char ** mensaje_split = string_split(mensaje, " ");
     if(strcmp(mensaje_split[0], "IO_GEN_SLEEP") == 0){
-        io_gen_sleep(mensaje_split[1], tiempo_unidad_trabajo, socket_cliente);
+        io_gen_sleep(mensaje_split[1], mensaje_split[2], tiempo_unidad_trabajo, socket_cliente);
     }
 }
 
-void io_gen_sleep(char* unidades_tiempo, int tiempo_unidad_trabajo, int socket_cliente){
+void io_gen_sleep(char* unidades_tiempo, char* pid, int tiempo_unidad_trabajo, int socket_cliente){
     int unidades_tiempo_int = atoi(unidades_tiempo);
     log_info(logger, "Se inicia tarea IO_GEN_SLEEP");
     usleep((tiempo_unidad_trabajo*unidades_tiempo_int)*1000);
     char* mensaje = string_new();
     string_append(&mensaje, "FIN_IO ");
     string_append(&mensaje, nombre_interfaz);
+    string_append(&mensaje, " ");
+    string_append(&mensaje, pid);
     log_info(logger, "Se envia el mensaje=> %s", mensaje);
     enviar_mensaje(mensaje, socket_cliente);
     log_info(logger, "Se termino tarea IO_GEN_SLEEP");

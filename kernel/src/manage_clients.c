@@ -16,6 +16,8 @@ void iniciar_hilo_server_kernel(char* puerto){
 }
 
 void atender_cliente_kernel(int socket_cliente){
+    t_config* config = iniciar_config(logger, "./cfg/kernel.config");
+    char* algoritmo = config_get_string_value(config, "ALGORITMO_PLANIFICACION");
 	t_list* lista;
 	while (1) {
 		int cod_op = recibir_operacion(socket_cliente);
@@ -26,13 +28,13 @@ void atender_cliente_kernel(int socket_cliente){
             log_info(logger, "Kernel recibio el mensaje %s", buffer);
             char ** mensaje_split = string_split(buffer, " ");
             if(strcmp(mensaje_split[0], "IO_GEN_SLEEP") == 0){
-                io_gen_sleep(mensaje_split[1], mensaje_split[2], socket_cliente);
+                io_gen_sleep(mensaje_split[1], mensaje_split[2], mensaje_split[3]);
             }
             if(strcmp(mensaje_split[0], "CONECTAR_INTERFAZ") == 0){
                 conectar_interfaz(mensaje_split[1], mensaje_split[2], socket_cliente);
             }
             if(strcmp(mensaje_split[0], "FIN_IO") == 0){
-                liberar_interfaz(mensaje_split[1]);
+                liberar_interfaz(mensaje_split[1], mensaje_split[2], algoritmo);
             }
             free(buffer);
 			break;
@@ -77,6 +79,19 @@ void atender_cliente_kernel(int socket_cliente){
 
                 sem_post(&sem_multiprocesamiento);
             }
+            if(strcmp(pcb_deserealizado->motivo, "IO") == 0){
+
+                sem_wait(&sem_array_estados[2].mutex);
+                list_remove(QUEUE_RUNNING, 0);
+                sem_post(&sem_array_estados[2].mutex);
+                sem_wait(&sem_array_estados[2].contador);
+                sem_wait(&sem_array_estados[3].mutex);
+                list_add(QUEUE_BLOCKED, pcb_deserealizado->pcb);
+                sem_post(&sem_array_estados[3].mutex);
+                sem_post(&sem_array_estados[3].contador);
+                                
+                sem_post(&sem_multiprocesamiento);
+            }
 
             //free (pcb);
 			break;
@@ -108,7 +123,14 @@ bool es_interfaz_buscada(char* identificador, void* elemento){
     return (aux2);
 }
 
-void io_gen_sleep(char * interfaz, char* unidad_tiempo, int socket_cliente){
+bool es_pcb_buscado(int pid_buscado, void* elemento){
+    pcb_t* aux = malloc(sizeof(pcb_t));
+    aux = elemento;
+    bool aux2 = (aux->pid == pid_buscado);
+    return (aux2);
+}
+
+void io_gen_sleep(char * interfaz, char* unidad_tiempo, char* pid){
     
     bool _es_interfaz_buscada(void* elemento){
         return es_interfaz_buscada(interfaz, elemento);
@@ -123,6 +145,8 @@ void io_gen_sleep(char * interfaz, char* unidad_tiempo, int socket_cliente){
     char* mensaje = string_new();
     string_append(&mensaje, "IO_GEN_SLEEP ");
     string_append(&mensaje, unidad_tiempo);
+    string_append(&mensaje, " ");
+    string_append(&mensaje, pid);
 
     log_info(logger, "Se envio el mensaje a %s", interfaz);
     enviar_mensaje(mensaje, socket_interfaz);
@@ -130,7 +154,7 @@ void io_gen_sleep(char * interfaz, char* unidad_tiempo, int socket_cliente){
     
 }
 
-void liberar_interfaz(char * interfaz){
+void liberar_interfaz(char * interfaz, char * pid, char* algoritmo){
 
     bool _es_interfaz_buscada(void* elemento){
         return es_interfaz_buscada(interfaz, elemento);
@@ -138,8 +162,31 @@ void liberar_interfaz(char * interfaz){
 
     t_interfaz* interfaz_encontrada =  malloc(sizeof(t_interfaz));
     interfaz_encontrada = list_find(INTERFACES, _es_interfaz_buscada);
-
     log_info(logger, "Kernel recibio la finalizacion de %s", interfaz);
+    
+    bool _es_pcb_buscado(void* elemento){
+        return es_pcb_buscado(atoi(pid), elemento);
+    }
+
+    pcb_t* pcb_encontrado =  malloc(sizeof(pcb_t));
+    sem_wait(&sem_array_estados[3].mutex);
+    pcb_encontrado = list_remove_by_condition(QUEUE_BLOCKED, _es_pcb_buscado);
+    sem_post(&sem_array_estados[3].mutex);
+    sem_wait(&sem_array_estados[3].contador);
+    
+    if((strcmp(algoritmo, "VRR") == 0) && pcb_encontrado->quantum > 0){
+        sem_wait(&sem_array_estados[5].mutex);
+        list_add(QUEUE_READY_PLUS, pcb_encontrado);
+        sem_post(&sem_array_estados[5].mutex);
+        sem_post(&sem_array_estados[5].contador);
+
+    }else{
+        sem_wait(&sem_array_estados[1].mutex);
+        list_add(QUEUE_READY, pcb_encontrado);
+        sem_post(&sem_array_estados[1].mutex);
+        sem_post(&sem_array_estados[1].contador);
+    }
+
     sem_post(&interfaz_encontrada->sem_uso);
     
 }

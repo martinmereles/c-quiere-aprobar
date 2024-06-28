@@ -7,6 +7,7 @@ char* instruccion_exec;
 sem_t sem_execute;
 int socket_kernel_dispatch;
 t_list* INTERRUPCIONES;
+t_temporal* temporizador;
 
 int main(int argc, char* argv[]) {
 	INTERRUPCIONES = list_create();
@@ -64,7 +65,9 @@ int main(int argc, char* argv[]) {
     reg->DI = 0;
 	contexto->reg_generales = reg;
 
+
 	sem_wait(&sem_execute);
+	
 
 	//Inicio de ciclo de instruccion
 	while(1){

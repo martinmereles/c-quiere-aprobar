@@ -81,6 +81,8 @@ void atender_cliente_dispatch(int socket_servidor_dispatch){
             reg = pcb->reg_generales;
             contexto = pcb;
             log_info(logger, "Se recibió el PCB con PID %d", contexto->pid);
+            //Iniciamos temporizador
+            temporizador = temporal_create();
             sem_post(&sem_execute);
 			break;
 		case -1:

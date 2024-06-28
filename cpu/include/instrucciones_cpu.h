@@ -8,11 +8,13 @@
 #include <stdlib.h>
 #include <commons/string.h>
 #include <utils/client-server.h>
+#include <commons/temporal.h>
 
 extern registros_t *reg;
 extern t_log* logger;
 extern char* instruccion_exec;
 extern pcb_t* contexto;
+extern t_temporal* temporizador;
 
 void ejecutarSentencia(int socket_kernel);
 void set(char * registro, char * valor);

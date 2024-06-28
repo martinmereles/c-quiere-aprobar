@@ -1035,10 +1035,23 @@ void jnz (char * registro, char * instruccion)
 
 void io_gen_sleep (char * interfaz, char * unidadesDeTrabajo, int socket_kernel)
 {   char* mensaje = string_new();
+    //Paramos contador
+    temporal_stop(temporizador);
+    int64_t tiempo_transcurrido = temporal_gettime(temporizador);
+    if((contexto->quantum - (int) tiempo_transcurrido) <= 0){
+        contexto->quantum = 0;
+    }else{
+        contexto->quantum = contexto->quantum - (int) tiempo_transcurrido;
+    }
+    
+    
+
     string_append(&mensaje, "IO_GEN_SLEEP ");
     string_append(&mensaje, interfaz);
     string_append(&mensaje, " ");
     string_append(&mensaje, unidadesDeTrabajo);
+    string_append(&mensaje, " ");
+    string_append(&mensaje, string_itoa(contexto->pid));
     enviar_mensaje(mensaje, socket_kernel);
     log_info(logger, "Se ejecuto la instrucción IO_GEN_SLEEP con los parametros interfaz %s y unidades de trabajo %s", interfaz, unidadesDeTrabajo);
 }

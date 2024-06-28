@@ -29,7 +29,8 @@ void check_interrupt(int socket_cliente_memoria, int socket_kernel_dispatch){
     
     bool existe_finalizar = false;
     bool existe_fin_quantum = false;
-    
+    bool existe_io = false;
+
     for(int i = 0; i < list_size(INTERRUPCIONES); i++){
         
         char ** interrupcion_split = string_split(list_get(INTERRUPCIONES, i), " ");
@@ -43,16 +44,25 @@ void check_interrupt(int socket_cliente_memoria, int socket_kernel_dispatch){
         }
         list_remove(INTERRUPCIONES, i);
     }
+    
+    char ** instruccion_exec_split = string_split(instruccion_exec, " ");
+    if(!strcmp(instruccion_exec_split[0],"IO_GEN_SLEEP")){
+        existe_io = true;
+    }
 
     if(existe_finalizar){
         enviar_pcb_contexto_motivo(socket_kernel_dispatch, contexto, "INTERRUPTED_BY_USER");
         log_info (logger, "Finaliza el proceso %s - Motivo: INTERRUPTED_BY_USER", string_itoa(contexto->pid));
         sem_wait(&sem_execute);
-
-    }else if(existe_fin_quantum){
+    }else if(existe_io){
+        enviar_pcb_contexto_motivo(socket_kernel_dispatch, contexto, "IO");
+        log_info (logger, "PID: %s - Desalojado por IO", string_itoa(contexto->pid));
+        sem_wait(&sem_execute);
+    }
+    else if(existe_fin_quantum){
         enviar_pcb_contexto_motivo(socket_kernel_dispatch, contexto, "FIN_QUANTUM");
         log_info (logger, "PID: %s - Desalojado por fin de Quantum", string_itoa(contexto->pid));
         sem_wait(&sem_execute);
-
     }
+    
 }
