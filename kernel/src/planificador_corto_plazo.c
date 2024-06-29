@@ -57,37 +57,43 @@ void ejecutar_round_robin(int socket_cpu_dispatch, int socket_cpu_interrupt, int
         pcb_a_enviar->quantum = quantum_int;
         dispatcher(pcb_a_enviar, socket_cpu_dispatch);
 
-        int quantum_milisecons = quantum_int * 1000;
-        usleep(quantum_milisecons);
         char* mensaje = string_new();
         string_append(&mensaje, "FIN_QUANTUM ");
         string_append(&mensaje, string_itoa(pcb_a_enviar->pid));
-        enviar_mensaje(mensaje, socket_cpu_interrupt);
-        log_info(logger, "Se envia el mensaje %s" , mensaje);
+        //Inicio hilo quantum
+       	pthread_t hilo_quantum;
+	    pthread_create(&hilo_quantum,
+                        NULL,
+                        aviso_quantum,
+                        mensaje);
+	    pthread_detach(hilo_quantum);
+
     }
 }
 
 void ejecutar_virtual_rr(int socket_cpu_dispatch, int socket_cpu_interrupt, int quantum_int){
-    int quantum_milisecons;
+    
     while(1){
         sem_wait(&sem_multiprocesamiento);
         pcb_t* pcb_a_enviar = malloc(sizeof(pcb_t));
         pcb_a_enviar->reg_generales = malloc(sizeof(registros_t));
         //sacar el primero de READY o READY+(si existe algun elemento) y pasarlo a RUNNING
+        while(1){
         if(list_size(QUEUE_READY_PLUS)>0){
             sem_wait(&sem_array_estados[5].contador);
             sem_wait(&sem_array_estados[5].mutex);
             pcb_a_enviar = list_remove(QUEUE_READY_PLUS, 0);
             sem_post(&sem_array_estados[5].mutex);
-
-        }else{
+            break;
+        }else if(list_size(QUEUE_READY)>0){
             sem_wait(&sem_array_estados[1].contador);
             sem_wait(&sem_array_estados[1].mutex);
             pcb_a_enviar = list_remove(QUEUE_READY, 0);
             pcb_a_enviar->quantum = quantum_int;
             sem_post(&sem_array_estados[1].mutex);
+            break;
         }
-        
+        }
         sem_wait(&sem_array_estados[2].mutex);
         list_add(QUEUE_RUNNING, pcb_a_enviar);
         sem_post(&sem_array_estados[2].mutex);
@@ -95,16 +101,35 @@ void ejecutar_virtual_rr(int socket_cpu_dispatch, int socket_cpu_interrupt, int 
         
         dispatcher(pcb_a_enviar, socket_cpu_dispatch);
 
-        quantum_milisecons = pcb_a_enviar->quantum * 1000;
-        usleep(quantum_milisecons);
         char* mensaje = string_new();
         string_append(&mensaje, "FIN_QUANTUM ");
         string_append(&mensaje, string_itoa(pcb_a_enviar->pid));
-        enviar_mensaje(mensaje, socket_cpu_interrupt);
-        log_info(logger, "Se envia el mensaje %s" , mensaje);
+        //Inicio hilo quantum
+       	pthread_t hilo_quantum;
+	    pthread_create(&hilo_quantum,
+                        NULL,
+                        aviso_quantum,
+                        mensaje);
+	    pthread_detach(hilo_quantum);
+
+        log_error(logger, "Hay %d procesos en Ready", list_size(QUEUE_READY));
+        log_error(logger, "Hay %d procesos en Ready Plus", list_size(QUEUE_READY_PLUS));
+        log_error(logger, "Hay %d procesos en Blocked", list_size(QUEUE_BLOCKED));
+        log_error(logger, "Hay %d procesos en Running", list_size(QUEUE_RUNNING));
+
     }
 }
 
 void dispatcher(pcb_t* pcb_a_enviar, int socket_cpu_dispatch){
     enviar_pcb_contexto(socket_cpu_dispatch, pcb_a_enviar);
+}
+
+void aviso_quantum(char* mensaje){
+        t_config* config = iniciar_config(logger, "./cfg/kernel.config");
+        char* quantum = config_get_string_value(config, "QUANTUM");
+        int quantum_int = atoi(quantum);
+        int quantum_milisecons = quantum_int * 1000;
+        usleep(quantum_milisecons);
+        enviar_mensaje(mensaje, socket_cpu_interrupt);
+        log_info(logger, "Se envia el mensaje %s" , mensaje);
 }

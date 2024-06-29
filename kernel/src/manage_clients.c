@@ -88,11 +88,12 @@ void atender_cliente_kernel(int socket_cliente){
                 sem_wait(&sem_array_estados[3].mutex);
                 list_add(QUEUE_BLOCKED, pcb_deserealizado->pcb);
                 sem_post(&sem_array_estados[3].mutex);
-                sem_post(&sem_array_estados[3].contador);
-                                
+                sem_post(&sem_array_estados[3].contador);    
                 sem_post(&sem_multiprocesamiento);
             }
+            
 
+            
             //free (pcb);
 			break;
 		case -1:
