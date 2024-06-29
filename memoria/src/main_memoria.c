@@ -4,6 +4,8 @@
 t_log* logger;
 t_list* memoria_instrucciones;
 int retardo_respuesta;
+void* memoria;
+
 int main(int argc, char* argv[]) {
 	memoria_instrucciones = list_create();
 	logger = iniciar_logger("./cfg/memoria-log.log", "memoria");
@@ -23,8 +25,14 @@ int main(int argc, char* argv[]) {
 	
 
 	pthread_join(hiloServidor, NULL);
+
+	//Inicializamos espacio contiguo de memoria
+	int tamanio_memoria = config_get_int_value(config, "TAM_MEMORIA");
+	memoria = malloc(tamanio_memoria);
+
 	//Cierre de log y config
     cerrar_log_config (logger,config); 
+	free(memoria);
 	list_destroy(memoria_instrucciones);
 	return EXIT_SUCCESS;
 }

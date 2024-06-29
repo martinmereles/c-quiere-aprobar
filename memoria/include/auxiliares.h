@@ -12,6 +12,7 @@
 
 extern t_list* memoria_instrucciones;
 extern int retardo_respuesta;
+extern void* memoria;
 
 void iniciar_hilo_server_memoria(char* puerto);
 void atender_cliente_memoria(int socket_cliente);
