@@ -3,6 +3,8 @@
 
 #include <stdint.h>
 #include <semaphore.h>
+#include <commons/collections/list.h>
+#include <pthread.h>
 
 typedef struct 
 {
@@ -70,7 +72,10 @@ typedef struct
     int socket;
     char* tipo_interfaz;
     char* identificador;
+    pthread_t id;
+    t_list * queue_instrucciones;
     sem_t sem_uso;
+    sem_t contador;
 }t_interfaz;
 
 typedef struct 

@@ -20,6 +20,8 @@ t_sem_estados sem_array_estados[6]; /*
                         5 = Ready+*/
 sem_t sem_sincro_cpu;
 int socket_memoria;
+int socket_cpu_interrupt;
+sem_t mutex_lista_interfaces;
 
 int main(int argc, char* argv[]) {
     QUEUE_NEW = list_create();
@@ -36,6 +38,7 @@ int main(int argc, char* argv[]) {
     sem_init(&sem_grado_multiprog, 0, grado_multiprog);
     sem_init(&sem_sincro_cpu, 0, 0);
     sem_init(&sem_multiprocesamiento, 0, 1);
+    sem_init(&mutex_lista_interfaces, 0, 1);
     for(int i = 0; i < 6; i++){
         sem_init(&sem_array_estados[i].mutex, 0, 1);
         sem_init(&sem_array_estados[i].contador, 0, 0);
@@ -94,7 +97,7 @@ int main(int argc, char* argv[]) {
     //Inicia conexion con puerto interrupt de CPU
     char* puerto_cpu_interrupt = config_get_string_value(config, "PUERTO_CPU_INTERRUPT");
     log_info(logger, "El PUERTO de CPU INTERRUPT es : %s", puerto_cpu_interrupt);
-    int socket_cpu_interrupt = crear_conexion(ip_cpu, puerto_cpu_interrupt);
+    socket_cpu_interrupt = crear_conexion(ip_cpu, puerto_cpu_interrupt);
     log_info(logger, "El SOCKET de CPU INTERRUPT es : %d", socket_cpu_interrupt);
     enviar_mensaje("Me conecto desde Kernel a PUERTO_CPU_INTERRUPT", socket_cpu_interrupt);
 

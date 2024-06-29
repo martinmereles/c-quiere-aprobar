@@ -97,6 +97,7 @@ void atender_cliente_kernel(int socket_cliente){
 			break;
 		case -1:
 			log_error(logger, "El cliente se desconecto.");
+            desconectar_interfaz(socket_cliente);
 			return EXIT_FAILURE;
 		default:
 			log_warning(logger,"Operacion desconocida. No quieras meter la pata");
@@ -111,9 +112,34 @@ void conectar_interfaz (char* tipo_interfaz, char* identificador, int socket_int
     interfaz->socket = socket_interfaz;
     interfaz->tipo_interfaz = tipo_interfaz;
     interfaz->identificador = identificador;
+    interfaz->queue_instrucciones = list_create();
     sem_init(&interfaz->sem_uso, 0, 1);
+    sem_init(&interfaz->contador, 0, 0);
 
+    pthread_t hilo_Interfaz;
+	pthread_create(&hilo_Interfaz,
+                        NULL,
+                        consumidor_interfaz,
+                        interfaz);
+	pthread_detach(hilo_Interfaz);
+
+    interfaz->id = hilo_Interfaz;
+    sem_wait(&mutex_lista_interfaces);
     list_add (INTERFACES, interfaz);
+    sem_post(&mutex_lista_interfaces);
+}
+
+void consumidor_interfaz(t_interfaz* interfaz){
+    while(1){
+        sem_wait(&interfaz->sem_uso);
+        sem_wait(&interfaz->contador);
+        int socket_interfaz = interfaz->socket;
+        log_info(logger, "Se envio el mensaje a %s", interfaz->identificador);
+        sem_wait(&mutex_lista_interfaces);
+        char * mensaje = list_remove (interfaz->queue_instrucciones, 0);
+        sem_post(&mutex_lista_interfaces);
+        enviar_mensaje(mensaje, socket_interfaz);
+    }
 }
 
 bool es_interfaz_buscada(char* identificador, void* elemento){
@@ -138,21 +164,23 @@ void io_gen_sleep(char * interfaz, char* unidad_tiempo, char* pid){
 
     t_interfaz* interfaz_encontrada =  malloc(sizeof(t_interfaz));
     interfaz_encontrada = list_find(INTERFACES, _es_interfaz_buscada);
-    int socket_interfaz = interfaz_encontrada->socket;
-    
-    sem_wait(&interfaz_encontrada->sem_uso);
 
-    char* mensaje = string_new();
-    string_append(&mensaje, "IO_GEN_SLEEP ");
-    string_append(&mensaje, unidad_tiempo);
-    string_append(&mensaje, " ");
-    string_append(&mensaje, pid);
-
-    log_info(logger, "Se envio el mensaje a %s", interfaz);
-    enviar_mensaje(mensaje, socket_interfaz);
-
-    
+    if(interfaz_encontrada != NULL){
+        char* mensaje = string_new();
+        string_append(&mensaje, "IO_GEN_SLEEP ");
+        string_append(&mensaje, unidad_tiempo);
+        string_append(&mensaje, " ");
+        string_append(&mensaje, pid);
+        sem_wait(&mutex_lista_interfaces);
+        list_add(interfaz_encontrada->queue_instrucciones, mensaje);
+        sem_post(&mutex_lista_interfaces);
+        sem_post(&interfaz_encontrada->contador);
+    }else{
+        //Momentaneamente se usa sin finalizar proceso
+        finalizar_proceso(pid, socket_cpu_interrupt, socket_memoria);
+    }
 }
+
 
 void liberar_interfaz(char * interfaz, char * pid, char* algoritmo){
 
@@ -189,4 +217,27 @@ void liberar_interfaz(char * interfaz, char * pid, char* algoritmo){
 
     sem_post(&interfaz_encontrada->sem_uso);
     
+}
+
+bool es_interfaz_buscada_socket (int socket, void* elemento){
+    t_interfaz* aux = malloc(sizeof(t_interfaz));
+    aux = elemento;
+    bool aux2 = (aux->socket == socket);
+    return (aux2);
+}
+
+void desconectar_interfaz(int socket_cliente){
+
+    bool _es_interfaz_buscada_socket(void* elemento){
+        return es_interfaz_buscada_socket(socket_cliente, elemento);
+    }
+
+    t_interfaz* interfaz_encontrada =  malloc(sizeof(t_interfaz));
+    sem_wait(&mutex_lista_interfaces);
+    interfaz_encontrada = list_remove_by_condition(INTERFACES, _es_interfaz_buscada_socket);
+    sem_post(&mutex_lista_interfaces);
+    if(interfaz_encontrada != NULL){
+        log_info(logger, "Kernel recibio la desconexion de %d", socket_cliente);
+        pthread_kill(interfaz_encontrada->id, 0);
+    }
 }
