@@ -10,6 +10,8 @@
 #include <../include/memoria_estructuras.h>
 #include <utils/client-server.h>
 
+#include <commons/bitarray.h>
+
 extern t_list* memoria_instrucciones;
 extern int retardo_respuesta;
 extern void* memoria;

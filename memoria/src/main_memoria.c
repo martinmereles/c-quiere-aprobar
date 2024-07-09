@@ -24,12 +24,26 @@ int main(int argc, char* argv[]) {
                         puerto);
 	
 
-	pthread_join(hiloServidor, NULL);
+	
 
 	//Inicializamos espacio contiguo de memoria
 	int tamanio_memoria = config_get_int_value(config, "TAM_MEMORIA");
 	memoria = malloc(tamanio_memoria);
+	int tamanio_pagina = config_get_int_value(config, "TAM_PAGINA");
 
+	int cantidad_marcos = tamanio_memoria/tamanio_pagina;
+	int cantidad_marcos_bytes = cantidad_marcos/8;
+
+	void * marcos_libres = malloc(cantidad_marcos_bytes);
+
+	t_bitarray * bitmap_marcos_libres = bitarray_create_with_mode(marcos_libres, cantidad_marcos_bytes, LSB_FIRST);
+	//Seteamos en 0 el array
+	for(int i = 0;i < cantidad_marcos;i++){
+		bitarray_clean_bit(bitmap_marcos_libres, i);
+	}
+
+	
+	pthread_join(hiloServidor, NULL);
 	//Cierre de log y config
     cerrar_log_config (logger,config); 
 	free(memoria);
