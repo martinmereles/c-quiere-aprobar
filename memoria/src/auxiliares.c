@@ -57,6 +57,8 @@ void iniciar_proceso(char* process_id, char* path){
 
     t_instruccion_memoria* instruccion = malloc(sizeof(t_instruccion_memoria));
     instruccion->lista_instrucciones = list_create();
+    instruccion->lista_paginas = list_create();
+
     instruccion->process_id = process;
 
     fseek(f, 0L, SEEK_END);
