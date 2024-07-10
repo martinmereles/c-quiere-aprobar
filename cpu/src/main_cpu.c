@@ -8,6 +8,7 @@ sem_t sem_execute;
 int socket_kernel_dispatch;
 t_list* INTERRUPCIONES;
 t_temporal* temporizador;
+t_list *tlb;
 
 int main(int argc, char* argv[]) {
 	INTERRUPCIONES = list_create();

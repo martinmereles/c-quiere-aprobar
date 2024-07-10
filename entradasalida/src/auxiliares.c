@@ -57,9 +57,16 @@ void iniciar_hilo_kernel(t_config* config){
 
 void entender_mensajes(char* mensaje, int socket_cliente,int tiempo_unidad_trabajo){
     char ** mensaje_split = string_split(mensaje, " ");
-    if(strcmp(mensaje_split[0], "IO_GEN_SLEEP") == 0){
+    if(strcmp(tipo_interfaz, "GENERICA") == 0 && strcmp(mensaje_split[0], "IO_GEN_SLEEP") == 0){
         io_gen_sleep(mensaje_split[1], mensaje_split[2], tiempo_unidad_trabajo, socket_cliente);
+    }else if(strcmp(tipo_interfaz, "STDIN") == 0 && strcmp(mensaje_split[0], "IO_STDIN_READ") == 0){
+        io_stdin_read(mensaje_split[1], mensaje_split[2], mensaje_split[3], socket_cliente);
+    }else if(strcmp(tipo_interfaz, "STDOUT") == 0 && strcmp(mensaje_split[0], "IO_STDOUT_WRITE") == 0){
+        io_stdout_write(mensaje_split[1], mensaje_split[2], mensaje_split[3], socket_cliente);
+    }else{
+        log_error(logger, "Esta interfaz no entiende dicho mensaje");
     }
+
 }
 
 void io_gen_sleep(char* unidades_tiempo, char* pid, int tiempo_unidad_trabajo, int socket_cliente){
@@ -74,4 +81,55 @@ void io_gen_sleep(char* unidades_tiempo, char* pid, int tiempo_unidad_trabajo, i
     log_info(logger, "Se envia el mensaje=> %s", mensaje);
     enviar_mensaje(mensaje, socket_cliente);
     log_info(logger, "Se termino tarea IO_GEN_SLEEP");
+}
+
+void io_stdin_read(char *direccion, char *tamanio, char * pid, int socket_cliente){
+    int tamanio_int = atoi(tamanio);
+    char *texto = readline("Ingrese el texto para STDIN > ");
+    char * texto_a_guardar = string_substring(texto, 0, tamanio_int);
+    char * mensaje = string_new();
+    string_append(&mensaje, "IO_STDIN_READ ");
+    string_append(&mensaje, direccion);
+    string_append(&mensaje, " ");
+    string_append(&mensaje, texto_a_guardar);
+    log_info(logger, "Se enviara el siguiente mensaje a memoria=> %s", mensaje);
+    enviar_mensaje(mensaje, socket_cliente_memoria);
+    char* mensaje_kernel = string_new();
+    string_append(&mensaje_kernel, "FIN_IO ");
+    string_append(&mensaje_kernel, nombre_interfaz);
+    string_append(&mensaje_kernel, " ");
+    string_append(&mensaje_kernel, pid);
+    log_info(logger, "Se envia el mensaje=> %s", mensaje_kernel);
+    enviar_mensaje(mensaje_kernel, socket_cliente);
+    log_info(logger, "Se termino tarea IO_STDIN_READ");
+}
+
+void io_stdout_write(char *direccion, char *tamanio, char * pid, int socket_cliente){
+    char * mensaje = string_new();
+    string_append(&mensaje, "IO_STDOUT_WRITE ");
+    string_append(&mensaje, direccion);
+    string_append(&mensaje, " ");
+    string_append(&mensaje, tamanio);
+    log_info(logger, "Se enviara el siguiente mensaje a memoria=> %s", mensaje);
+    enviar_mensaje(mensaje, socket_cliente_memoria);
+    int cod_op = recibir_operacion(socket_cliente_memoria);
+	switch (cod_op) {
+	case MENSAJE:
+        int size;
+        char* buffer = recibir_buffer(&size, socket_cliente_memoria);
+        printf("Se recibio desde memoria el mensaje=> %s", buffer);
+        free(buffer);
+        break;
+    default:
+		log_warning(logger,"Operacion desconocida. No quieras meter la pata");
+		break;
+	}
+    char* mensaje_kernel = string_new();
+    string_append(&mensaje_kernel, "FIN_IO ");
+    string_append(&mensaje_kernel, nombre_interfaz);
+    string_append(&mensaje_kernel, " ");
+    string_append(&mensaje_kernel, pid);
+    log_info(logger, "Se envia el mensaje=> %s", mensaje_kernel);
+    enviar_mensaje(mensaje_kernel, socket_cliente);
+    log_info(logger, "Se termino tarea IO_STDOUT_WRITE");
 }

@@ -2,12 +2,15 @@
 
 t_log * logger;
 char* nombre_interfaz;
+char* tipo_interfaz;
+int socket_cliente_memoria;
+
 int main(int argc, char* argv[]) {
 
     t_config * config;
     logger = iniciar_logger("./cfg/entradaSalida-log.log", "entradaSalida");
     config = iniciar_config(logger, "./cfg/entradaSalida.config");
-    char* tipo_interfaz = config_get_string_value(config, "TIPO_INTERFAZ");
+    tipo_interfaz = config_get_string_value(config, "TIPO_INTERFAZ");
     char* tiempo_unidad_trabajo = config_get_string_value(config, "TIEMPO_UNIDAD_TRABAJO");
 
     //Inicia conexion con kernel
@@ -19,13 +22,13 @@ int main(int argc, char* argv[]) {
                         config);
 	
   
-   //Inicia conexión con Memoria
-    if(strcmp(tipo_interfaz, "DIALFS") == 0){
+    //Inicia conexión con Memoria
+    if(!strcmp(tipo_interfaz, "GENERICA") == 0){ //Si es disntinto a generica va por aca
     char* ip_memoria = config_get_string_value(config, "IP_MEMORIA");
     char* puerto_memoria = config_get_string_value(config, "PUERTO_MEMORIA");
     log_info(logger, "La IP de Memoria es : %s", ip_memoria);
     log_info(logger, "El PUERTO de Memoria es : %s", puerto_memoria);
-    int socket_cliente_memoria = crear_conexion(ip_memoria,puerto_memoria);
+    socket_cliente_memoria = crear_conexion(ip_memoria,puerto_memoria);
     enviar_mensaje("Me conecto desde IO",socket_cliente_memoria);
     }
 

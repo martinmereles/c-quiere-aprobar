@@ -30,6 +30,12 @@ void atender_cliente_kernel(int socket_cliente){
             if(strcmp(mensaje_split[0], "IO_GEN_SLEEP") == 0){
                 io_gen_sleep(mensaje_split[1], mensaje_split[2], mensaje_split[3]);
             }
+            if(strcmp(mensaje_split[0], "IO_STDIN_READ") == 0){
+                io_stdin_read(mensaje_split[1], mensaje_split[2], mensaje_split[3], mensaje_split[4]);
+            }
+            if(strcmp(mensaje_split[0], "IO_STDOUT_WRITE") == 0){
+                io_stdout_write(mensaje_split[1], mensaje_split[2], mensaje_split[3], mensaje_split[4]);
+            }
             if(strcmp(mensaje_split[0], "CONECTAR_INTERFAZ") == 0){
                 conectar_interfaz(mensaje_split[1], mensaje_split[2], socket_cliente);
             }
@@ -162,14 +168,69 @@ void io_gen_sleep(char * interfaz, char* unidad_tiempo, char* pid){
     bool _es_interfaz_buscada(void* elemento){
         return es_interfaz_buscada(interfaz, elemento);
     }
+    
 
     t_interfaz* interfaz_encontrada =  malloc(sizeof(t_interfaz));
     interfaz_encontrada = list_find(INTERFACES, _es_interfaz_buscada);
 
-    if(interfaz_encontrada != NULL){
+    if(interfaz_encontrada != NULL && admite_instruccion(interfaz_encontrada->tipo_interfaz, "IO_GEN_SLEEP")){
         char* mensaje = string_new();
         string_append(&mensaje, "IO_GEN_SLEEP ");
         string_append(&mensaje, unidad_tiempo);
+        string_append(&mensaje, " ");
+        string_append(&mensaje, pid);
+        sem_wait(&mutex_lista_interfaces);
+        list_add(interfaz_encontrada->queue_instrucciones, mensaje);
+        sem_post(&mutex_lista_interfaces);
+        sem_post(&interfaz_encontrada->contador);
+    }else{
+        //Momentaneamente se usa sin finalizar proceso
+        finalizar_proceso(pid, socket_cpu_interrupt, socket_memoria);
+    }
+}
+
+void io_stdin_read(char * interfaz, char* direccion, char* tamanio, char *pid){
+    
+    bool _es_interfaz_buscada(void* elemento){
+        return es_interfaz_buscada(interfaz, elemento);
+    }
+
+    t_interfaz* interfaz_encontrada =  malloc(sizeof(t_interfaz));
+    interfaz_encontrada = list_find(INTERFACES, _es_interfaz_buscada);
+
+    if(interfaz_encontrada != NULL && admite_instruccion(interfaz_encontrada->tipo_interfaz, "IO_STDIN_READ")){
+        char* mensaje = string_new();
+        string_append(&mensaje, "IO_STDIN_READ ");
+        string_append(&mensaje, direccion);
+        string_append(&mensaje, " ");
+        string_append(&mensaje, tamanio);
+        string_append(&mensaje, " ");
+        string_append(&mensaje, pid);
+        sem_wait(&mutex_lista_interfaces);
+        list_add(interfaz_encontrada->queue_instrucciones, mensaje);
+        sem_post(&mutex_lista_interfaces);
+        sem_post(&interfaz_encontrada->contador);
+    }else{
+        //Momentaneamente se usa sin finalizar proceso
+        finalizar_proceso(pid, socket_cpu_interrupt, socket_memoria);
+    }
+}
+
+void io_stdout_write(char * interfaz, char* direccion, char* tamanio, char *pid){
+    
+    bool _es_interfaz_buscada(void* elemento){
+        return es_interfaz_buscada(interfaz, elemento);
+    }
+
+    t_interfaz* interfaz_encontrada =  malloc(sizeof(t_interfaz));
+    interfaz_encontrada = list_find(INTERFACES, _es_interfaz_buscada);
+
+    if(interfaz_encontrada != NULL && admite_instruccion(interfaz_encontrada->tipo_interfaz, "IO_STDOUT_WRITE")){
+        char* mensaje = string_new();
+        string_append(&mensaje, "IO_STDOUT_WRITE ");
+        string_append(&mensaje, direccion);
+        string_append(&mensaje, " ");
+        string_append(&mensaje, tamanio);
         string_append(&mensaje, " ");
         string_append(&mensaje, pid);
         sem_wait(&mutex_lista_interfaces);
@@ -241,4 +302,22 @@ void desconectar_interfaz(int socket_cliente){
         log_info(logger, "Kernel recibio la desconexion de %d", socket_cliente);
         pthread_kill(interfaz_encontrada->id, 0);
     }
+}
+
+bool admite_instruccion(char *tipo, char *instruccion){
+    if(strcmp(tipo, "GENERICA") == 0 && strcmp(instruccion, "IO_GEN_SLEEP") == 0){
+        return true;
+    }else if(strcmp(tipo, "STDIN") == 0 && strcmp(instruccion, "IO_STDIN_READ") == 0){
+        return true;
+    }else if(strcmp(tipo, "STDOUT") == 0 && strcmp(instruccion, "IO_STDOUT_WRITE") == 0){
+        return true;
+    }else if(strcmp(tipo, "DIALFS") == 0 && (strcmp(instruccion, "IO_FS_CREATE") == 0 || 
+                                            strcmp(instruccion, "IO_FS_DELETE") == 0 || 
+                                            strcmp(instruccion, "IO_FS_TRUNCATE") == 0 ||
+                                            strcmp(instruccion, "IO_FS_WRITE") == 0 ||
+                                            strcmp(instruccion, "IO_FS_READ") == 0)){
+        return true;
+    }else{
+        return false;
+    }                                    
 }
