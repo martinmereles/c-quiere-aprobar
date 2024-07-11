@@ -5,6 +5,7 @@ t_log* logger;
 t_list* memoria_instrucciones;
 int retardo_respuesta;
 void* memoria;
+int tamanio_pagina;
 
 int main(int argc, char* argv[]) {
 	memoria_instrucciones = list_create();
@@ -29,7 +30,7 @@ int main(int argc, char* argv[]) {
 	//Inicializamos espacio contiguo de memoria
 	int tamanio_memoria = config_get_int_value(config, "TAM_MEMORIA");
 	memoria = malloc(tamanio_memoria);
-	int tamanio_pagina = config_get_int_value(config, "TAM_PAGINA");
+	tamanio_pagina = config_get_int_value(config, "TAM_PAGINA");
 
 	int cantidad_marcos = tamanio_memoria/tamanio_pagina;
 	int cantidad_marcos_bytes = cantidad_marcos/8;

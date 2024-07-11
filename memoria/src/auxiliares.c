@@ -30,6 +30,9 @@ void atender_cliente_memoria(int socket_cliente){
             if(strcmp(mensaje_split[0], "PROXIMA_INSTRUCCION") == 0){
                 proxima_instruccion(mensaje_split[1], mensaje_split[2], socket_cliente);
             }
+            if(strcmp(mensaje_split[0], "TAM_PAGINA") == 0){
+                enviar_tamanio_pagina(socket_cliente);
+            }
             free(buffer);
 			break;
 		case PAQUETE:
@@ -107,3 +110,10 @@ void proxima_instruccion(char* process_id_find, char* program_counter, int socke
     }
 }
 
+void enviar_tamanio_pagina(int socket_cliente){
+
+    char* mensaje = string_new();
+    string_append(&mensaje, "TAM_PAGINA ");
+    string_append(&mensaje, string_itoa(tamanio_pagina));
+    enviar_mensaje(mensaje, socket_cliente);
+}

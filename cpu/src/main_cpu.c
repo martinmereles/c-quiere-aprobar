@@ -9,12 +9,16 @@ int socket_kernel_dispatch;
 t_list* INTERRUPCIONES;
 t_temporal* temporizador;
 t_list *tlb;
+int tamanio_pagina;
 
 int main(int argc, char* argv[]) {
 	INTERRUPCIONES = list_create();
 	socket_kernel_dispatch = -1;
 	logger = iniciar_logger("./cfg/cpu-log.log", "cpu");
     t_config* config = iniciar_config(logger, "./cfg/cpu.config");
+	char* algoritmo_tlb = config_get_string_value(config, "ALGORITMO_TLB");
+	int cantidad_entradas_tlb = config_get_int_value(config, "CANTIDAD_ENTRADAS_TLB");
+	iniciar_tlb();
 	reg = malloc(sizeof(registros_t));
 	contexto = malloc(sizeof(pcb_t));
 	instruccion_exec = malloc(sizeof(char));
@@ -48,7 +52,17 @@ int main(int argc, char* argv[]) {
     log_info(logger, "El PUERTO de Memoria es : %s", puerto_memoria);
     int socket_cliente_memoria = crear_conexion(ip_memoria,puerto_memoria);
     enviar_mensaje("Me conecto desde CPU\n",socket_cliente_memoria);
-	
+	enviar_mensaje("TAM_PAGINA",socket_cliente_memoria);
+
+	int cod_op = recibir_operacion(socket_cliente_memoria);
+	int size;
+	char* buffer = recibir_buffer(&size, socket_cliente_memoria);
+	log_info(logger, "Me llego el mensaje %s", buffer);
+	char ** mensaje_split = string_split(buffer, " ");
+	if(strcmp(mensaje_split[0], "TAM_PAGINA") == 0){
+		guardar_tamanio_pagina(mensaje_split[1]);
+	}
+
 	//Seteo inicial contexto
 	contexto->pid =0;
 	contexto->PCB_PC = 0;
@@ -73,7 +87,7 @@ int main(int argc, char* argv[]) {
 	//Inicio de ciclo de instruccion
 	while(1){
 		fetch(socket_cliente_memoria);
-		decode(socket_cliente_memoria);
+		decode(socket_cliente_memoria, algoritmo_tlb, cantidad_entradas_tlb);
 		execute(socket_kernel_dispatch);
 		check_interrupt(socket_cliente_memoria, socket_kernel_dispatch);
 	}

@@ -130,3 +130,7 @@ void atender_cliente_interrupt(int socket_servidor_interrupt){
 	}
     liberar_conexion(socket_kernel_interrupt);
 }
+
+void guardar_tamanio_pagina(char* tamanio){
+    tamanio_pagina = atoi(tamanio);
+}

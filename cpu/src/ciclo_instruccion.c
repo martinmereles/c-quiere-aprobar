@@ -14,8 +14,10 @@ void fetch(int socket_cliente_memoria){
     reg->PC++;
 }
 
-void decode(int socket_cliente_memoria){
-    //TO DO
+void decode(int socket_cliente_memoria, char* algoritmo_tlb, int cantidad_entradas_tlb){
+    //TODO
+    //llamar funcion traducir_a_direccion_fisica, modificar instruccion_exec
+    //En execute terminar las demas instrucciones
 }
 
 void execute(int socket_cliente_kernel){

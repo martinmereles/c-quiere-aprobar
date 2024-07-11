@@ -1067,16 +1067,16 @@ void io_stdin_read (char * interfaz, char * direccion, char * tamanio, int socke
         contexto->quantum = contexto->quantum - (int) tiempo_transcurrido;
     }
     
-    
-
-    string_append(&mensaje, "IO_GEN_SLEEP ");
+    string_append(&mensaje, "IO_STDIN_READ ");
     string_append(&mensaje, interfaz);
     string_append(&mensaje, " ");
-    string_append(&mensaje, unidadesDeTrabajo);
+    string_append(&mensaje, direccion);
+    string_append(&mensaje, " ");
+    string_append(&mensaje, tamanio);
     string_append(&mensaje, " ");
     string_append(&mensaje, string_itoa(contexto->pid));
     enviar_mensaje(mensaje, socket_kernel);
-    log_info(logger, "Se ejecuto la instrucción IO_GEN_SLEEP con los parametros interfaz %s y unidades de trabajo %s", interfaz, unidadesDeTrabajo);
+    log_info(logger, "Se ejecuto la instrucción IO_STDIN_READ con los parametros interfaz %s , direccion %s , tamanio %s y pid %d", interfaz, direccion, tamanio, contexto->pid);
 }
 
 void io_stdout_write (char * interfaz, char * direccion, char * tamanio, int socket_kernel)
@@ -1089,17 +1089,17 @@ void io_stdout_write (char * interfaz, char * direccion, char * tamanio, int soc
     }else{
         contexto->quantum = contexto->quantum - (int) tiempo_transcurrido;
     }
-    
-    
 
-    string_append(&mensaje, "IO_GEN_SLEEP ");
+    string_append(&mensaje, "IO_STDOUT_WRITE ");
     string_append(&mensaje, interfaz);
     string_append(&mensaje, " ");
-    string_append(&mensaje, unidadesDeTrabajo);
+    string_append(&mensaje, direccion);
+    string_append(&mensaje, " ");
+    string_append(&mensaje, tamanio);
     string_append(&mensaje, " ");
     string_append(&mensaje, string_itoa(contexto->pid));
     enviar_mensaje(mensaje, socket_kernel);
-    log_info(logger, "Se ejecuto la instrucción IO_GEN_SLEEP con los parametros interfaz %s y unidades de trabajo %s", interfaz, unidadesDeTrabajo);
+    log_info(logger, "Se ejecuto la instrucción IO_STDOUT_WRITE con los parametros interfaz %s , direccion %s , tamanio %s y pid %d", interfaz, direccion, tamanio, contexto->pid);
 }
 
 void exit_inst(int socket_kernel){
