@@ -1043,8 +1043,6 @@ void io_gen_sleep (char * interfaz, char * unidadesDeTrabajo, int socket_kernel)
     }else{
         contexto->quantum = contexto->quantum - (int) tiempo_transcurrido;
     }
-    
-    
 
     string_append(&mensaje, "IO_GEN_SLEEP ");
     string_append(&mensaje, interfaz);

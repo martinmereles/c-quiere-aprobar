@@ -15,9 +15,83 @@ void fetch(int socket_cliente_memoria){
 }
 
 void decode(int socket_cliente_memoria, char* algoritmo_tlb, int cantidad_entradas_tlb){
-    //TODO
-    //llamar funcion traducir_a_direccion_fisica, modificar instruccion_exec
-    //En execute terminar las demas instrucciones
+    char ** instruccion_exec_split = string_split(instruccion_exec, " ");
+    int direccion_fisica;
+    char* instruccion_decode = string_new();
+    if(strcmp(instruccion_exec_split[0],"MOV_IN") == 0){
+        unsigned int valor_registro = get_valor_registro(instruccion_exec_split[2]);
+        direccion_fisica = traducir_a_direccion_fisica(contexto->pid, valor_registro, socket_cliente_memoria, algoritmo_tlb, cantidad_entradas_tlb);
+        string_append(&instruccion_decode, instruccion_exec_split[0]);
+        string_append(&instruccion_decode, " ");
+        string_append(&instruccion_decode, instruccion_exec_split[1]);
+        string_append(&instruccion_decode, " ");
+        string_append(&instruccion_decode, string_itoa(direccion_fisica));
+    }
+    if(strcmp(instruccion_exec_split[0],"MOV_OUT") == 0){
+        unsigned int valor_registro = get_valor_registro(instruccion_exec_split[1]);
+        direccion_fisica = traducir_a_direccion_fisica(contexto->pid, valor_registro, socket_cliente_memoria, algoritmo_tlb, cantidad_entradas_tlb);
+        string_append(&instruccion_decode, instruccion_exec_split[0]);
+        string_append(&instruccion_decode, " ");
+        string_append(&instruccion_decode, string_itoa(direccion_fisica));
+        string_append(&instruccion_decode, " ");
+        string_append(&instruccion_decode, instruccion_exec_split[2]);
+    }
+    if(strcmp(instruccion_exec_split[0],"IO_STDIN_READ") == 0){
+        unsigned int valor_registro = get_valor_registro(instruccion_exec_split[2]);
+        direccion_fisica = traducir_a_direccion_fisica(contexto->pid, valor_registro, socket_cliente_memoria, algoritmo_tlb, cantidad_entradas_tlb);
+        string_append(&instruccion_decode, instruccion_exec_split[0]);
+        string_append(&instruccion_decode, " ");
+        string_append(&instruccion_decode, instruccion_exec_split[1]);
+        string_append(&instruccion_decode, " ");
+        string_append(&instruccion_decode, string_itoa(direccion_fisica));
+        string_append(&instruccion_decode, " ");
+        string_append(&instruccion_decode, instruccion_exec_split[3]);
+    }
+    if(strcmp(instruccion_exec_split[0],"IO_STDOUT_WRITE") == 0){
+        unsigned int valor_registro = get_valor_registro(instruccion_exec_split[2]);
+        direccion_fisica = traducir_a_direccion_fisica(contexto->pid, valor_registro, socket_cliente_memoria, algoritmo_tlb, cantidad_entradas_tlb);
+        string_append(&instruccion_decode, instruccion_exec_split[0]);
+        string_append(&instruccion_decode, " ");
+        string_append(&instruccion_decode, instruccion_exec_split[1]);
+        string_append(&instruccion_decode, " ");
+        string_append(&instruccion_decode, string_itoa(direccion_fisica));
+        string_append(&instruccion_decode, " ");
+        string_append(&instruccion_decode, instruccion_exec_split[3]);
+    }
+    if(strcmp(instruccion_exec_split[0],"IO_FS_WRITE") == 0){
+        unsigned int valor_registro = get_valor_registro(instruccion_exec_split[3]);
+        direccion_fisica = traducir_a_direccion_fisica(contexto->pid, valor_registro, socket_cliente_memoria, algoritmo_tlb, cantidad_entradas_tlb);
+        string_append(&instruccion_decode, instruccion_exec_split[0]);
+        string_append(&instruccion_decode, " ");
+        string_append(&instruccion_decode, instruccion_exec_split[1]);
+        string_append(&instruccion_decode, " ");
+        string_append(&instruccion_decode, instruccion_exec_split[2]);
+        string_append(&instruccion_decode, " ");
+        string_append(&instruccion_decode, string_itoa(direccion_fisica));
+        string_append(&instruccion_decode, " ");
+        string_append(&instruccion_decode, instruccion_exec_split[4]);
+        string_append(&instruccion_decode, " ");
+        string_append(&instruccion_decode, instruccion_exec_split[5]);
+    }
+    if(strcmp(instruccion_exec_split[0],"IO_FS_READ") == 0){
+        unsigned int valor_registro = get_valor_registro(instruccion_exec_split[1]);
+        direccion_fisica = traducir_a_direccion_fisica(contexto->pid, valor_registro, socket_cliente_memoria, algoritmo_tlb, cantidad_entradas_tlb);
+        string_append(&instruccion_decode, instruccion_exec_split[0]);
+        string_append(&instruccion_decode, " ");
+        string_append(&instruccion_decode, instruccion_exec_split[1]);
+        string_append(&instruccion_decode, " ");
+        string_append(&instruccion_decode, instruccion_exec_split[2]);
+        string_append(&instruccion_decode, " ");
+        string_append(&instruccion_decode, string_itoa(direccion_fisica));
+        string_append(&instruccion_decode, " ");
+        string_append(&instruccion_decode, instruccion_exec_split[4]);
+        string_append(&instruccion_decode, " ");
+        string_append(&instruccion_decode, instruccion_exec_split[5]);
+    }
+    if(string_length(instruccion_decode) > 0){
+        instruccion_exec = instruccion_decode;
+    }
+
 }
 
 void execute(int socket_cliente_kernel){
@@ -67,4 +141,19 @@ void check_interrupt(int socket_cliente_memoria, int socket_kernel_dispatch){
         sem_wait(&sem_execute);
     }
     
+}
+
+
+unsigned int get_valor_registro(char * registro){
+    if(strcmp(registro,"PC") == 0){return contexto->reg_generales->PC}
+    if(strcmp(registro,"AX") == 0){return contexto->reg_generales->PC}
+    if(strcmp(registro,"BX") == 0){return contexto->reg_generales->PC}
+    if(strcmp(registro,"CX") == 0){return contexto->reg_generales->PC}
+    if(strcmp(registro,"DX") == 0){return contexto->reg_generales->PC}
+    if(strcmp(registro,"EAX") == 0){return contexto->reg_generales->PC}
+    if(strcmp(registro,"EBX") == 0){return contexto->reg_generales->PC}
+    if(strcmp(registro,"ECX") == 0){return contexto->reg_generales->PC}
+    if(strcmp(registro,"EDX") == 0){return contexto->reg_generales->PC}
+    if(strcmp(registro,"SI") == 0){return contexto->reg_generales->PC}
+    if(strcmp(registro,"DI") == 0){return contexto->reg_generales->PC}
 }

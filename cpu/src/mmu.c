@@ -52,7 +52,7 @@ void remplazar_por_lru(int tamanio_tlb, entrada_tlb_t * entrada){
     }
 }
 
-int traducir_a_direccion_fisica(int pid, int dir_logica, int socket_cliente, char * algoritmo_tlb, int tamanio_tlb){
+unsigned int traducir_a_direccion_fisica(int pid, unsigned int dir_logica, int socket_cliente, char * algoritmo_tlb, int tamanio_tlb){
     
     int numero_marco;
     int numero_pagina = floor(dir_logica / tamanio_pagina);
