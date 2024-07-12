@@ -159,15 +159,7 @@ void iniciar_dialfs(t_config * config){
     	bitmap_bloques_libres = bitarray_create_with_mode(bitmap, cantidad_bloques / 8, LSB_FIRST);
         for(int i = 0;i < cantidad_bloques; i++){
                 bitarray_clean_bit(bitmap_bloques_libres, i);
-
-                //PARA PRUEBAS
-                if(i==0 || i==127){
-                    bitarray_set_bit(bitmap_bloques_libres, i);
-                }
-
-
 	    }
-        
         fwrite(bitmap_bloques_libres->bitarray, bitmap_bloques_libres->size /8, 1, file_bitmap);
         
         //Inicializo bloques

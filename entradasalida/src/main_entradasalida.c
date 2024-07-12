@@ -16,14 +16,6 @@ int main(int argc, char* argv[]) {
 
     if(strcmp(tipo_interfaz, "DIALFS") == 0){
         iniciar_dialfs(config);
-        for(int i = 0; i<bitmap_bloques_libres->size;i++){
-            if(bitarray_test_bit(bitmap_bloques_libres,i)){
-                printf("%d-%s\n", i, "True");
-            }else{
-                printf("%d-%s\n", i, "False");
-            }
-        }
-        return EXIT_SUCCESS;
     }
 
     //Inicia conexion con kernel
