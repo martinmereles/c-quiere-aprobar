@@ -9,10 +9,12 @@
 #include <commons/collections/list.h>
 #include <utils/client-server.h>
 #include <commons/bitarray.h>
+#include <commons/string.h>
 
 extern char* nombre_interfaz;
 extern char* tipo_interfaz;
 extern int socket_cliente_memoria;
+extern t_bitarray* bitmap_bloques_libres;
 
 void iniciar_hilo_kernel(t_config* config);
 void entender_mensajes(char* mensaje, int socket_cliente,int tiempo_unidad_trabajo);

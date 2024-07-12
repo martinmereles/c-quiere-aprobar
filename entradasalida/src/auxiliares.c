@@ -148,25 +148,44 @@ void iniciar_dialfs(t_config * config){
     int cantidad_bloques = config_get_int_value(config, "BLOCK_COUNT");
 
     FILE* file_bitmap = fopen(path_dialfs_bitmap, "r+");
+    FILE* file_bloques = fopen(path_dialfs_bloques, "r+");
 
-    if(file_bitmap == NULL){
-        FILE* file_bloques = fopen(path_dialfs_bloques, "w+");
+    if(file_bitmap == NULL || file_bloques == NULL){
+        file_bloques = fopen(path_dialfs_bloques, "w+");
         file_bitmap = fopen(path_dialfs_bitmap, "w+");
 
         //Inicializo bitmap
         void * bitmap = malloc(cantidad_bloques / 8);
-    	t_bitarray * bitmap_bloques_libres = bitarray_create_with_mode(bitmap, cantidad_bloques / 8, LSB_FIRST);
+    	bitmap_bloques_libres = bitarray_create_with_mode(bitmap, cantidad_bloques / 8, LSB_FIRST);
         for(int i = 0;i < cantidad_bloques; i++){
-		    bitarray_clean_bit(bitmap_bloques_libres, i);
+                bitarray_clean_bit(bitmap_bloques_libres, i);
+
+                //PARA PRUEBAS
+                if(i==0 || i==127){
+                    bitarray_set_bit(bitmap_bloques_libres, i);
+                }
+
+
 	    }
-        fwrite(bitmap_bloques_libres, 1, sizeof(bitmap_bloques_libres), file_bitmap);
+        
+        fwrite(bitmap_bloques_libres->bitarray, bitmap_bloques_libres->size /8, 1, file_bitmap);
         
         //Inicializo bloques
         void * bloques = calloc(cantidad_bloques, tamanio_bloque);
-        fwrite(bloques, sizeof(bloques), 1, file_bloques);
+        fwrite(bloques, tamanio_bloque, cantidad_bloques, file_bloques);
 
+        fclose(file_bitmap);
+        fclose(file_bloques);
     }else{
-        FILE* file_bloques = fopen(path_dialfs_bloques, "r+");
-    }
+        fseek(file_bitmap, 0L, SEEK_END);
+        int sz = ftell(file_bitmap);
+        rewind(file_bitmap);
 
+        void * bitmap = malloc(cantidad_bloques / 8);
+    	bitmap_bloques_libres = bitarray_create_with_mode(bitmap, cantidad_bloques / 8, LSB_FIRST);
+        fread(bitmap_bloques_libres->bitarray, sz, 1, file_bitmap);
+        fclose(file_bitmap);
+        fclose(file_bloques);
+    }
+    
 }
