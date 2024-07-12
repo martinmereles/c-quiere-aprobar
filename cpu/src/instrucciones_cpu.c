@@ -37,7 +37,7 @@ int deCharAEnum(char* registro){
     
 }
 
-void ejecutarSentencia(int socket_kernel){
+void ejecutarSentencia(int socket_kernel, int socket_cliente_memoria){
 
     char ** sentenciasSplit = string_split(instruccion_exec, " ");
     if(strcmp(sentenciasSplit[0],"SET")==0) set(sentenciasSplit[1],sentenciasSplit[2]);
@@ -1103,4 +1103,69 @@ void io_stdout_write (char * interfaz, char * direccion, char * tamanio, int soc
 void exit_inst(int socket_kernel){
     //TODO Ver que implica el exit
     enviar_pcb_contexto(socket_kernel, contexto);
+}
+
+void mov_in(/*char* registro, char * direccion, int socket_cliente_memoria*/){
+    /*
+    int tamanio;
+    if(string_starts_with(registro, "E")){
+        tamanio = 4;
+    }else{
+        tamanio = 1;
+    }
+    char* mensaje = string_new();
+    string_append(&mensaje, "READ ");
+    string_append(&mensaje, direccion);
+    string_append(&mensaje, " ");
+    string_append(&mensaje, string_itoa(tamanio));
+    enviar_mensaje(mensaje, socket_cliente_memoria);
+
+    int cod_op = recibir_operacion(socket_cliente_memoria);
+    int size;
+    char* buffer = recibir_buffer(&size, socket_cliente_memoria);
+    char ** mensaje_split = string_split(buffer, " ");
+
+
+    log_info(logger, "Se ejecuto la instrucción IO_STDOUT_WRITE con los parametros interfaz %s , direccion %s , tamanio %s y pid %d", interfaz, direccion, tamanio, contexto->pid);
+    */
+}
+
+void mov_out(){
+    
+}
+
+void resize(){
+
+}
+
+void copy_string(){
+    
+}
+
+void wait(){
+    
+}
+
+void signal(){
+    
+}
+
+void io_fs_create(){
+    
+}
+
+void io_fs_delete(){
+    
+}
+
+void io_fs_truncate(){
+    
+}
+
+void io_fs_write(){
+    
+}
+
+void io_fs_read(){
+    
 }

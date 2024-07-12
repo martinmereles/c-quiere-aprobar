@@ -13,6 +13,10 @@ int main(int argc, char* argv[]) {
     tipo_interfaz = config_get_string_value(config, "TIPO_INTERFAZ");
     char* tiempo_unidad_trabajo = config_get_string_value(config, "TIEMPO_UNIDAD_TRABAJO");
 
+    if(strcmp(tipo_interfaz, "DIALFS") == 0){
+        iniciar_dialfs(config);
+    }
+
     //Inicia conexion con kernel
     
     pthread_t hiloKernel;

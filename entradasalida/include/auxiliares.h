@@ -8,6 +8,7 @@
 #include <commons/config.h>
 #include <commons/collections/list.h>
 #include <utils/client-server.h>
+#include <commons/bitarray.h>
 
 extern char* nombre_interfaz;
 extern char* tipo_interfaz;
@@ -18,5 +19,5 @@ void entender_mensajes(char* mensaje, int socket_cliente,int tiempo_unidad_traba
 void io_gen_sleep(char* unidades_tiempo, char* pid, int tiempo_unidad_trabajo, int socket_cliente);
 void io_stdin_read(char *direccion, char *tamanio, char * pid, int socket_cliente);
 void io_stdout_write(char *direccion, char *tamanio, char * pid, int socket_cliente);
-
+void iniciar_dialfs(t_config * config);
 #endif

@@ -88,7 +88,7 @@ int main(int argc, char* argv[]) {
 	while(1){
 		fetch(socket_cliente_memoria);
 		decode(socket_cliente_memoria, algoritmo_tlb, cantidad_entradas_tlb);
-		execute(socket_kernel_dispatch);
+		execute(socket_kernel_dispatch, socket_cliente_memoria);
 		check_interrupt(socket_cliente_memoria, socket_kernel_dispatch);
 	}
 

@@ -52,18 +52,24 @@ void remplazar_por_lru(int tamanio_tlb, entrada_tlb_t * entrada){
     }
 }
 
-unsigned int traducir_a_direccion_fisica(int pid, unsigned int dir_logica, int socket_cliente, char * algoritmo_tlb, int tamanio_tlb){
+int calcular_cant_pag(int desplazamiento, int tam_registro){
+    
+    int cant_pag = floor((desplazamiento + tam_registro) / tamanio_pagina);
+    return(cant_pag);
+
+}
+
+
+int obtener_marco(int pid, int numero_pagina, int socket_cliente, char * algoritmo_tlb, int tamanio_tlb){
     
     int numero_marco;
-    int numero_pagina = floor(dir_logica / tamanio_pagina);
-    int desplazamiento = dir_logica - numero_pagina * tamanio_pagina;
 
     entrada_tlb_t * entrada = malloc(sizeof(entrada_tlb_t));
     entrada = NULL;
     entrada = obtener_entrada(pid, numero_pagina);
 
     if(entrada != NULL){
-        return (entrada->marco * tamanio_pagina) + desplazamiento;
+        return (entrada->marco);
     }else{
         char* mensaje = string_new();
         string_append(&mensaje, "OBTENER_MARCO ");
@@ -93,6 +99,23 @@ unsigned int traducir_a_direccion_fisica(int pid, unsigned int dir_logica, int s
         }else{
             remplazar_por_lru(tamanio_tlb, entrada);
         }
-        return (numero_marco * tamanio_pagina) + desplazamiento;
+        return (numero_marco);
     }
+    
+}
+
+t_list* marcos_a_leer(int pid, unsigned int dir_logica, int tam_registro, int socket_cliente, char * algoritmo_tlb, int tamanio_tlb){
+    t_list * lista_marcos = list_create();
+    int numero_pagina = floor(dir_logica / tamanio_pagina);
+    int desplazamiento = dir_logica - numero_pagina * tamanio_pagina;
+
+    int cant_paginas = calcular_cant_pag(desplazamiento, tam_registro);
+
+    for(int i=0; i<=cant_paginas;i++){
+
+        int aux = obtener_marco(pid, numero_pagina, socket_cliente,algoritmo_tlb, tamanio_tlb);
+        list_add(lista_marcos, aux);
+    }
+
+    return(lista_marcos)
 }
