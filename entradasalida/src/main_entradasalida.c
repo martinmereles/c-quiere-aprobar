@@ -5,6 +5,7 @@ char* nombre_interfaz;
 char* tipo_interfaz;
 int socket_cliente_memoria;
 t_bitarray* bitmap_bloques_libres;
+sem_t sem_fs;
 
 int main(int argc, char* argv[]) {
 
@@ -16,7 +17,9 @@ int main(int argc, char* argv[]) {
 
     if(strcmp(tipo_interfaz, "DIALFS") == 0){
         iniciar_dialfs(config);
+        sem_init(&sem_fs, 0, 1);
     }
+
 
     //Inicia conexion con kernel
     pthread_t hiloKernel;

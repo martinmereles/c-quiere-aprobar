@@ -181,3 +181,76 @@ void iniciar_dialfs(t_config * config){
     }
     
 }
+
+void io_fs_create(char* nombre_archivo, t_config * config){
+    char* path_dialfs = config_get_string_value(config, "PATH_BASE_DIALFS");
+    char* path_metadata = string_new();
+    string_append(&path_metadata, path_dialfs);
+    string_append(&path_metadata, "/");
+    string_append(&path_metadata, nombre_archivo);
+    char* text_bloque_inicial = string_new();
+    char* text_tamanio = string_new();
+    string_append(&text_bloque_inicial, "BLOQUE_INICIAL=");
+    string_append(&text_tamanio, "TAMANIO_ARCHIVO=0");
+
+    sem_wait(&sem_fs);
+    int posicion = primer_bloque_libre();
+    if(posicion != -1){
+        FILE* metadata = txt_open_for_append(path_metadata);
+        string_append(&text_bloque_inicial, string_itoa(posicion));
+        string_append(&text_bloque_inicial, "\n");
+        txt_write_in_file(metadata, text_bloque_inicial);
+        txt_write_in_file(metadata, text_tamanio);
+        set_bloque_usado(posicion, config);
+        txt_close_file(metadata);
+    }else{
+        log_error(logger, "No hay espacio para la creacion");
+    }
+    sem_post(&sem_fs);   
+}
+
+/*void io_fs_delete(){
+    
+}
+
+void io_fs_truncate(){
+    
+}
+
+void io_fs_write(){
+    
+}
+
+void io_fs_read(){
+    
+}
+
+void compactacion(){
+
+}
+*/
+int primer_bloque_libre(){
+    int posicion = 0;
+    while (bitarray_test_bit(bitmap_bloques_libres, posicion) && posicion < (bitmap_bloques_libres->size - 1))
+    {
+        posicion++;
+    }
+
+    if(posicion >= (bitmap_bloques_libres->size - 1)){
+        posicion = -1;
+    }
+
+    return posicion;
+}
+
+void set_bloque_usado(int posicion, t_config * config){
+    char* path_dialfs = config_get_string_value(config, "PATH_BASE_DIALFS");
+    char* path_dialfs_bitmap = string_new();
+    string_append(&path_dialfs_bitmap, path_dialfs);
+    string_append(&path_dialfs_bitmap, "/");
+    string_append(&path_dialfs_bitmap, "bitmap.dat");
+    FILE* file_bitmap = fopen(path_dialfs_bitmap, "r+");
+    bitarray_set_bit(bitmap_bloques_libres, posicion);
+    fwrite(bitmap_bloques_libres->bitarray, bitmap_bloques_libres->size /8, 1, file_bitmap);
+    fclose(file_bitmap);
+}
