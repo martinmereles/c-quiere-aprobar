@@ -160,7 +160,7 @@ void iniciar_dialfs(t_config * config){
         for(int i = 0;i < cantidad_bloques; i++){
                 bitarray_clean_bit(bitmap_bloques_libres, i);
 	    }
-        fwrite(bitmap_bloques_libres->bitarray, bitmap_bloques_libres->size /8, 1, file_bitmap);
+        fwrite(bitmap_bloques_libres->bitarray, bitmap_bloques_libres->size, 1, file_bitmap);
         
         //Inicializo bloques
         void * bloques = calloc(cantidad_bloques, tamanio_bloque);
@@ -260,7 +260,7 @@ void io_fs_truncate(char* nombre_archivo, int tamanio_a_truncar, t_config * conf
         }
 
     }else if(cant_bloques_actuales < cant_bloques_nuevos){
-        //Compactar en caso necesario y agrandar el archivo
+        int cantidad_libres_contiguos = cantidad_bloques_contiguos(/*OJO*/0);
     }
 
 
@@ -268,15 +268,23 @@ void io_fs_truncate(char* nombre_archivo, int tamanio_a_truncar, t_config * conf
 
 }
 
+int cantidad_bloques_contiguos(int bloque_final_archivo){
+    int cantidad_libres_contiguos = 0;
+    while((bloque_final_archivo + cantidad_libres_contiguos + 1) <= (bitmap_bloques_libres->size*8 - 1) && !bitarray_test_bit(bitmap_bloques_libres, (bloque_final_archivo + cantidad_libres_contiguos + 1))){
+        cantidad_libres_contiguos++;
+    }
+    return(cantidad_libres_contiguos);
+}
+
 
 int primer_bloque_libre(){
     int posicion = 0;
-    while (bitarray_test_bit(bitmap_bloques_libres, posicion) && posicion < (bitmap_bloques_libres->size - 1))
+    while (bitarray_test_bit(bitmap_bloques_libres, posicion) && posicion < (bitmap_bloques_libres->size*8 - 1))
     {
         posicion++;
     }
 
-    if(posicion >= (bitmap_bloques_libres->size - 1)){
+    if(posicion >= (bitmap_bloques_libres->size*8 - 1)){
         posicion = -1;
     }
 
@@ -291,7 +299,7 @@ void set_bloque_usado(int posicion, t_config * config){
     string_append(&path_dialfs_bitmap, "bitmap.dat");
     FILE* file_bitmap = fopen(path_dialfs_bitmap, "r+");
     bitarray_set_bit(bitmap_bloques_libres, posicion);
-    fwrite(bitmap_bloques_libres->bitarray, bitmap_bloques_libres->size /8, 1, file_bitmap);
+    fwrite(bitmap_bloques_libres->bitarray, bitmap_bloques_libres->size, 1, file_bitmap);
     fclose(file_bitmap);
 }
 
@@ -303,6 +311,6 @@ void set_bloque_libre(int posicion, t_config * config){
     string_append(&path_dialfs_bitmap, "bitmap.dat");
     FILE* file_bitmap = fopen(path_dialfs_bitmap, "r+");
     bitarray_clean_bit(bitmap_bloques_libres, posicion);
-    fwrite(bitmap_bloques_libres->bitarray, bitmap_bloques_libres->size /8, 1, file_bitmap);
+    fwrite(bitmap_bloques_libres->bitarray, bitmap_bloques_libres->size, 1, file_bitmap);
     fclose(file_bitmap);
 }

@@ -28,5 +28,6 @@ int primer_bloque_libre();
 void set_bloque_usado(int posicion, t_config * config);
 void io_fs_truncate(char* nombre_archivo, int tamanio_a_truncar, t_config * config);
 void set_bloque_libre(int posicion, t_config * config);
+int cantidad_bloques_contiguos(int bloque_final_archivo);
 
 #endif

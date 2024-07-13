@@ -19,6 +19,7 @@ int main(int argc, char* argv[]) {
         iniciar_dialfs(config);
         sem_init(&sem_fs, 0, 1);
     }
+    int a = cantidad_bloques_contiguos(0);
     io_fs_truncate("Prueba1.txt", 30, config);
 
     //Inicia conexion con kernel
