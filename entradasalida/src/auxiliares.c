@@ -213,10 +213,6 @@ void io_fs_create(char* nombre_archivo, t_config * config){
     
 }
 
-void io_fs_truncate(){
-    
-}
-
 void io_fs_write(){
     
 }
@@ -229,6 +225,50 @@ void compactacion(){
 
 }
 */
+
+void io_fs_truncate(char* nombre_archivo, int tamanio_a_truncar, t_config * config){
+    char* path_dialfs = config_get_string_value(config, "PATH_BASE_DIALFS");
+    char* path_metadata = string_new();
+    int tamanio_bloque = config_get_int_value(config, "BLOCK_SIZE");
+    string_append(&path_metadata, path_dialfs);
+    string_append(&path_metadata, "/");
+    string_append(&path_metadata, nombre_archivo);
+
+
+    //Preguntar si esta bien usarlo
+    t_config * archivo_metadata;
+    archivo_metadata = iniciar_config(logger, path_metadata);
+    int tamanio_archivo = config_get_int_value(archivo_metadata, "TAMANIO_ARCHIVO");
+    int bloque_inicial = config_get_int_value(archivo_metadata, "BLOQUE_INICIAL");
+    
+    int cant_bloques_actuales = floor(tamanio_archivo / tamanio_bloque) + 1;
+    int cant_bloques_nuevos = floor(tamanio_a_truncar / tamanio_bloque) + 1;
+
+    if(cant_bloques_actuales == cant_bloques_nuevos){
+        config_set_value(archivo_metadata, "TAMANIO_ARCHIVO", string_itoa(tamanio_a_truncar));
+        config_save(archivo_metadata);
+        config_destroy(archivo_metadata);
+    }else if(cant_bloques_actuales > cant_bloques_nuevos){
+        config_set_value(archivo_metadata, "TAMANIO_ARCHIVO", string_itoa(tamanio_a_truncar));
+        config_save(archivo_metadata);
+        config_destroy(archivo_metadata);
+
+
+        int cant_a_liberar = cant_bloques_actuales - cant_bloques_nuevos;
+        for(int i = 1; i <= cant_a_liberar ;i++){
+            set_bloque_libre(bloque_inicial + cant_bloques_nuevos + i - 1,config);
+        }
+
+    }else if(cant_bloques_actuales < cant_bloques_nuevos){
+        //Compactar en caso necesario y agrandar el archivo
+    }
+
+
+
+
+}
+
+
 int primer_bloque_libre(){
     int posicion = 0;
     while (bitarray_test_bit(bitmap_bloques_libres, posicion) && posicion < (bitmap_bloques_libres->size - 1))
@@ -251,6 +291,18 @@ void set_bloque_usado(int posicion, t_config * config){
     string_append(&path_dialfs_bitmap, "bitmap.dat");
     FILE* file_bitmap = fopen(path_dialfs_bitmap, "r+");
     bitarray_set_bit(bitmap_bloques_libres, posicion);
+    fwrite(bitmap_bloques_libres->bitarray, bitmap_bloques_libres->size /8, 1, file_bitmap);
+    fclose(file_bitmap);
+}
+
+void set_bloque_libre(int posicion, t_config * config){
+    char* path_dialfs = config_get_string_value(config, "PATH_BASE_DIALFS");
+    char* path_dialfs_bitmap = string_new();
+    string_append(&path_dialfs_bitmap, path_dialfs);
+    string_append(&path_dialfs_bitmap, "/");
+    string_append(&path_dialfs_bitmap, "bitmap.dat");
+    FILE* file_bitmap = fopen(path_dialfs_bitmap, "r+");
+    bitarray_clean_bit(bitmap_bloques_libres, posicion);
     fwrite(bitmap_bloques_libres->bitarray, bitmap_bloques_libres->size /8, 1, file_bitmap);
     fclose(file_bitmap);
 }
