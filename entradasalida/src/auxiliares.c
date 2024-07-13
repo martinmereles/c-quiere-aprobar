@@ -236,10 +236,13 @@ void io_fs_truncate(char* nombre_archivo, int tamanio_a_truncar, t_config * conf
 
 
     //Preguntar si esta bien usarlo
+    sem_wait(&sem_fs);
+    
     t_config * archivo_metadata;
     archivo_metadata = iniciar_config(logger, path_metadata);
     int tamanio_archivo = config_get_int_value(archivo_metadata, "TAMANIO_ARCHIVO");
     int bloque_inicial = config_get_int_value(archivo_metadata, "BLOQUE_INICIAL");
+    
     
     int cant_bloques_actuales = floor(tamanio_archivo / tamanio_bloque) + 1;
     int cant_bloques_nuevos = floor(tamanio_a_truncar / tamanio_bloque) + 1;
@@ -260,13 +263,30 @@ void io_fs_truncate(char* nombre_archivo, int tamanio_a_truncar, t_config * conf
         }
 
     }else if(cant_bloques_actuales < cant_bloques_nuevos){
-        int cantidad_libres_contiguos = cantidad_bloques_contiguos(/*OJO*/0);
+        int cantidad_total_bloques_libres = cantidad_bloques_libres();
+        if(cantidad_total_bloques_libres >= (cant_bloques_nuevos-cant_bloques_actuales))
+        {
+        int bloque_final_archivo = cant_bloques_actuales + bloque_inicial - 1;
+        int cantidad_libres_contiguos = cantidad_bloques_contiguos(bloque_final_archivo);
+        int cantidad_a_agregar = cant_bloques_nuevos - cant_bloques_actuales;
+        if(cantidad_libres_contiguos >= cantidad_a_agregar){
+            for(int i = 1; i <= cantidad_a_agregar ;i++){
+                set_bloque_usado(bloque_final_archivo + i,config);
+            }
+        }else{
+            //compactar
+            
+        }
+        }else{
+            log_error(logger,"Espacio insuficiente en disco")
+        }
+
     }
-
-
-
-
+    sem_post(&sem_fs);
 }
+
+
+
 
 int cantidad_bloques_contiguos(int bloque_final_archivo){
     int cantidad_libres_contiguos = 0;
@@ -276,6 +296,14 @@ int cantidad_bloques_contiguos(int bloque_final_archivo){
     return(cantidad_libres_contiguos);
 }
 
+int cantidad_bloques_libres(){
+    int cantidad_total_bloques_libres = 0;
+    for(int i = 0; bitmap_bloques_libres->size*8 > i, i++){
+        if (!bitarray_test_bit(bitmap_bloques_libres, i)){
+            cantidad_total_bloques_libres++;
+        }
+    }
+}
 
 int primer_bloque_libre(){
     int posicion = 0;
