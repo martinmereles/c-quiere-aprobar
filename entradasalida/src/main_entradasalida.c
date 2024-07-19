@@ -19,47 +19,6 @@ int main(int argc, char* argv[]) {
         iniciar_dialfs(config);
         sem_init(&sem_fs, 0, 1);
     }
-    //ARRANCA PRUEBA
-    for(int i = 0; i<100;i++){
-        if(bitarray_test_bit(bitmap_bloques_libres,i)){
-            printf("%d - Ocupado\n", i);
-        }else{
-            printf("%d - Libre\n", i);
-        }
-    }
-
-    io_fs_create("Prueba45.txt", config);
-
-    for(int i = 0; i<100;i++){
-        if(bitarray_test_bit(bitmap_bloques_libres,i)){
-            printf("%d - Ocupado\n", i);
-        }else{
-            printf("%d - Libre\n", i);
-        }
-    }
-
-    io_fs_truncate("Prueba45.txt", 400, config);
-
-    for(int i = 0; i<100;i++){
-        if(bitarray_test_bit(bitmap_bloques_libres,i)){
-            printf("%d - Ocupado\n", i);
-        }else{
-            printf("%d - Libre\n", i);
-        }
-    }
-
-    io_fs_delete("Prueba45.txt", config);
-
-    for(int i = 0; i<100;i++){
-        if(bitarray_test_bit(bitmap_bloques_libres,i)){
-            printf("%d - Ocupado\n", i);
-        }else{
-            printf("%d - Libre\n", i);
-        }
-    }
-
-    return 0;
-    //TERMINA PRUEBA
 
     //Inicia conexion con kernel
     pthread_t hiloKernel;
