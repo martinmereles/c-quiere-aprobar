@@ -30,4 +30,5 @@ void io_fs_truncate(char* nombre_archivo, int tamanio_a_truncar, t_config * conf
 void set_bloque_libre(int posicion, t_config * config);
 int cantidad_bloques_contiguos(int bloque_final_archivo);
 int cantidad_bloques_libres();
+void io_fs_delete(char* nombre_archivo, t_config * config);
 #endif

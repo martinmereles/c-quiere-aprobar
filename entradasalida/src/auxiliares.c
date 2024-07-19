@@ -209,10 +209,32 @@ void io_fs_create(char* nombre_archivo, t_config * config){
     sem_post(&sem_fs);   
 }
 
-/*void io_fs_delete(){
+void io_fs_delete(char* nombre_archivo, t_config * config){
     
+    char* path_dialfs = config_get_string_value(config, "PATH_BASE_DIALFS");
+    char* path_metadata = string_new();
+    int tamanio_bloque = config_get_int_value(config, "BLOCK_SIZE");
+    string_append(&path_metadata, path_dialfs);
+    string_append(&path_metadata, "/");
+    string_append(&path_metadata, nombre_archivo);
+
+    sem_wait(&sem_fs);
+    t_config * archivo_metadata;
+    archivo_metadata = iniciar_config(logger, path_metadata);
+    int tamanio_archivo = config_get_int_value(archivo_metadata, "TAMANIO_ARCHIVO");
+    int bloque_inicial = config_get_int_value(archivo_metadata, "BLOQUE_INICIAL");
+    int cant_bloques_actuales = floor(tamanio_archivo / tamanio_bloque) + 1;
+
+    for(int i = 0; i < cant_bloques_actuales ;i++){
+            set_bloque_libre(bloque_inicial + i,config);
+    }
+
+    config_destroy(archivo_metadata);
+    remove(path_metadata);
+    sem_post(&sem_fs);
 }
 
+/*
 void io_fs_write(){
     
 }
@@ -273,15 +295,20 @@ void io_fs_truncate(char* nombre_archivo, int tamanio_a_truncar, t_config * conf
             for(int i = 1; i <= cantidad_a_agregar ;i++){
                 set_bloque_usado(bloque_final_archivo + i,config);
             }
+        config_set_value(archivo_metadata, "TAMANIO_ARCHIVO", string_itoa(tamanio_a_truncar));
         }else{
             //compactar
+            config_set_value(archivo_metadata, "TAMANIO_ARCHIVO", string_itoa(tamanio_a_truncar));
             
         }
+        config_save(archivo_metadata);
+        config_destroy(archivo_metadata);
         }else{
-            log_error(logger,"Espacio insuficiente en disco")
+            log_error(logger,"Espacio insuficiente en disco");
         }
 
     }
+    
     sem_post(&sem_fs);
 }
 
@@ -298,11 +325,12 @@ int cantidad_bloques_contiguos(int bloque_final_archivo){
 
 int cantidad_bloques_libres(){
     int cantidad_total_bloques_libres = 0;
-    for(int i = 0; bitmap_bloques_libres->size*8 > i, i++){
+    for(int i = 0; bitmap_bloques_libres->size*8 > i; i++){
         if (!bitarray_test_bit(bitmap_bloques_libres, i)){
             cantidad_total_bloques_libres++;
         }
     }
+    return cantidad_bloques_libres;
 }
 
 int primer_bloque_libre(){
