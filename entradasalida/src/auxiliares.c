@@ -370,3 +370,29 @@ void set_bloque_libre(int posicion, t_config * config){
     fwrite(bitmap_bloques_libres->bitarray, bitmap_bloques_libres->size, 1, file_bitmap);
     fclose(file_bitmap);
 }
+
+void compactar (t_config* config) {
+ char* path_dialfs = config_get_string_value(config, "PATH_BASE_DIALFS");
+t_list* lista_archivos = list_create();
+
+
+    DIR* d;
+  struct dirent *dir;
+  d = opendir(path_dialfs);
+  if (d) {
+    while ((dir = readdir(d)) != NULL) {
+
+    if ( !string_starts_with(dir->d_name,"bitmap.dat") && !string_starts_with(dir->d_name,"bloques.dat") && !string_starts_with(dir->d_name,".") ){
+        archivo* aux = malloc (sizeof(archivo));
+ 
+        aux->nombre = string_duplicate (dir->d_name);
+        int a = string_length(aux->nombre);
+
+        list_add(lista_archivos, aux);
+
+    printf("%s\n", dir->d_name);
+    }
+    }
+    closedir(d);
+  }
+}

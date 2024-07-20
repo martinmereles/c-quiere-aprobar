@@ -19,6 +19,7 @@ int main(int argc, char* argv[]) {
         iniciar_dialfs(config);
         sem_init(&sem_fs, 0, 1);
     }
+compactar(config);
 
     //Inicia conexion con kernel
     pthread_t hiloKernel;

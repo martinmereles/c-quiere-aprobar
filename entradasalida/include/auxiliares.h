@@ -10,6 +10,7 @@
 #include <utils/client-server.h>
 #include <commons/bitarray.h>
 #include <commons/string.h>
+#include <dirent.h>
 
 extern char* nombre_interfaz;
 extern char* tipo_interfaz;
@@ -31,4 +32,14 @@ void set_bloque_libre(int posicion, t_config * config);
 int cantidad_bloques_contiguos(int bloque_final_archivo);
 int cantidad_bloques_libres();
 void io_fs_delete(char* nombre_archivo, t_config * config);
+void compactar (t_config* config);
+
+typedef struct{
+
+    char* nombre;
+    int cantidad_bloques;
+    int bloque_inicial;
+
+}archivo;
+
 #endif
