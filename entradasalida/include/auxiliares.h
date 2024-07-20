@@ -18,6 +18,14 @@ extern int socket_cliente_memoria;
 extern t_bitarray* bitmap_bloques_libres;
 extern sem_t sem_fs;
 
+typedef struct{
+
+    char* nombre;
+    int cantidad_bloques;
+    int bloque_inicial;
+
+}archivo_t;
+
 void iniciar_hilo_kernel(t_config* config);
 void entender_mensajes(char* mensaje, int socket_cliente,int tiempo_unidad_trabajo);
 void io_gen_sleep(char* unidades_tiempo, char* pid, int tiempo_unidad_trabajo, int socket_cliente);
@@ -33,13 +41,9 @@ int cantidad_bloques_contiguos(int bloque_final_archivo);
 int cantidad_bloques_libres();
 void io_fs_delete(char* nombre_archivo, t_config * config);
 void compactar (t_config* config);
+bool esta_ordenado (archivo_t* element1, archivo_t* element2);
+void limpiar_bitmap (t_config* config);
 
-typedef struct{
 
-    char* nombre;
-    int cantidad_bloques;
-    int bloque_inicial;
-
-}archivo;
 
 #endif

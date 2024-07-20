@@ -371,28 +371,97 @@ void set_bloque_libre(int posicion, t_config * config){
     fclose(file_bitmap);
 }
 
+bool esta_ordenado (archivo_t* element1, archivo_t* element2){
+   // archivo_t* aux1 =malloc(sizeof(archivo_t));
+    //archivo_t* aux2 =malloc(sizeof(archivo_t));
+    //aux1 = element1;
+    //aux2 = element2;
+    bool resultado = element1->bloque_inicial < element2->bloque_inicial;
+    return resultado;
+
+
+}
+
+void limpiar_bitmap (t_config* config) {
+for (int i = 0; i < bitarray_get_max_bit (bitmap_bloques_libres); i++)
+{
+   set_bloque_libre (i, config);
+}
+
+
+}
+
 void compactar (t_config* config) {
- char* path_dialfs = config_get_string_value(config, "PATH_BASE_DIALFS");
+char* path_dialfs = config_get_string_value(config, "PATH_BASE_DIALFS");
+int tamanio_bloque = config_get_int_value(config, "BLOCK_SIZE");
 t_list* lista_archivos = list_create();
+char* path_bloques = string_new();
+string_append (&path_bloques, path_dialfs);
+string_append(&path_bloques,"/" );
+string_append(&path_bloques, "bloques.dat");
 
 
     DIR* d;
   struct dirent *dir;
   d = opendir(path_dialfs);
+
   if (d) {
     while ((dir = readdir(d)) != NULL) {
+        
 
     if ( !string_starts_with(dir->d_name,"bitmap.dat") && !string_starts_with(dir->d_name,"bloques.dat") && !string_starts_with(dir->d_name,".") ){
-        archivo* aux = malloc (sizeof(archivo));
+        archivo_t* aux = malloc (sizeof(archivo_t));
  
         aux->nombre = string_duplicate (dir->d_name);
         int a = string_length(aux->nombre);
+        
+    t_config * archivo_metadata;
+    char* path_metadata = string_new();
+    string_append (&path_metadata, path_dialfs);
+    string_append(&path_metadata,"/" );
+    string_append(&path_metadata, aux->nombre);
 
-        list_add(lista_archivos, aux);
 
-    printf("%s\n", dir->d_name);
+    archivo_metadata = iniciar_config(logger, path_metadata);
+    int tamanio_archivo = config_get_int_value(archivo_metadata, "TAMANIO_ARCHIVO");
+    int bloque_inicial = config_get_int_value(archivo_metadata, "BLOQUE_INICIAL");
+
+    aux->bloque_inicial = bloque_inicial;
+    int cant_bloques_actuales = floor(tamanio_archivo / tamanio_bloque) + 1;
+    aux->cantidad_bloques = cant_bloques_actuales;
+    
+ 
+
+    list_add_sorted (lista_archivos, aux, (void*) esta_ordenado);
+
+    config_destroy(archivo_metadata);
+
     }
+
     }
     closedir(d);
+    
   }
+  limpiar_bitmap (config);
+    int cantidad_archivos = list_size(lista_archivos);
+  for (int i = 0; i < cantidad_archivos; i++)
+  {
+        archivo_t* auxiliar = malloc(sizeof(archivo_t));
+        auxiliar = list_remove(lista_archivos,0);
+        t_config * metadata;
+    char* path_metadata_auxiliar = string_new();
+    string_append (&path_metadata_auxiliar, path_dialfs);
+    string_append(&path_metadata_auxiliar,"/" );
+    string_append(&path_metadata_auxiliar, auxiliar->nombre);
+    metadata = iniciar_config(logger, path_metadata_auxiliar);
+    int primer_bloque_free = primer_bloque_libre();
+    config_set_value(metadata, "BLOQUE_INICIAL", string_itoa (primer_bloque_free));
+    config_save(metadata);
+    void* archivo_data = malloc(tamanio_bloque * auxiliar->cantidad_bloques);
+    FILE* archivo_abierto = fopen (path_bloques, "r+");
+    
+
+
+      
+  
 }
