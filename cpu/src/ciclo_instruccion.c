@@ -147,15 +147,15 @@ void check_interrupt(int socket_cliente_memoria, int socket_kernel_dispatch){
 
 
 unsigned int get_valor_registro(char * registro){
-    if(strcmp(registro,"PC") == 0){return contexto->reg_generales->PC}
-    if(strcmp(registro,"AX") == 0){return contexto->reg_generales->PC}
-    if(strcmp(registro,"BX") == 0){return contexto->reg_generales->PC}
-    if(strcmp(registro,"CX") == 0){return contexto->reg_generales->PC}
-    if(strcmp(registro,"DX") == 0){return contexto->reg_generales->PC}
-    if(strcmp(registro,"EAX") == 0){return contexto->reg_generales->PC}
-    if(strcmp(registro,"EBX") == 0){return contexto->reg_generales->PC}
-    if(strcmp(registro,"ECX") == 0){return contexto->reg_generales->PC}
-    if(strcmp(registro,"EDX") == 0){return contexto->reg_generales->PC}
-    if(strcmp(registro,"SI") == 0){return contexto->reg_generales->PC}
-    if(strcmp(registro,"DI") == 0){return contexto->reg_generales->PC}
+    if(strcmp(registro,"PC") == 0){return contexto->reg_generales->PC;}
+    if(strcmp(registro,"AX") == 0){return contexto->reg_generales->PC;}
+    if(strcmp(registro,"BX") == 0){return contexto->reg_generales->PC;}
+    if(strcmp(registro,"CX") == 0){return contexto->reg_generales->PC;}
+    if(strcmp(registro,"DX") == 0){return contexto->reg_generales->PC;}
+    if(strcmp(registro,"EAX") == 0){return contexto->reg_generales->PC;}
+    if(strcmp(registro,"EBX") == 0){return contexto->reg_generales->PC;}
+    if(strcmp(registro,"ECX") == 0){return contexto->reg_generales->PC;}
+    if(strcmp(registro,"EDX") == 0){return contexto->reg_generales->PC;}
+    if(strcmp(registro,"SI") == 0){return contexto->reg_generales->PC;}
+    if(strcmp(registro,"DI") == 0){return contexto->reg_generales->PC;}
 }

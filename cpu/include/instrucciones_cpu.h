@@ -28,7 +28,7 @@ void mov_out();
 void resize();
 void copy_string();
 void wait();
-void signal();
+void signal_instruccion();
 void io_fs_create();
 void io_fs_delete();
 void io_fs_truncate();

@@ -117,5 +117,5 @@ t_list* marcos_a_leer(int pid, unsigned int dir_logica, int tam_registro, int so
         list_add(lista_marcos, aux);
     }
 
-    return(lista_marcos)
+    return(lista_marcos);
 }

@@ -36,6 +36,21 @@ void atender_cliente_kernel(int socket_cliente){
             if(strcmp(mensaje_split[0], "IO_STDOUT_WRITE") == 0){
                 io_stdout_write(mensaje_split[1], mensaje_split[2], mensaje_split[3], mensaje_split[4]);
             }
+            if(strcmp(mensaje_split[0], "IO_FS_CREATE") == 0){
+                io_fs_create(mensaje_split[1], mensaje_split[2], mensaje_split[3]);
+            }
+            if(strcmp(mensaje_split[0], "IO_FS_DELETE") == 0){
+                io_fs_delete(mensaje_split[1], mensaje_split[2], mensaje_split[3]);
+            }
+            if(strcmp(mensaje_split[0], "IO_FS_TRUNCATE") == 0){
+                io_fs_truncate(mensaje_split[1], mensaje_split[2], mensaje_split[3], mensaje_split[4]);
+            }
+            if(strcmp(mensaje_split[0], "IO_FS_WRITE") == 0){
+                io_fs_write(mensaje_split[1], mensaje_split[2], mensaje_split[3], mensaje_split[4], mensaje_split[5], mensaje_split[6]);
+            }
+            if(strcmp(mensaje_split[0], "IO_FS_READ") == 0){
+                io_fs_read(mensaje_split[1], mensaje_split[2], mensaje_split[3], mensaje_split[4], mensaje_split[5], mensaje_split[6]);
+            }
             if(strcmp(mensaje_split[0], "CONECTAR_INTERFAZ") == 0){
                 conectar_interfaz(mensaje_split[1], mensaje_split[2], socket_cliente);
             }
@@ -231,6 +246,145 @@ void io_stdout_write(char * interfaz, char* direccion, char* tamanio, char *pid)
         string_append(&mensaje, direccion);
         string_append(&mensaje, " ");
         string_append(&mensaje, tamanio);
+        string_append(&mensaje, " ");
+        string_append(&mensaje, pid);
+        sem_wait(&mutex_lista_interfaces);
+        list_add(interfaz_encontrada->queue_instrucciones, mensaje);
+        sem_post(&mutex_lista_interfaces);
+        sem_post(&interfaz_encontrada->contador);
+    }else{
+        //Momentaneamente se usa sin finalizar proceso
+        finalizar_proceso(pid, socket_cpu_interrupt, socket_memoria);
+    }
+}
+
+void io_fs_create(char * interfaz, char* nombre_archivo, char *pid){
+
+    bool _es_interfaz_buscada(void* elemento){
+        return es_interfaz_buscada(interfaz, elemento);
+    }
+
+    t_interfaz* interfaz_encontrada =  malloc(sizeof(t_interfaz));
+    interfaz_encontrada = list_find(INTERFACES, _es_interfaz_buscada);
+
+    if(interfaz_encontrada != NULL && admite_instruccion(interfaz_encontrada->tipo_interfaz, "IO_FS_CREATE")){
+        char* mensaje = string_new();
+        string_append(&mensaje, "IO_FS_CREATE ");
+        string_append(&mensaje, nombre_archivo);
+        string_append(&mensaje, " ");
+        string_append(&mensaje, pid);
+        sem_wait(&mutex_lista_interfaces);
+        list_add(interfaz_encontrada->queue_instrucciones, mensaje);
+        sem_post(&mutex_lista_interfaces);
+        sem_post(&interfaz_encontrada->contador);
+    }else{
+        //Momentaneamente se usa sin finalizar proceso
+        finalizar_proceso(pid, socket_cpu_interrupt, socket_memoria);
+    }
+}
+
+void io_fs_delete(char * interfaz, char* nombre_archivo, char *pid){
+    
+    bool _es_interfaz_buscada(void* elemento){
+        return es_interfaz_buscada(interfaz, elemento);
+    }
+
+    t_interfaz* interfaz_encontrada =  malloc(sizeof(t_interfaz));
+    interfaz_encontrada = list_find(INTERFACES, _es_interfaz_buscada);
+
+    if(interfaz_encontrada != NULL && admite_instruccion(interfaz_encontrada->tipo_interfaz, "IO_FS_DELETE")){
+        char* mensaje = string_new();
+        string_append(&mensaje, "IO_FS_DELETE ");
+        string_append(&mensaje, nombre_archivo);
+        string_append(&mensaje, " ");
+        string_append(&mensaje, pid);
+        sem_wait(&mutex_lista_interfaces);
+        list_add(interfaz_encontrada->queue_instrucciones, mensaje);
+        sem_post(&mutex_lista_interfaces);
+        sem_post(&interfaz_encontrada->contador);
+    }else{
+        //Momentaneamente se usa sin finalizar proceso
+        finalizar_proceso(pid, socket_cpu_interrupt, socket_memoria);
+    }
+}
+
+void io_fs_truncate(char * interfaz, char* nombre_archivo, char* tamanio_a_truncar, char *pid){
+    
+    bool _es_interfaz_buscada(void* elemento){
+        return es_interfaz_buscada(interfaz, elemento);
+    }
+
+    t_interfaz* interfaz_encontrada =  malloc(sizeof(t_interfaz));
+    interfaz_encontrada = list_find(INTERFACES, _es_interfaz_buscada);
+
+    if(interfaz_encontrada != NULL && admite_instruccion(interfaz_encontrada->tipo_interfaz, "IO_FS_TRUNCATE")){
+        char* mensaje = string_new();
+        string_append(&mensaje, "IO_FS_TRUNCATE ");
+        string_append(&mensaje, nombre_archivo);
+        string_append(&mensaje, " ");
+        string_append(&mensaje, tamanio_a_truncar);
+        string_append(&mensaje, " ");
+        string_append(&mensaje, pid);
+        sem_wait(&mutex_lista_interfaces);
+        list_add(interfaz_encontrada->queue_instrucciones, mensaje);
+        sem_post(&mutex_lista_interfaces);
+        sem_post(&interfaz_encontrada->contador);
+    }else{
+        //Momentaneamente se usa sin finalizar proceso
+        finalizar_proceso(pid, socket_cpu_interrupt, socket_memoria);
+    }
+}
+
+void io_fs_write(char * interfaz, char* nombre_archivo, char* direccion, char* tamanio, char* puntero_archivo, char *pid){
+    
+    bool _es_interfaz_buscada(void* elemento){
+        return es_interfaz_buscada(interfaz, elemento);
+    }
+
+    t_interfaz* interfaz_encontrada =  malloc(sizeof(t_interfaz));
+    interfaz_encontrada = list_find(INTERFACES, _es_interfaz_buscada);
+
+    if(interfaz_encontrada != NULL && admite_instruccion(interfaz_encontrada->tipo_interfaz, "IO_FS_WRITE")){
+        char* mensaje = string_new();
+        string_append(&mensaje, "IO_FS_WRITE ");
+        string_append(&mensaje, nombre_archivo);
+        string_append(&mensaje, " ");
+        string_append(&mensaje, direccion);
+        string_append(&mensaje, " ");
+        string_append(&mensaje, tamanio);
+        string_append(&mensaje, " ");
+        string_append(&mensaje, puntero_archivo);
+        string_append(&mensaje, " ");
+        string_append(&mensaje, pid);
+        sem_wait(&mutex_lista_interfaces);
+        list_add(interfaz_encontrada->queue_instrucciones, mensaje);
+        sem_post(&mutex_lista_interfaces);
+        sem_post(&interfaz_encontrada->contador);
+    }else{
+        //Momentaneamente se usa sin finalizar proceso
+        finalizar_proceso(pid, socket_cpu_interrupt, socket_memoria);
+    }
+}
+
+void io_fs_read(char * interfaz, char* nombre_archivo, char* direccion, char* tamanio, char* puntero_archivo, char *pid){
+    
+    bool _es_interfaz_buscada(void* elemento){
+        return es_interfaz_buscada(interfaz, elemento);
+    }
+
+    t_interfaz* interfaz_encontrada =  malloc(sizeof(t_interfaz));
+    interfaz_encontrada = list_find(INTERFACES, _es_interfaz_buscada);
+
+    if(interfaz_encontrada != NULL && admite_instruccion(interfaz_encontrada->tipo_interfaz, "IO_FS_READ")){
+        char* mensaje = string_new();
+        string_append(&mensaje, "IO_FS_READ ");
+        string_append(&mensaje, nombre_archivo);
+        string_append(&mensaje, " ");
+        string_append(&mensaje, direccion);
+        string_append(&mensaje, " ");
+        string_append(&mensaje, tamanio);
+        string_append(&mensaje, " ");
+        string_append(&mensaje, puntero_archivo);
         string_append(&mensaje, " ");
         string_append(&mensaje, pid);
         sem_wait(&mutex_lista_interfaces);

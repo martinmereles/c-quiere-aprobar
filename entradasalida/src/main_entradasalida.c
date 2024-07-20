@@ -20,8 +20,6 @@ int main(int argc, char* argv[]) {
         sem_init(&sem_fs, 0, 1);
     }
 
-compactar(config); // para pruebas, borrar
-
     //Inicia conexion con kernel
     pthread_t hiloKernel;
 	pthread_create(&hiloKernel,

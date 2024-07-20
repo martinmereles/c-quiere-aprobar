@@ -1146,7 +1146,7 @@ void wait(){
     
 }
 
-void signal(){
+void signal_instruccion(){
     
 }
 

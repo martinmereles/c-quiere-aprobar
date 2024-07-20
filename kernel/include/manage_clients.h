@@ -21,6 +21,11 @@ bool es_interfaz_buscada(char* identificador, void* elemento);
 void io_gen_sleep(char * interfaz, char* unidad_tiempo, char* pid);
 void io_stdin_read(char * interfaz, char* direccion, char* tamanio, char *pid);
 void io_stdout_write(char * interfaz, char* direccion, char* tamanio, char *pid);
+void io_fs_create(char * interfaz, char* nombre_archivo, char *pid);
+void io_fs_delete(char * interfaz, char* nombre_archivo, char *pid);
+void io_fs_truncate(char * interfaz, char* nombre_archivo, char* tamanio_a_truncar, char *pid);
+void io_fs_write(char * interfaz, char* nombre_archivo, char* direccion, char* tamanio, char* puntero_archivo, char *pid);
+void io_fs_read(char * interfaz, char* nombre_archivo, char* direccion, char* tamanio, char* puntero_archivo, char *pid);
 
 void liberar_interfaz(char * interfaz, char* pid, char* algoritmo);
 bool es_interfaz_buscada_socket (int socket, void* elemento);
