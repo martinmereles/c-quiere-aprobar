@@ -21,6 +21,7 @@
 #include <../include/planificador_corto_plazo.h>
 #include <../include/consola_kernel.h>
 #include <../include/manage_clients.h>
+#include <../include/recursos.h>
 #include <semaphore.h>
 
 #endif

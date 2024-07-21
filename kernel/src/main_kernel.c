@@ -22,6 +22,8 @@ sem_t sem_sincro_cpu;
 int socket_memoria;
 int socket_cpu_interrupt;
 sem_t mutex_lista_interfaces;
+sem_t mutex_lista_recursos;
+t_list* lista_recursos;
 
 int main(int argc, char* argv[]) {
     QUEUE_NEW = list_create();
@@ -31,6 +33,7 @@ int main(int argc, char* argv[]) {
     QUEUE_TERMINATED = list_create();
     QUEUE_READY_PLUS = list_create();
     INTERFACES = list_create();
+    lista_recursos = list_create();
     logger = iniciar_logger("./cfg/kernel-log.log", "kernel");
     t_config* config = iniciar_config(logger, "./cfg/kernel.config");
     char* quantum = config_get_string_value(config, "QUANTUM");
@@ -43,6 +46,15 @@ int main(int argc, char* argv[]) {
         sem_init(&sem_array_estados[i].mutex, 0, 1);
         sem_init(&sem_array_estados[i].contador, 0, 0);
     }
+
+    //Se cargan los recursos
+    cargar_recursos(config);
+
+    //Prueba
+    bool aux = existe_recurso("RA");
+    aux = existe_recurso("AA");
+    aux = existe_recurso("asdoaskda");
+    wait_instuccion("RA",3);
 
     //Incio hilo planificador largo plazo
     char * param_largo_plazo = malloc(sizeof(char));
