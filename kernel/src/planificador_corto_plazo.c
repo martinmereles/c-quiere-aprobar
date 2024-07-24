@@ -25,7 +25,7 @@ void ejecutar_fifo(int socket_cpu_dispatch){
     while(1){
         sem_wait(&sem_multiprocesamiento);
         sem_wait(&sem_array_estados[1].contador);
-        //sacar el primero de READY y pasarlo a RUNNING
+        // sacar el primero de READY y pasarlo a RUNNING
         sem_wait(&sem_array_estados[1].mutex);
         sem_wait(&sem_array_estados[2].mutex);
         pcb_t* pcb_a_enviar = malloc(sizeof(pcb_t));
