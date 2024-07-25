@@ -42,6 +42,7 @@ int main(int argc, char* argv[]) {
     sem_init(&sem_sincro_cpu, 0, 0);
     sem_init(&sem_multiprocesamiento, 0, 1);
     sem_init(&mutex_lista_interfaces, 0, 1);
+    sem_init(&mutex_lista_recursos, 0, 1);
     for(int i = 0; i < 6; i++){
         sem_init(&sem_array_estados[i].mutex, 0, 1);
         sem_init(&sem_array_estados[i].contador, 0, 0);
@@ -50,11 +51,6 @@ int main(int argc, char* argv[]) {
     //Se cargan los recursos
     cargar_recursos(config);
 
-    //Prueba
-    bool aux = existe_recurso("RA");
-    aux = existe_recurso("AA");
-    aux = existe_recurso("asdoaskda");
-    wait_instuccion("RA",3);
 
     //Incio hilo planificador largo plazo
     char * param_largo_plazo = malloc(sizeof(char));

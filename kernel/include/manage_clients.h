@@ -6,6 +6,7 @@
 #include <commons/log.h>
 #include <../include/main_kernel.h>
 #include <utils/estructuras/estructuras.h>
+#include <../include/recursos.h>
 
 extern t_list* INTERFACES;
 extern int socket_memoria;

@@ -88,28 +88,42 @@ void atender_cliente_kernel(int socket_cliente){
             }
             if(strcmp(pcb_deserealizado->motivo, "FIN_QUANTUM") == 0){
                 //agregar el pcb a READY 
+                
                 sem_wait(&sem_array_estados[2].mutex);
-                list_remove(QUEUE_RUNNING, 0);
-                sem_post(&sem_array_estados[2].mutex);
-                sem_wait(&sem_array_estados[2].contador);
-
                 sem_wait(&sem_array_estados[1].mutex);
+                sem_wait(&sem_array_estados[2].contador);
+                list_remove(QUEUE_RUNNING, 0);
                 list_add(QUEUE_READY, pcb_deserealizado->pcb);
-                sem_post(&sem_array_estados[1].mutex);
                 sem_post(&sem_array_estados[1].contador);
+                sem_post(&sem_array_estados[1].mutex);
+                sem_post(&sem_array_estados[2].mutex);
+                
 
                 sem_post(&sem_multiprocesamiento);
             }
             if(strcmp(pcb_deserealizado->motivo, "IO") == 0){
-
-                sem_wait(&sem_array_estados[2].mutex);
-                list_remove(QUEUE_RUNNING, 0);
-                sem_post(&sem_array_estados[2].mutex);
-                sem_wait(&sem_array_estados[2].contador);
                 sem_wait(&sem_array_estados[3].mutex);
+                sem_wait(&sem_array_estados[2].mutex);
+                sem_wait(&sem_array_estados[2].contador);
+                list_remove(QUEUE_RUNNING, 0);
                 list_add(QUEUE_BLOCKED, pcb_deserealizado->pcb);
+                sem_post(&sem_array_estados[3].contador);
+                sem_post(&sem_array_estados[2].mutex);
                 sem_post(&sem_array_estados[3].mutex);
-                sem_post(&sem_array_estados[3].contador);    
+                sem_post(&sem_multiprocesamiento);
+            }
+            if(string_starts_with(pcb_deserealizado->motivo, "SIGNAL")){
+                char** motivo_signal = string_split(pcb_deserealizado->motivo, " ");
+
+                signal_instruccion(motivo_signal[1], pcb_deserealizado->pcb->pid);
+
+                sem_post(&sem_multiprocesamiento);
+            }
+            if(string_starts_with(pcb_deserealizado->motivo, "WAIT")){
+                char** motivo_wait = string_split(pcb_deserealizado->motivo, " ");
+                
+                wait_instruccion(motivo_wait[1], pcb_deserealizado->pcb->pid);
+
                 sem_post(&sem_multiprocesamiento);
             }
             

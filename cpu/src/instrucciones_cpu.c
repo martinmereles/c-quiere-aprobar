@@ -45,6 +45,8 @@ void ejecutarSentencia(int socket_kernel, int socket_cliente_memoria){
     if(strcmp(sentenciasSplit[0],"SUB")==0) sub(sentenciasSplit[1],sentenciasSplit[2]);
     if(strcmp(sentenciasSplit[0],"JNZ")==0) jnz(sentenciasSplit[1],sentenciasSplit[2]);
     if(strcmp(sentenciasSplit[0],"IO_GEN_SLEEP")==0) io_gen_sleep(sentenciasSplit[1],sentenciasSplit[2], socket_kernel);
+    if(strcmp(sentenciasSplit[0],"WAIT")==0) wait();
+    if(strcmp(sentenciasSplit[0],"SIGNAL")==0) wait();
 }
 
 void set (char * registro, char * valor)    
@@ -1143,11 +1145,11 @@ void copy_string(){
 }
 
 void wait(){
-    
+    //No hace nada
 }
 
 void signal_instruccion(){
-    
+    //No hace nada
 }
 
 void io_fs_create(){

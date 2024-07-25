@@ -16,6 +16,7 @@ extern t_list* QUEUE_BLOCKED;
 extern t_list* QUEUE_TERMINATED;
 extern t_sem_estados sem_array_estados[6];
 extern sem_t sem_grado_multiprog;
+extern sem_t mutex_lista_recursos;
 extern t_list* lista_recursos;
 extern int socket_cpu_interrupt;
 extern int socket_memoria;
@@ -30,8 +31,10 @@ typedef struct
 
 void cargar_recursos(t_config* config);
 bool existe_recurso(char* recurso);
-void wait_instuccion(char* nombre_recurso, int pid);
-void signal_instuccion(char* nombre_recurso, int pid);
+void wait_instruccion(char* nombre_recurso, int pid);
+void signal_instruccion(char* nombre_recurso, int pid);
 bool es_recurso_buscado(char* identificador, void* elemento);
-
+void desbloquear_proceso(int pid);
+bool es_pid_buscado_recurso(int identificador, void *elemento);
+void bloquear_proceso(int pid);
 #endif

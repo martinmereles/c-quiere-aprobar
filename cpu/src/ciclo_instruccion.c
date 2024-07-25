@@ -108,6 +108,7 @@ void check_interrupt(int socket_cliente_memoria, int socket_kernel_dispatch){
     bool existe_finalizar = false;
     bool existe_fin_quantum = false;
     bool existe_io = false;
+    bool existe_recurso = false;
 
     for(int i = 0; i < list_size(INTERRUPCIONES); i++){
         
@@ -127,6 +128,9 @@ void check_interrupt(int socket_cliente_memoria, int socket_kernel_dispatch){
     if(!strcmp(instruccion_exec_split[0],"IO_GEN_SLEEP")){
         existe_io = true;
     }
+    if(!strcmp(instruccion_exec_split[0],"WAIT") || !strcmp(instruccion_exec_split[0],"SIGNAL")){
+        existe_recurso = true;
+    }
 
     if(existe_finalizar){
         enviar_pcb_contexto_motivo(socket_kernel_dispatch, contexto, "INTERRUPTED_BY_USER");
@@ -140,6 +144,10 @@ void check_interrupt(int socket_cliente_memoria, int socket_kernel_dispatch){
     else if(existe_fin_quantum){
         enviar_pcb_contexto_motivo(socket_kernel_dispatch, contexto, "FIN_QUANTUM");
         log_info (logger, "PID: %s - Desalojado por fin de Quantum", string_itoa(contexto->pid));
+        sem_wait(&sem_execute);
+    }else if(existe_recurso){
+        enviar_pcb_contexto_motivo(socket_kernel_dispatch, contexto, instruccion_exec);
+        log_info (logger, "PID: %s - Desalojado por syscall a recurso", string_itoa(contexto->pid));
         sem_wait(&sem_execute);
     }
     

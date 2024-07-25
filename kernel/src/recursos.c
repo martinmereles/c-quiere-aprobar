@@ -7,7 +7,7 @@ void cargar_recursos(t_config *config)
     sem_wait(&mutex_lista_recursos);
     for (int i = 0; recursos[i] != NULL; i++)
     {
-        printf("Se carga el siguiente recurso %s - %s instancia\n", recursos[i], instancias_recursos[i]);
+        //printf("Se carga el siguiente recurso %s - %s instancia\n", recursos[i], instancias_recursos[i]);
         recurso_t *recurso = malloc(sizeof(recurso_t));
         recurso->nombre = string_new();
         string_append(&recurso->nombre, recursos[i]);
@@ -34,7 +34,7 @@ bool existe_recurso(char *nombre_recurso)
     return existe;
 }
 
-void wait_instuccion(char *nombre_recurso, int pid)
+void wait_instruccion(char *nombre_recurso, int pid)
 {
     if (existe_recurso(nombre_recurso))
     {
@@ -51,7 +51,16 @@ void wait_instuccion(char *nombre_recurso, int pid)
         if (recurso->instancias < 0)
         {
             list_add(recurso->procesos_bloqueados, pid);
-            // bloquear proceso
+            bloquear_proceso(pid);
+        }else{
+            sem_wait(&sem_array_estados[2].contador);
+            sem_wait(&sem_array_estados[2].mutex);
+            sem_wait(&sem_array_estados[1].mutex);
+            pcb_t *aux = list_remove(QUEUE_RUNNING, 0);
+            list_add_in_index(QUEUE_READY, 0, aux);
+            sem_post(&sem_array_estados[1].mutex);
+            sem_post(&sem_array_estados[2].mutex);
+            sem_post(&sem_array_estados[1].contador);
         }
 
         sem_post(&recurso->mutex_recurso);
@@ -62,7 +71,7 @@ void wait_instuccion(char *nombre_recurso, int pid)
     }
 }
 
-void signal_instuccion(char *nombre_recurso, int pid)
+void signal_instruccion(char *nombre_recurso, int pid)
 {
     if (existe_recurso(nombre_recurso))
     {
@@ -76,10 +85,21 @@ void signal_instuccion(char *nombre_recurso, int pid)
 
         sem_wait(&recurso->mutex_recurso);
         recurso->instancias++;
-        if(list_size(recurso->procesos_bloqueados > 0){
+        if(list_size(recurso->procesos_bloqueados) > 0){
             int pid_a_desbloquear = list_remove(recurso->procesos_bloqueados, 0);
-            // desbloquear proceso
+            desbloquear_proceso(pid_a_desbloquear);
+            
+
         }
+        
+        sem_wait(&sem_array_estados[2].mutex);
+        sem_wait(&sem_array_estados[1].mutex);
+        sem_wait(&sem_array_estados[2].contador);
+        pcb_t *aux = list_remove(QUEUE_RUNNING, 0);
+        list_add_in_index(QUEUE_READY, 0, aux);
+        sem_post(&sem_array_estados[1].contador);
+        sem_post(&sem_array_estados[1].mutex);
+        sem_post(&sem_array_estados[2].mutex);
 
         sem_post(&recurso->mutex_recurso);
     }
@@ -97,7 +117,7 @@ bool es_recurso_buscado(char *identificador, void *elemento)
     return (aux2);
 }
 
-bool es_pid_buscado(int identificador, void *elemento)
+bool es_pid_buscado_recurso(int identificador, void *elemento)
 {
     pcb_t *aux = malloc(sizeof(pcb_t));
     aux = elemento;
@@ -110,15 +130,34 @@ void desbloquear_proceso(int pid)
     //  pcb_t* aux = malloc(sizeof(pcb_t));
     bool _es_pid_buscado(void *elemento)
     {
-        return es_pid_buscado(pid, elemento);
+        return es_pid_buscado_recurso(pid, elemento);
     }
-    sem_wait(&sem_array_estados[3].contador);
+    
     sem_wait(&sem_array_estados[3].mutex);
     sem_wait(&sem_array_estados[1].mutex);
+    sem_wait(&sem_array_estados[3].contador);
     pcb_t *aux = list_remove_by_condition(QUEUE_BLOCKED, _es_pid_buscado);
     list_add(QUEUE_READY, aux);
+    sem_post(&sem_array_estados[1].contador);
     sem_post(&sem_array_estados[1].mutex);
     sem_post(&sem_array_estados[3].mutex);
-    sem_post(&sem_array_estados[1].contador);
+
+}
+
+void bloquear_proceso(int pid)
+{
+    bool _es_pid_buscado(void *elemento)
+    {
+        return es_pid_buscado_recurso(pid, elemento);
+    }
+    
+    sem_wait(&sem_array_estados[3].mutex);
+    sem_wait(&sem_array_estados[2].mutex);
+    sem_wait(&sem_array_estados[2].contador);
+    pcb_t *aux = list_remove_by_condition(QUEUE_RUNNING, _es_pid_buscado);
+    list_add(QUEUE_BLOCKED, aux);
+    sem_post(&sem_array_estados[3].contador);
+    sem_post(&sem_array_estados[2].mutex);
+    sem_post(&sem_array_estados[3].mutex);
 
 }
