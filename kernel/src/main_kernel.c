@@ -23,6 +23,10 @@ int socket_memoria;
 int socket_cpu_interrupt;
 sem_t mutex_lista_interfaces;
 sem_t mutex_lista_recursos;
+sem_t detencion_planificador_corto;
+sem_t detencion_planificador_largo;
+bool detuvo_planificacion;
+
 t_list* lista_recursos;
 
 int main(int argc, char* argv[]) {
@@ -42,6 +46,9 @@ int main(int argc, char* argv[]) {
     sem_init(&sem_sincro_cpu, 0, 0);
     sem_init(&sem_multiprocesamiento, 0, 1);
     sem_init(&mutex_lista_interfaces, 0, 1);
+    sem_init(&detencion_planificador_corto, 0, 1);
+    sem_init(&detencion_planificador_largo, 0, 1);
+    detuvo_planificacion = 0;
     sem_init(&mutex_lista_recursos, 0, 1);
     for(int i = 0; i < 6; i++){
         sem_init(&sem_array_estados[i].mutex, 0, 1);

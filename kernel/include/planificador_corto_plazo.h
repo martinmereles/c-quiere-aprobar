@@ -14,6 +14,7 @@ extern t_list* QUEUE_READY_PLUS;
 extern t_list* QUEUE_RUNNING;
 extern t_list* QUEUE_BLOCKED;
 extern t_sem_estados sem_array_estados[6];
+extern sem_t detencion_planificador_corto;
 extern int socket_cpu_interrupt;
 
 void planificador_corto_plazo(socket_info_t* params);

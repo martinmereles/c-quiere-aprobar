@@ -25,6 +25,7 @@ void entender_comando(char* command, char* quantum, int socket_cliente_memoria, 
         finalizar_proceso(atoi(command_split[1]), socket_cpu_interrupt, socket_cliente_memoria);
     };
     if(!strcmp(command_split[0],"DETENER_PLANIFICACION")){
+        detener_planificacion();
         
     };
     if(!strcmp(command_split[0],"INICIAR_PLANIFICACION")){
@@ -138,10 +139,23 @@ void finalizar_proceso(int pid, int socket_cpu_interrupt, int socket_cliente_mem
 
 
 void iniciar_planificacion(){
-   
+
+    if(detuvo_planificacion) {
+    detuvo_planificacion = 0;
+    sem_post(&detencion_planificador_corto);
+    sem_post(&detencion_planificador_largo);
+    }
 }
 
 void detener_planificacion(){
+
+
+    if(!detuvo_planificacion) {
+    detuvo_planificacion = 1;
+    sem_wait(&detencion_planificador_corto);
+    sem_wait(&detencion_planificador_largo);
+
+    }
 
 }
 

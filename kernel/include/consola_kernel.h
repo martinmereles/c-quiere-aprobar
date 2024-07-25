@@ -20,6 +20,10 @@ extern t_list* QUEUE_READY_PLUS;
 extern sem_t sem_sincro_cpu;
 extern sem_t sem_multiprocesamiento;
 extern sem_t sem_grado_multiprog;
+extern sem_t detencion_planificador_corto;
+extern sem_t detencion_planificador_largo;
+extern bool detuvo_planificacion;
+
 
 void lanzar_consola (char* quantum, int socket_cliente_memoria, int socket_cpu_dispatch, int socket_cpu_interrupt, t_config* config);
 void entender_comando(char* command, char* quantum, int socket_cliente_memoria, int socket_cpu_interrupt,t_config* config);

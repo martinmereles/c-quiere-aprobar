@@ -22,8 +22,9 @@ void planificador_corto_plazo(socket_info_t* params){
 }
 
 void ejecutar_fifo(int socket_cpu_dispatch){
-    while(1){
+    while(1){        
         sem_wait(&sem_multiprocesamiento);
+        sem_wait(&detencion_planificador_corto);
         sem_wait(&sem_array_estados[1].contador);
         // sacar el primero de READY y pasarlo a RUNNING
         sem_wait(&sem_array_estados[1].mutex);
@@ -36,6 +37,7 @@ void ejecutar_fifo(int socket_cpu_dispatch){
         sem_post(&sem_array_estados[2].mutex);
         sem_post(&sem_array_estados[2].contador);
         dispatcher(pcb_a_enviar, socket_cpu_dispatch);
+        sem_post(&detencion_planificador_corto);
     }
 
 }
@@ -43,6 +45,7 @@ void ejecutar_fifo(int socket_cpu_dispatch){
 void ejecutar_round_robin(int socket_cpu_dispatch, int socket_cpu_interrupt, int quantum_int){
     while(1){
         sem_wait(&sem_multiprocesamiento);
+        sem_wait(&detencion_planificador_corto);
         sem_wait(&sem_array_estados[1].contador);
         //sacar el primero de READY y pasarlo a RUNNING
         sem_wait(&sem_array_estados[1].mutex);
@@ -67,6 +70,7 @@ void ejecutar_round_robin(int socket_cpu_dispatch, int socket_cpu_interrupt, int
                         aviso_quantum,
                         mensaje);
 	    pthread_detach(hilo_quantum);
+        sem_post(&detencion_planificador_corto);
 
     }
 }
@@ -75,6 +79,7 @@ void ejecutar_virtual_rr(int socket_cpu_dispatch, int socket_cpu_interrupt, int 
     
     while(1){
         sem_wait(&sem_multiprocesamiento);
+        sem_wait(&detencion_planificador_corto);
         pcb_t* pcb_a_enviar = malloc(sizeof(pcb_t));
         pcb_a_enviar->reg_generales = malloc(sizeof(registros_t));
         //sacar el primero de READY o READY+(si existe algun elemento) y pasarlo a RUNNING
@@ -116,6 +121,7 @@ void ejecutar_virtual_rr(int socket_cpu_dispatch, int socket_cpu_interrupt, int 
         log_error(logger, "Hay %d procesos en Ready Plus", list_size(QUEUE_READY_PLUS));
         log_error(logger, "Hay %d procesos en Blocked", list_size(QUEUE_BLOCKED));
         log_error(logger, "Hay %d procesos en Running", list_size(QUEUE_RUNNING));
+        sem_post(&detencion_planificador_corto);
 
     }
 }
