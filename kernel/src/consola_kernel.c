@@ -31,7 +31,7 @@ void entender_comando(char* command, char* quantum, int socket_cliente_memoria, 
         iniciar_planificacion();
     };
     if(!strcmp(command_split[0],"MULTIPROGRAMACION")){
-        
+        multiprogramacion(atoi(command_split[1]), config);
     };
     if(!strcmp(command_split[0],"PROCESO_ESTADO")){
         
@@ -49,9 +49,7 @@ void entender_comando(char* command, char* quantum, int socket_cliente_memoria, 
     
 }
 
-void iniciar_planificacion(){
-   
-}
+
 
 void ejecutar_script(char* path, char* quantum, int socket_cliente_memoria, int socket_cpu_interrupt, t_config* config){
     FILE* f = fopen(path, "r");
@@ -139,3 +137,25 @@ void finalizar_proceso(int pid, int socket_cpu_interrupt, int socket_cliente_mem
 }
 
 
+void iniciar_planificacion(){
+   
+}
+
+void detener_planificacion(){
+
+}
+
+void multiprogramacion(int grado_multiprog_nuevo, t_config* config){
+    int grado_multiprog_actual = config_get_int_value(config, "GRADO_MULTIPROGRAMACION");
+    int grados_a_agregar = grado_multiprog_nuevo - grado_multiprog_actual;
+    if(grados_a_agregar > 0){
+        for(int i=0; i< grados_a_agregar; i++){
+            sem_post(&sem_grado_multiprog);
+        }
+
+    }else if(grados_a_agregar < 0){
+        for(int i=0; i> grados_a_agregar; i--){
+            sem_wait(&sem_grado_multiprog);
+        }
+    }
+}
