@@ -138,6 +138,11 @@ void check_interrupt(int socket_cliente_memoria, int socket_kernel_dispatch){
         enviar_pcb_contexto_motivo(socket_kernel_dispatch, contexto, "IO");
         log_info (logger, "PID: %s - Desalojado por IO", string_itoa(contexto->pid));
         sem_wait(&sem_execute);
+    }else if (desalojo_out_of_memory){
+        enviar_pcb_contexto_motivo(socket_kernel_dispatch, contexto, "OUT_OF_MEMORY");
+        log_info (logger, "PID: %s - Desalojado por Out of Memory", string_itoa(contexto->pid));
+        desalojo_out_of_memory = 0;
+        sem_wait(&sem_execute);
     }
     else if(existe_fin_quantum){
         enviar_pcb_contexto_motivo(socket_kernel_dispatch, contexto, "FIN_QUANTUM");
@@ -148,6 +153,7 @@ void check_interrupt(int socket_cliente_memoria, int socket_kernel_dispatch){
         log_info (logger, "PID: %s - Desalojado por syscall a recurso", string_itoa(contexto->pid));
         sem_wait(&sem_execute);
     }
+    
     
 }
 

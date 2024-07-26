@@ -11,6 +11,7 @@ t_temporal* temporizador;
 t_list *tlb;
 int tamanio_pagina;
 t_list* lista_marcos;
+bool desalojo_out_of_memory;
 
 int main(int argc, char* argv[]) {
 	INTERRUPCIONES = list_create();
@@ -26,6 +27,7 @@ int main(int argc, char* argv[]) {
 	contexto->reg_generales = malloc (sizeof(registros_t));
 	sem_init(&sem_execute,0,0);
 	lista_marcos = list_create();
+	desalojo_out_of_memory = 0;
 
 	//Inicia servidor Puerto escucha dispatch
 	char* puerto_dispatch = config_get_string_value(config, "PUERTO_ESCUCHA_DISPATCH");

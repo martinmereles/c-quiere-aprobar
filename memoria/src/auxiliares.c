@@ -33,6 +33,9 @@ void atender_cliente_memoria(int socket_cliente){
             if(strcmp(mensaje_split[0], "TAM_PAGINA") == 0){
                 enviar_tamanio_pagina(socket_cliente);
             }
+            if(strcmp(mensaje_split[0], "RESIZE") == 0){
+                resize(atoi(ensaje_split[1]), atoi(mensaje_split[2]), socket_cliente);
+            }
             free(buffer);
 			break;
 		case PAQUETE:
@@ -116,4 +119,8 @@ void enviar_tamanio_pagina(int socket_cliente){
     string_append(&mensaje, "TAM_PAGINA ");
     string_append(&mensaje, string_itoa(tamanio_pagina));
     enviar_mensaje(mensaje, socket_cliente);
+}
+
+void resize (int tamanio, int pid, int socket_cliente) {
+    
 }

@@ -70,7 +70,9 @@ void atender_cliente_kernel(int socket_cliente){
 
             pcb_deserealizado = recibir_buffer_pcb_motivo(&size2, socket_cliente);
 
-            if(strcmp(pcb_deserealizado->motivo, "INTERRUPTED_BY_USER") == 0){
+            if(strcmp(pcb_deserealizado->motivo, "INTERRUPTED_BY_USER") == 0 ||
+              strcmp(pcb_deserealizado->motivo, "OUT_OF_MEMORY") == 0  ||
+              strcmp(pcb_deserealizado->motivo, "SUCCESS") == 0  ){
                 //agregar el pcb a TERMINATED
                 sem_wait(&sem_array_estados[4].mutex);
                 list_add(QUEUE_TERMINATED, pcb_deserealizado->pcb);
@@ -85,6 +87,7 @@ void atender_cliente_kernel(int socket_cliente){
                 sem_wait(&sem_array_estados[2].contador);
                 sem_post(&sem_grado_multiprog);
                 sem_post(&sem_multiprocesamiento);
+                log_info (logger, "Finaliza el proceso %d - Motivo: %s", pcb_deserealizado->pcb->pid, pcb_deserealizado->motivo);
             }
             if(strcmp(pcb_deserealizado->motivo, "FIN_QUANTUM") == 0){
                 //agregar el pcb a READY 

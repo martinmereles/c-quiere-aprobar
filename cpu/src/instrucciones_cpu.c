@@ -46,7 +46,7 @@ void ejecutarSentencia(int socket_kernel, int socket_cliente_memoria){
     if(strcmp(sentenciasSplit[0],"SUM")==0) sum(sentenciasSplit[1],sentenciasSplit[2]);
     if(strcmp(sentenciasSplit[0],"SUB")==0) sub(sentenciasSplit[1],sentenciasSplit[2]);
     if(strcmp(sentenciasSplit[0],"JNZ")==0) jnz(sentenciasSplit[1],sentenciasSplit[2]);
-    if(strcmp(sentenciasSplit[0],"RESIZE")==0) resize();
+    if(strcmp(sentenciasSplit[0],"RESIZE")==0) resize(sentenciasSplit[1], socket_cliente_memoria);
     if(strcmp(sentenciasSplit[0],"COPY_STRING")==0) copy_string();
     if(strcmp(sentenciasSplit[0],"WAIT")==0) wait();
     if(strcmp(sentenciasSplit[0],"SIGNAL")==0) signal_instruccion();
@@ -1224,9 +1224,49 @@ void mov_out(){
     set_valor_registro(instruccion_exec_split[1], valor_leido);
 }
 
-void resize(){
+void resize(char* tamanio, int socket_cliente_memoria){
 
+char* mensaje = string_new();
+string_append (mensaje, "RESIZE ");
+string_append (mensaje, tamanio);
+string_append (mensaje, " ");
+string_append (mensaje, string_itoa(contexto->pid));
+enviar_mensaje(mensaje, socket_cliente_memoria);
+
+int cod_op = recibir_operacion(socket_cliente_memoria);; 
+        switch (cod_op) {
+        case MENSAJE:
+            int size;
+            char* buffer = recibir_buffer(&size, socket_cliente_memoria);
+            log_info(logger, "Me llego el mensaje %s", buffer);
+            char ** mensaje_split = string_split(buffer, " ");
+        if (strcmp(mensaje_split[0], "RESIZE") == 0 && strcmp(mensaje_split[1], "OUT_OF_MEMORY") == 0)
+            {
+            desalojo_out_of_memory; = 1;
+            temporal_stop(temporizador);
+            int64_t tiempo_transcurrido = temporal_gettime(temporizador);
+            if((contexto->quantum - (int) tiempo_transcurrido) <= 0){
+                contexto->quantum = 0;
+            }else{
+            contexto->quantum = contexto->quantum - (int) tiempo_transcurrido;
+            }  
+            }
+            
+            free(buffer);
+            break;
+
+        case -1:
+            log_error(logger, "el cliente se desconecto.");
+            return EXIT_FAILURE;
+        default:
+            log_warning(logger,"Operacion desconocida. No quieras meter la pata");
+            break;
+        }
+    
+    
 }
+
+
 
 void copy_string(){
     

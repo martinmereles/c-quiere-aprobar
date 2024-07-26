@@ -22,5 +22,6 @@ void atender_cliente_memoria(int socket_cliente);
 void iniciar_proceso(char* process_id, char* path);
 void proxima_instruccion(char* process_id_find, char* program_counter, int socket_cliente);
 void enviar_tamanio_pagina(int socket_cliente);
+oid resize (int tamanio, int pid, int socket_cliente);
 
 #endif

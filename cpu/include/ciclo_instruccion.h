@@ -12,6 +12,7 @@ extern registros_t* reg;
 extern char * instruccion_exec;
 extern t_list* INTERRUPCIONES;
 extern t_list* lista_marcos;
+extern bool desalojo_out_of_memory;
 
 void fetch(int socket_cliente_memoria);
 void decode(int socket_cliente_memoria, char* algoritmo_tlb, int cantidad_entradas_tlb);
