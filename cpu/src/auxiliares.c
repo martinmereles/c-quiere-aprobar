@@ -131,6 +131,68 @@ void atender_cliente_interrupt(int socket_servidor_interrupt){
     liberar_conexion(socket_kernel_interrupt);
 }
 
+void* recibir_desde_memoria(int socket_cliente){
+	t_list* lista;
+    int cod_op = recibir_operacion(socket_cliente);; 
+    switch (cod_op) {
+    case MENSAJE:
+        int size;
+        char* buffer = recibir_buffer(&size, socket_cliente);
+        log_info(logger, "Me llego el mensaje %s", buffer);
+        void * mensaje;
+        if(string_starts_with(buffer, "LEER")){
+            mensaje = malloc(size-6);
+            mensaje = string_substring_from(buffer, 6);
+            
+        }if(string_starts_with(buffer, "ESCRIBIR")){
+            mensaje = malloc(size-10);
+            mensaje = string_substring_from(buffer, 10);
+        }
+
+        free(buffer);
+        return mensaje;
+        break;
+    case PAQUETE:
+        lista = recibir_paquete(socket_cliente );
+        log_info(logger, "Me llegaron los siguientes valores:\n");
+        list_iterate(lista, (void*) iterator);
+        break;
+    case -1:
+        log_error(logger, "el cliente se desconecto.");
+        return EXIT_FAILURE;
+    default:
+        log_warning(logger,"Operacion desconocida. No quieras meter la pata");
+        break;
+    }
+    
+}
+
 void guardar_tamanio_pagina(char* tamanio){
     tamanio_pagina = atoi(tamanio);
+}
+
+void liberar_elemento(void* elemento) {
+    free(elemento);
+}
+
+char* generar_mensaje_lectura(int dir_fisica, int tamanio){
+    char* mensaje = string_new();//Enviar a Memoria=>"Direccion_fisica valor tamanio"
+    string_append(&mensaje, "Leer ");
+    string_append(&mensaje, string_itoa(dir_fisica));
+    string_append(&mensaje, " ");
+    string_append(&mensaje, string_itoa(tamanio));
+    
+    return mensaje;
+}
+
+char* generar_mensaje_escritura(int dir_fisica, int tamanio, int valor){
+    char* mensaje = string_new();//Enviar a Memoria=>"Direccion_fisica valor tamanio"
+    string_append(&mensaje, "Escribir ");
+    string_append(&mensaje, string_itoa(dir_fisica));
+    string_append(&mensaje, " ");
+    string_append(&mensaje, string_itoa(tamanio));
+    string_append(&mensaje, " ");
+    string_append(&mensaje, string_itoa(valor));
+    
+    return mensaje;
 }

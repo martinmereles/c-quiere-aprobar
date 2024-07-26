@@ -116,11 +116,6 @@ void ejecutar_virtual_rr(int socket_cpu_dispatch, int socket_cpu_interrupt, int 
                         aviso_quantum,
                         mensaje);
 	    pthread_detach(hilo_quantum);
-
-        log_error(logger, "Hay %d procesos en Ready", list_size(QUEUE_READY));
-        log_error(logger, "Hay %d procesos en Ready Plus", list_size(QUEUE_READY_PLUS));
-        log_error(logger, "Hay %d procesos en Blocked", list_size(QUEUE_BLOCKED));
-        log_error(logger, "Hay %d procesos en Running", list_size(QUEUE_RUNNING));
         sem_post(&detencion_planificador_corto);
 
     }

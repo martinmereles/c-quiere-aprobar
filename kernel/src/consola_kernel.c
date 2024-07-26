@@ -174,7 +174,8 @@ void multiprogramacion(int grado_multiprog_nuevo, t_config* config){
     }
 }
 
-void  proceso_estado (){
+void  proceso_estado (t_config* config){
+    
     pcb_t* aux;
 
     sem_wait(&sem_array_estados[0].mutex);
@@ -183,46 +184,52 @@ void  proceso_estado (){
     sem_wait(&sem_array_estados[3].mutex);
     sem_wait(&sem_array_estados[4].mutex);
     sem_wait(&sem_array_estados[5].mutex);
- printf ("Se encuentran en estado NEW los Procesos:")
+
+    printf ("Se encuentran en estado NEW los Procesos:\n\n");
     for (int i = 0; i < list_size (QUEUE_NEW) ; i++)
     {
         aux = list_get (QUEUE_NEW, i);
-        printf("PID %d", aux->pid);
+        printf("PID %d\n", aux->pid);
     }
-    printf ("Se encuentran en estado READY los Procesos:")
+
+    printf ("Se encuentran en estado READY los Procesos:\n\n");
     for (int i = 0; i < list_size (QUEUE_READY) ; i++)
     {
         aux = list_get (QUEUE_READY, i);
-        printf("PID %d", aux->pid);
+        printf("PID %d\n", aux->pid);
     }
 
-    printf ("Se encuentran en estado RUNNING los Procesos:")
+    printf ("Se encuentran en estado RUNNING los Procesos:\n\n");
     for (int i = 0; i < list_size (QUEUE_RUNNING) ; i++)
     {
         aux = list_get (QUEUE_RUNNING, i);
-        printf("PID %d", aux->pid);
+        printf("PID %d\n", aux->pid);
     }
-    printf ("Se encuentran en estado BLOCKED los Procesos:")
+
+    printf ("Se encuentran en estado BLOCKED los Procesos:\n\n");
     for (int i = 0; i < list_size (QUEUE_BLOCKED) ; i++)
     {
         aux = list_get (QUEUE_BLOCKED, i);
-        printf("PID %d", aux->pid);
+        printf("PID %d\n", aux->pid);
     }
-    printf ("Se encuentran en estado TERMINATED los Procesos:")
+
+    printf ("Se encuentran en estado TERMINATED los Procesos:\n\n");
     for (int i = 0; i < list_size (QUEUE_TERMINATED) ; i++)
     {
         aux = list_get (QUEUE_TERMINATED, i);
-        printf("PID %d", aux->pid);
+        printf("PID %d\n", aux->pid);
     }
+
     char* algoritmo_plani = config_get_string_value (config, "ALGORITMO_PLANIFICACION");
     if (strcmp (algoritmo_plani, "VRR")== 0) {
-    printf ("Se encuentran en estado READY PLUS los Procesos:")
-    for (int i = 0; i < list_size (QUEUE_READY_PLUS) ; i++)
-    {
-        aux = list_get (QUEUE_READY_PLUS, i);
-        printf("PID %d", aux->pid);
+        printf ("Se encuentran en estado READY PLUS los Procesos:\n\n");
+        for (int i = 0; i < list_size (QUEUE_READY_PLUS) ; i++)
+        {
+            aux = list_get (QUEUE_READY_PLUS, i);
+            printf("PID %d\n", aux->pid);
+        }
     }
-    }
+
     sem_post(&sem_array_estados[0].mutex);
     sem_post(&sem_array_estados[1].mutex);
     sem_post(&sem_array_estados[2].mutex);

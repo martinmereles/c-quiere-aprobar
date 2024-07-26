@@ -41,12 +41,23 @@ void ejecutarSentencia(int socket_kernel, int socket_cliente_memoria){
 
     char ** sentenciasSplit = string_split(instruccion_exec, " ");
     if(strcmp(sentenciasSplit[0],"SET")==0) set(sentenciasSplit[1],sentenciasSplit[2]);
+    if(strcmp(sentenciasSplit[0],"MOV_IN")==0) mov_in();
+    if(strcmp(sentenciasSplit[0],"MOV_OUT")==0) mov_out();
     if(strcmp(sentenciasSplit[0],"SUM")==0) sum(sentenciasSplit[1],sentenciasSplit[2]);
     if(strcmp(sentenciasSplit[0],"SUB")==0) sub(sentenciasSplit[1],sentenciasSplit[2]);
     if(strcmp(sentenciasSplit[0],"JNZ")==0) jnz(sentenciasSplit[1],sentenciasSplit[2]);
-    if(strcmp(sentenciasSplit[0],"IO_GEN_SLEEP")==0) io_gen_sleep(sentenciasSplit[1],sentenciasSplit[2], socket_kernel);
+    if(strcmp(sentenciasSplit[0],"RESIZE")==0) resize();
+    if(strcmp(sentenciasSplit[0],"COPY_STRING")==0) copy_string();
     if(strcmp(sentenciasSplit[0],"WAIT")==0) wait();
-    if(strcmp(sentenciasSplit[0],"SIGNAL")==0) wait();
+    if(strcmp(sentenciasSplit[0],"SIGNAL")==0) signal_instruccion();
+    if(strcmp(sentenciasSplit[0],"IO_GEN_SLEEP")==0) io_gen_sleep(sentenciasSplit[1],sentenciasSplit[2], socket_kernel);
+    if(strcmp(sentenciasSplit[0],"IO_STDIN_READ")==0) io_stdin_read();
+    if(strcmp(sentenciasSplit[0],"IO_STDOUT_WRITE")==0) io_stdout_write();
+    if(strcmp(sentenciasSplit[0],"IO_FS_CREATE")==0) io_fs_create();
+    if(strcmp(sentenciasSplit[0],"IO_FS_TRUNCATE")==0) io_fs_truncate();
+    if(strcmp(sentenciasSplit[0],"IO_FS_WRITE")==0) io_fs_write();
+    if(strcmp(sentenciasSplit[0],"IO_FS_READ")==0) io_fs_read();
+    if(strcmp(sentenciasSplit[0],"EXIT")==0) exit_inst();
 }
 
 void set (char * registro, char * valor)    
@@ -1107,33 +1118,110 @@ void exit_inst(int socket_kernel){
     enviar_pcb_contexto(socket_kernel, contexto);
 }
 
-void mov_in(/*char* registro, char * direccion, int socket_cliente_memoria*/){
-    /*
-    int tamanio;
-    if(string_starts_with(registro, "E")){
-        tamanio = 4;
+void mov_in(char* registro, char * direccion, int socket_cliente_memoria){
+    
+    int num_pag = calcular_num_pagina(valor_registro);
+    int bytes_hasta_final = tamanio_registro;
+    int offset = calcular_desplazamiento(valor_registro, num_pag);
+    char* mensaje = string_new();//Enviar a Memoria=>"Direccion_fisica valor tamanio"
+    void* valor_leido = malloc(tamanio_registro);
+    if(list_size(lista_marcos) > 1){
+        for(int i= 0; i < list_size(lista_marcos), i++){//[3,4,78]
+            int dir_fisica;
+            int tamanio_lectura;
+            if(i == 0){
+                bytes_hasta_final = bytes_hasta_final - (tamanio_pagina - offset);
+                dir_fisica = (list_get(lista_marcos, i) * tamanio_pagina) + offset;
+                tamanio_lectura = tamanio_pagina - offset;
+                mensaje = generar_mensaje_lectura(dir_fisica, tamanio_lectura);
+                enviar_mensaje(mensaje ,socket_cliente_memoria);
+                void* resultado = malloc(tamanio_lectura);
+                resultado = recibir_desde_memoria(socket_cliente_memoria);
+                memcpy(valor_leido, resultado, tamanio_lectura);
+            }else if(i > 0 && i < (list_size(lista_marcos) -1)){
+                bytes_hasta_final = bytes_hasta_final - tamanio_pagina;
+                dir_fisica = (list_get(lista_marcos, i) * tamanio_pagina);
+                tamanio_lectura = tamanio_pagina;
+                mensaje = generar_mensaje_lectura(dir_fisica, tamanio_lectura);
+                enviar_mensaje(mensaje ,socket_cliente_memoria);
+                void* resultado = malloc(tamanio_lectura);
+                resultado = recibir_desde_memoria(socket_cliente_memoria);
+                int aux = (tamanio_pagina-offset) + (tamanio_pagina * (i-1));
+                memcpy(valor_leido+aux, resultado, tamanio_lectura);
+            }else if(i == (list_size(lista_marcos)-1)){
+                dir_fisica = (list_get(lista_marcos, i) * tamanio_pagina);
+                tamanio_lectura = bytes_hasta_final;
+                mensaje = generar_mensaje_lectura(dir_fisica, tamanio_lectura);
+                enviar_mensaje(mensaje ,socket_cliente_memoria);
+                void* resultado = malloc(tamanio_lectura);
+                resultado = recibir_desde_memoria(socket_cliente_memoria);
+                int aux = tamanio_registro-tamanio_lectura;
+                memcpy(valor_leido+aux, resultado, tamanio_lectura);
+            }
+            
+        }
     }else{
-        tamanio = 1;
+        int dir_fisica = (list_get(lista_marcos, 0) * tamanio_pagina) + offset;
+        int tamanio_lectura = bytes_hasta_final;
+        mensaje = generar_mensaje_lectura(dir_fisica, tamanio_lectura);
+        enviar_mensaje(mensaje ,socket_cliente_memoria);
+        valor_leido = recibir_desde_memoria(socket_cliente_memoria);
     }
-    char* mensaje = string_new();
-    string_append(&mensaje, "READ ");
-    string_append(&mensaje, direccion);
-    string_append(&mensaje, " ");
-    string_append(&mensaje, string_itoa(tamanio));
-    enviar_mensaje(mensaje, socket_cliente_memoria);
 
-    int cod_op = recibir_operacion(socket_cliente_memoria);
-    int size;
-    char* buffer = recibir_buffer(&size, socket_cliente_memoria);
-    char ** mensaje_split = string_split(buffer, " ");
-
-
-    log_info(logger, "Se ejecuto la instrucción IO_STDOUT_WRITE con los parametros interfaz %s , direccion %s , tamanio %s y pid %d", interfaz, direccion, tamanio, contexto->pid);
-    */
+    set_valor_registro(instruccion_exec_split[1], valor_leido);
+    //log_info(logger, "Se ejecuto la instrucción IO_STDOUT_WRITE con los parametros interfaz %s , direccion %s , tamanio %s y pid %d", interfaz, direccion, tamanio, contexto->pid);
 }
 
 void mov_out(){
-    
+    int num_pag = calcular_num_pagina(valor_registro);
+    int bytes_hasta_final = tamanio_registro;
+    int offset = calcular_desplazamiento(valor_registro, num_pag);
+    char* mensaje = string_new();//Enviar a Memoria=>"Direccion_fisica valor tamanio"
+    void* valor_leido = malloc(tamanio_registro);
+    if(list_size(lista_marcos) > 1){
+        for(int i= 0; i < list_size(lista_marcos), i++){//[3,4,78]
+            int dir_fisica;
+            int tamanio_lectura;
+            if(i == 0){
+                bytes_hasta_final = bytes_hasta_final - (tamanio_pagina - offset);
+                dir_fisica = (list_get(lista_marcos, i) * tamanio_pagina) + offset;
+                tamanio_lectura = tamanio_pagina - offset;
+                mensaje = generar_mensaje_lectura(dir_fisica, tamanio_lectura);
+                enviar_mensaje(mensaje ,socket_cliente_memoria);
+                void* resultado = malloc(tamanio_lectura);
+                resultado = recibir_desde_memoria(socket_cliente_memoria);
+                memcpy(valor_leido, resultado, tamanio_lectura);
+            }else if(i > 0 && i < (list_size(lista_marcos) -1)){
+                bytes_hasta_final = bytes_hasta_final - tamanio_pagina;
+                dir_fisica = (list_get(lista_marcos, i) * tamanio_pagina);
+                tamanio_lectura = tamanio_pagina;
+                mensaje = generar_mensaje_lectura(dir_fisica, tamanio_lectura);
+                enviar_mensaje(mensaje ,socket_cliente_memoria);
+                void* resultado = malloc(tamanio_lectura);
+                resultado = recibir_desde_memoria(socket_cliente_memoria);
+                int aux = (tamanio_pagina-offset) + (tamanio_pagina * (i-1));
+                memcpy(valor_leido+aux, resultado, tamanio_lectura);
+            }else if(i == (list_size(lista_marcos)-1)){
+                dir_fisica = (list_get(lista_marcos, i) * tamanio_pagina);
+                tamanio_lectura = bytes_hasta_final;
+                mensaje = generar_mensaje_lectura(dir_fisica, tamanio_lectura);
+                enviar_mensaje(mensaje ,socket_cliente_memoria);
+                void* resultado = malloc(tamanio_lectura);
+                resultado = recibir_desde_memoria(socket_cliente_memoria);
+                int aux = tamanio_registro-tamanio_lectura;
+                memcpy(valor_leido+aux, resultado, tamanio_lectura);
+            }
+            
+        }
+    }else{
+        int dir_fisica = (list_get(lista_marcos, 0) * tamanio_pagina) + offset;
+        int tamanio_lectura = bytes_hasta_final;
+        mensaje = generar_mensaje_lectura(dir_fisica, tamanio_lectura);
+        enviar_mensaje(mensaje ,socket_cliente_memoria);
+        valor_leido = recibir_desde_memoria(socket_cliente_memoria);
+    }
+
+    set_valor_registro(instruccion_exec_split[1], valor_leido);
 }
 
 void resize(){

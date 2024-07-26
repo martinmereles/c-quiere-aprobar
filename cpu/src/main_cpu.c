@@ -10,6 +10,7 @@ t_list* INTERRUPCIONES;
 t_temporal* temporizador;
 t_list *tlb;
 int tamanio_pagina;
+t_list* lista_marcos;
 
 int main(int argc, char* argv[]) {
 	INTERRUPCIONES = list_create();
@@ -24,6 +25,7 @@ int main(int argc, char* argv[]) {
 	instruccion_exec = malloc(sizeof(char));
 	contexto->reg_generales = malloc (sizeof(registros_t));
 	sem_init(&sem_execute,0,0);
+	lista_marcos = list_create();
 
 	//Inicia servidor Puerto escucha dispatch
 	char* puerto_dispatch = config_get_string_value(config, "PUERTO_ESCUCHA_DISPATCH");

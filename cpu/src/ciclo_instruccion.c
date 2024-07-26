@@ -15,29 +15,27 @@ void fetch(int socket_cliente_memoria){
 }
 
 void decode(int socket_cliente_memoria, char* algoritmo_tlb, int cantidad_entradas_tlb){
-    /*
+    
+    list_clean_and_destroy_elements(lista_marcos, liberar_elemento);
+
     char ** instruccion_exec_split = string_split(instruccion_exec, " ");
     int direccion_fisica;
     char* instruccion_decode = string_new();
     if(strcmp(instruccion_exec_split[0],"MOV_IN") == 0){
         // MOV_IN EAX(registro_dato) 4(marco1-obligatorio) 8(marco2-opcional) 
         unsigned int valor_registro = get_valor_registro(instruccion_exec_split[2]);
-        direccion_fisica = traducir_a_direccion_fisica(contexto->pid, valor_registro, socket_cliente_memoria, algoritmo_tlb, cantidad_entradas_tlb);
-        string_append(&instruccion_decode, instruccion_exec_split[0]);
-        string_append(&instruccion_decode, " ");
-        string_append(&instruccion_decode, instruccion_exec_split[1]);
-        string_append(&instruccion_decode, " ");
-        string_append(&instruccion_decode, string_itoa(direccion_fisica));
+        int tamanio_registro = get_tamanio_registro(instruccion_exec_split[1]);
+        marcos_a_leer(contexto->pid, valor_registro, tamanio_registro, socket_cliente_memoria, algoritmo_tlb, cantidad_entradas_tlb);
     }
     if(strcmp(instruccion_exec_split[0],"MOV_OUT") == 0){
-        unsigned int valor_registro = get_valor_registro(instruccion_exec_split[1]);
-        direccion_fisica = traducir_a_direccion_fisica(contexto->pid, valor_registro, socket_cliente_memoria, algoritmo_tlb, cantidad_entradas_tlb);
-        string_append(&instruccion_decode, instruccion_exec_split[0]);
-        string_append(&instruccion_decode, " ");
-        string_append(&instruccion_decode, string_itoa(direccion_fisica));
-        string_append(&instruccion_decode, " ");
-        string_append(&instruccion_decode, instruccion_exec_split[2]);
+        //MOV_OUT
+        unsigned int valor_registro = get_valor_registro(instruccion_exec_split[2]);
+        int tamanio_registro = get_tamanio_registro(instruccion_exec_split[1]);
+        t_list* lista_marcos = list_create();
+        lista_marcos = marcos_a_leer(contexto->pid, valor_registro, tamanio_registro, socket_cliente_memoria, algoritmo_tlb, cantidad_entradas_tlb);
+        
     }
+    /*
     if(strcmp(instruccion_exec_split[0],"IO_STDIN_READ") == 0){
         unsigned int valor_registro = get_valor_registro(instruccion_exec_split[2]);
         direccion_fisica = traducir_a_direccion_fisica(contexto->pid, valor_registro, socket_cliente_memoria, algoritmo_tlb, cantidad_entradas_tlb);
@@ -93,7 +91,7 @@ void decode(int socket_cliente_memoria, char* algoritmo_tlb, int cantidad_entrad
     if(string_length(instruccion_decode) > 0){
         instruccion_exec = instruccion_decode;
     }
-*/
+    */
 }
 
 void execute(int socket_cliente_kernel, int socket_cliente_memoria){
@@ -156,14 +154,47 @@ void check_interrupt(int socket_cliente_memoria, int socket_kernel_dispatch){
 
 unsigned int get_valor_registro(char * registro){
     if(strcmp(registro,"PC") == 0){return contexto->reg_generales->PC;}
-    if(strcmp(registro,"AX") == 0){return contexto->reg_generales->PC;}
-    if(strcmp(registro,"BX") == 0){return contexto->reg_generales->PC;}
-    if(strcmp(registro,"CX") == 0){return contexto->reg_generales->PC;}
-    if(strcmp(registro,"DX") == 0){return contexto->reg_generales->PC;}
-    if(strcmp(registro,"EAX") == 0){return contexto->reg_generales->PC;}
-    if(strcmp(registro,"EBX") == 0){return contexto->reg_generales->PC;}
-    if(strcmp(registro,"ECX") == 0){return contexto->reg_generales->PC;}
-    if(strcmp(registro,"EDX") == 0){return contexto->reg_generales->PC;}
-    if(strcmp(registro,"SI") == 0){return contexto->reg_generales->PC;}
-    if(strcmp(registro,"DI") == 0){return contexto->reg_generales->PC;}
+    if(strcmp(registro,"AX") == 0){return contexto->reg_generales->AX;}
+    if(strcmp(registro,"BX") == 0){return contexto->reg_generales->BX;}
+    if(strcmp(registro,"CX") == 0){return contexto->reg_generales->CX;}
+    if(strcmp(registro,"DX") == 0){return contexto->reg_generales->DX;}
+    if(strcmp(registro,"EAX") == 0){return contexto->reg_generales->EAX;}
+    if(strcmp(registro,"EBX") == 0){return contexto->reg_generales->EBX;}
+    if(strcmp(registro,"ECX") == 0){return contexto->reg_generales->ECX;}
+    if(strcmp(registro,"EDX") == 0){return contexto->reg_generales->EDX;}
+    if(strcmp(registro,"SI") == 0){return contexto->reg_generales->SI;}
+    if(strcmp(registro,"DI") == 0){return contexto->reg_generales->DI;}
+}
+
+void set_valor_registro(char * registro, void* dato){
+    if(strcmp(registro,"PC") == 0){memcpy(contexto->reg_generales->PC, dato, 4);}
+    if(strcmp(registro,"AX") == 0){memcpy(contexto->reg_generales->AX, dato, 1);}
+    if(strcmp(registro,"BX") == 0){memcpy(contexto->reg_generales->BX, dato, 1);}
+    if(strcmp(registro,"CX") == 0){memcpy(contexto->reg_generales->CX, dato, 1);}
+    if(strcmp(registro,"DX") == 0){memcpy(contexto->reg_generales->DX, dato, 1);}
+    if(strcmp(registro,"EAX") == 0){memcpy(contexto->reg_generales->EAX, dato, 4);}
+    if(strcmp(registro,"EBX") == 0){memcpy(contexto->reg_generales->EBX, dato, 4);}
+    if(strcmp(registro,"ECX") == 0){memcpy(contexto->reg_generales->ECX, dato, 4);}
+    if(strcmp(registro,"EDX") == 0){memcpy(contexto->reg_generales->EDX, dato, 4);}
+    if(strcmp(registro,"SI") == 0){memcpy(contexto->reg_generales->SI, dato, 4);}
+    if(strcmp(registro,"DI") == 0){memcpy(contexto->reg_generales->DI, dato, 4);}
+}
+
+int get_tamanio_registro(char * registro){
+    if(strcmp(registro,"AX") == 0 || strcmp(registro,"BX") == 0 || strcmp(registro,"CX") == 0 || strcmp(registro,"DX") == 0)
+    {
+        return 1;
+    }
+    else
+    {
+        return 4;
+    }
+
+}
+
+
+void traducir_a_direccion_fisica(int pid, int valor_registro, int socket_cliente_memoria, char* algoritmo_tlb, int cantidad_entradas_tlb){
+    //MOV_IN EDX ECX
+
+    int 
 }

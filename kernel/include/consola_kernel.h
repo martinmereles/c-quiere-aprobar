@@ -34,4 +34,5 @@ bool es_pid_buscado(int pid, void* elemento);
 void multiprogramacion(int grado_multiprog_nuevo, t_config* config);
 void iniciar_planificacion();
 void detener_planificacion();
+void  proceso_estado (t_config* config);
 #endif
