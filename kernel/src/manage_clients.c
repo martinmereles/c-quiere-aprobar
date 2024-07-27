@@ -340,7 +340,7 @@ void io_fs_create(char *interfaz, char *nombre_archivo, char *pid)
     }
     else
     {
-        // Momentaneamente se usa sin finalizar proceso
+        
         finalizar_proceso(pid, socket_cpu_interrupt, socket_memoria);
     }
 }
