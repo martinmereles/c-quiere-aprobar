@@ -62,7 +62,10 @@ void atender_cliente_memoria(int socket_cliente)
             {
                 escribir(atoi(mensaje_split[1]), atoi(mensaje_split[2]), atoi(mensaje_split[3]), atoi(mensaje_split[4]), socket_cliente);
             }
-
+             if (strcmp(mensaje_split[0], "COPY_STRING") == 0)
+            {
+                leer(atoi(mensaje_split[1]), atoi(mensaje_split[2]), atoi(mensaje_split[3]), socket_cliente);
+            }
             free(buffer);
             break;
         case PAQUETE:
@@ -334,6 +337,10 @@ void escribir(int direccion_fisica, int tamanio, void* valor, int pid, int socke
     memcpy(memoria + direccion_fisica, valor, tamanio);
     char *mensaje = string_new();
     string_append(&mensaje, "ESCRIBIR OK");
-   enviar_mensaje(mensaje, socket_cliente);
+//   enviar_mensaje(mensaje, socket_cliente);
 
+}
+
+void copy_string (int df_origen, int df_destino, int tamanio ){
+    memcpy (memoria + df_destino, memoria + df_origen, tamanio);
 }

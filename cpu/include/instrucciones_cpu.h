@@ -18,6 +18,7 @@ extern t_temporal* temporizador;
 extern bool desalojo_out_of_memory;
 extern int tamanio_pagina;
 extern t_list* lista_marcos;
+extern t_list *lista_marcos_destino;
 
 void ejecutarSentencia(int socket_kernel, int socket_cliente_memoria);
 void set(char * registro, char * valor);

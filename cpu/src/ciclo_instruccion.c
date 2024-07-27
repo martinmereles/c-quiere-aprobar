@@ -34,6 +34,14 @@ void decode(int socket_cliente_memoria, char* algoritmo_tlb, int cantidad_entrad
         marcos_a_leer(contexto->pid, valor_registro, tamanio_registro, socket_cliente_memoria, algoritmo_tlb, cantidad_entradas_tlb);
         
     }
+    if(strcmp(instruccion_exec_split[0],"COPY_STRING") == 0){
+        // COPY_STRING SI (registro_dato) 4(marco1-obligatorio) 8(marco2-opcional) 
+        unsigned int valor_registro_si = get_valor_registro("SI");
+        unsigned int valor_registro_di = get_valor_registro("DI");
+        int tamanio_a_leer = atoi(instruccion_exec_split[1]);
+        marcos_a_leer(contexto->pid, valor_registro_si, tamanio_a_leer, socket_cliente_memoria, algoritmo_tlb, cantidad_entradas_tlb);
+        marcos_a_escribir(contexto->pid, valor_registro_di, tamanio_a_leer, socket_cliente_memoria, algoritmo_tlb, cantidad_entradas_tlb);
+    }
     /*
     if(strcmp(instruccion_exec_split[0],"IO_STDIN_READ") == 0){
         unsigned int valor_registro = get_valor_registro(instruccion_exec_split[2]);

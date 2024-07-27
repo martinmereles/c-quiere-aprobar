@@ -131,3 +131,21 @@ void marcos_a_leer(int pid, unsigned int dir_logica, int tam_registro, int socke
         }
     }
 }
+
+void marcos_a_escribir(int pid, unsigned int dir_logica, int tam_registro, int socket_cliente, char * algoritmo_tlb, int tamanio_tlb)
+{
+    int numero_pagina = floor(dir_logica / tamanio_pagina);
+    int desplazamiento = dir_logica - numero_pagina * tamanio_pagina;
+
+    int cant_paginas = calcular_cant_pag(desplazamiento, tam_registro);
+
+    for(int i=0; i<=cant_paginas;i++){
+
+        int aux = obtener_marco(pid, numero_pagina+i, socket_cliente,algoritmo_tlb, tamanio_tlb);
+        if(aux < 0){
+            log_error(logger, "El numero de pagina %d no existe para el proceso %d", numero_pagina+i, pid);
+        }else{
+            list_add(lista_marcos_destino, aux);
+        }
+    }
+}

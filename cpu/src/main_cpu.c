@@ -12,6 +12,7 @@ t_list *tlb;
 int tamanio_pagina;
 t_list* lista_marcos;
 bool desalojo_out_of_memory;
+t_list *lista_marcos_destino;
 
 int main(int argc, char* argv[]) {
 	INTERRUPCIONES = list_create();
@@ -28,6 +29,7 @@ int main(int argc, char* argv[]) {
 	sem_init(&sem_execute,0,0);
 	lista_marcos = list_create();
 	desalojo_out_of_memory = 0;
+	lista_marcos_destino =list_create();
 
 	//Inicia servidor Puerto escucha dispatch
 	char* puerto_dispatch = config_get_string_value(config, "PUERTO_ESCUCHA_DISPATCH");

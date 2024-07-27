@@ -9,6 +9,7 @@ extern t_log* logger;
 extern t_list *tlb;
 extern int tamanio_pagina;
 extern t_list* lista_marcos;
+extern t_list *lista_marcos_destino;
 typedef struct
 {
     int pid;
@@ -26,5 +27,6 @@ int calcular_cant_pag(int desplazamiento, int tam_registro);
 void marcos_a_leer(int pid, unsigned int dir_logica, int tam_registro, int socket_cliente, char * algoritmo_tlb, int tamanio_tlb);
 int calcular_desplazamiento(int dir_logica, int numero_pagina);
 int calcular_num_pagina(int dir_logica);
+void marcos_a_escribir(int pid, unsigned int dir_logica, int tam_registro, int socket_cliente, char * algoritmo_tlb, int tamanio_tlb);
 
 #endif

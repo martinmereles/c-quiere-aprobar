@@ -67,7 +67,7 @@ void ejecutarSentencia(int socket_kernel, int socket_cliente_memoria)
     if (strcmp(sentenciasSplit[0], "RESIZE") == 0)
         resize(sentenciasSplit[1], socket_cliente_memoria);
     if (strcmp(sentenciasSplit[0], "COPY_STRING") == 0)
-        copy_string();
+        copy_string(sentenciasSplit[1], socket_cliente_memoria);
     if (strcmp(sentenciasSplit[0], "WAIT") == 0)
         wait();
     if (strcmp(sentenciasSplit[0], "SIGNAL") == 0)
@@ -1223,7 +1223,8 @@ void mov_in(char *registro_dato, char *registro_direccion, int socket_cliente_me
                 memcpy(valor_leido + aux, resultado, tamanio_lectura);
             }
             else if (i == (list_size(lista_marcos) - 1))
-            {   int marco = list_get(lista_marcos, i);
+            {
+                int marco = list_get(lista_marcos, i);
                 dir_fisica = (marco * tamanio_pagina);
                 tamanio_lectura = bytes_hasta_final;
                 mensaje = generar_mensaje_lectura(dir_fisica, tamanio_lectura);
@@ -1236,7 +1237,8 @@ void mov_in(char *registro_dato, char *registro_direccion, int socket_cliente_me
         }
     }
     else
-    {   int marco = list_get(lista_marcos, 0);
+    {
+        int marco = list_get(lista_marcos, 0);
         int dir_fisica = (marco * tamanio_pagina) + offset;
         int tamanio_lectura = bytes_hasta_final;
         mensaje = generar_mensaje_lectura(dir_fisica, tamanio_lectura);
@@ -1254,16 +1256,17 @@ void mov_out(char *registro_direccion, char *registro_dato, int socket_cliente_m
     int tamanio_registro = get_tamanio_registro(registro_dato);
     int bytes_hasta_final = tamanio_registro;
     int offset = calcular_desplazamiento(valor_registro, num_pag);
-    char *mensaje = string_new(); 
+    char *mensaje = string_new();
     void *valor_leido = malloc(tamanio_registro);
     if (list_size(lista_marcos) > 1)
     {
         for (int i = 0; i < list_size(lista_marcos); i++)
-        { 
+        {
             int dir_fisica;
             int tamanio_lectura;
             if (i == 0)
-            {   int marco =list_get(lista_marcos, i);
+            {
+                int marco = list_get(lista_marcos, i);
                 bytes_hasta_final = bytes_hasta_final - (tamanio_pagina - offset);
                 dir_fisica = (marco * tamanio_pagina) + offset;
                 tamanio_lectura = tamanio_pagina - offset;
@@ -1274,7 +1277,8 @@ void mov_out(char *registro_direccion, char *registro_dato, int socket_cliente_m
                 memcpy(valor_leido, resultado, tamanio_lectura);
             }
             else if (i > 0 && i < (list_size(lista_marcos) - 1))
-            {   int marco = list_get(lista_marcos, i);
+            {
+                int marco = list_get(lista_marcos, i);
                 bytes_hasta_final = bytes_hasta_final - tamanio_pagina;
                 dir_fisica = (marco * tamanio_pagina);
                 tamanio_lectura = tamanio_pagina;
@@ -1286,7 +1290,8 @@ void mov_out(char *registro_direccion, char *registro_dato, int socket_cliente_m
                 memcpy(valor_leido + aux, resultado, tamanio_lectura);
             }
             else if (i == (list_size(lista_marcos) - 1))
-            {   int marco = list_get(lista_marcos, i);
+            {
+                int marco = list_get(lista_marcos, i);
                 dir_fisica = (marco * tamanio_pagina);
                 tamanio_lectura = bytes_hasta_final;
                 mensaje = generar_mensaje_lectura(dir_fisica, tamanio_lectura);
@@ -1299,15 +1304,14 @@ void mov_out(char *registro_direccion, char *registro_dato, int socket_cliente_m
         }
     }
     else
-    {   int marco = list_get(lista_marcos, 0);
+    {
+        int marco = list_get(lista_marcos, 0);
         int dir_fisica = (marco * tamanio_pagina) + offset;
         int tamanio_lectura = bytes_hasta_final;
         mensaje = generar_mensaje_lectura(dir_fisica, tamanio_lectura);
         enviar_mensaje(mensaje, socket_cliente_memoria);
         valor_leido = recibir_desde_memoria(socket_cliente_memoria);
     }
-
-    
 }
 
 void resize(char *tamanio, int socket_cliente_memoria)
@@ -1359,8 +1363,74 @@ void resize(char *tamanio, int socket_cliente_memoria)
     }
 }
 
-void copy_string()
+void copy_string(char *tamanio, int socket_cliente_memoria)
 {
+    // TODO iterar lista origen/ destino e ir pidiendoselo a memoria
+    int numero_tamanio = atoi(tamanio);
+    unsigned int valor_registro_si = get_valor_registro("SI");
+    unsigned int valor_registro_di = get_valor_registro("DI");
+    int numero_pagina_si = floor(valor_registro_si / tamanio_pagina);
+    int desplazamiento_si = valor_registro_si - numero_pagina_si * tamanio_pagina;
+    int numero_pagina_di = floor(valor_registro_di / tamanio_pagina);
+    int desplazamiento_di = valor_registro_di - numero_pagina_di * tamanio_pagina;
+    int bytes_hasta_final = numero_tamanio;
+
+    if(desplazamiento_di == desplazamiento_si) {
+        for (int i = 0; i < list_size(lista_marcos); i++)
+        {
+            int aux_origen = list_get(lista_marcos, i);
+            int aux_destino = list_get(lista_marcos_destino, i);
+            if (i==0) {
+                int tamanio_a_leer = tamanio_pagina - desplazamiento_di;
+                int df_origen = aux_origen * tamanio_pagina + desplazamiento_si;
+                int df_destino = aux_destino * tamanio_pagina + desplazamiento_di;
+                bytes_hasta_final = bytes_hasta_final - tamanio_a_leer;
+                char* mensaje;
+                mensaje = string_new();
+                string_append (&mensaje, "COPY_STRING ");
+                string_append (&mensaje,string_itoa(df_origen));
+                string_append (&mensaje, " ");
+                string_append (&mensaje, string_itoa(df_destino));
+                string_append (&mensaje, " ");
+                string_append (&mensaje, string_itoa(tamanio_a_leer));
+                enviar_mensaje(mensaje, socket_cliente_memoria);
+            }
+            else if (i > 0 && i < (list_size(lista_marcos) - 1)){
+                int df_origen = aux_origen * tamanio_pagina;
+                int df_destino = aux_destino * tamanio_pagina;
+                bytes_hasta_final = bytes_hasta_final - tamanio_pagina;
+                char* mensaje;
+                mensaje = string_new();
+                string_append (&mensaje, "COPY_STRING ");
+                string_append (&mensaje,string_itoa(df_origen));
+                string_append (&mensaje, " ");
+                string_append (&mensaje, string_itoa(df_destino));
+                string_append (&mensaje, " ");
+                string_append (&mensaje, string_itoa(tamanio_pagina));
+                enviar_mensaje(mensaje, socket_cliente_memoria);
+            }
+             else if (i == (list_size(lista_marcos) - 1)){
+                int df_origen = aux_origen * tamanio_pagina;
+                int df_destino = aux_destino * tamanio_pagina;
+                char* mensaje;
+                mensaje = string_new();
+                string_append (&mensaje, "COPY_STRING ");
+                string_append (&mensaje,string_itoa(df_origen));
+                string_append (&mensaje, " ");
+                string_append (&mensaje, string_itoa(df_destino));
+                string_append (&mensaje, " ");
+                string_append (&mensaje, string_itoa(bytes_hasta_final));
+                enviar_mensaje(mensaje, socket_cliente_memoria);
+
+            }
+
+
+        }
+        
+    }
+    else {
+        
+    }
 }
 
 void wait()
