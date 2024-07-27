@@ -31,8 +31,7 @@ void decode(int socket_cliente_memoria, char* algoritmo_tlb, int cantidad_entrad
         //MOV_OUT
         unsigned int valor_registro = get_valor_registro(instruccion_exec_split[2]);
         int tamanio_registro = get_tamanio_registro(instruccion_exec_split[1]);
-        t_list* lista_marcos = list_create();
-        lista_marcos = marcos_a_leer(contexto->pid, valor_registro, tamanio_registro, socket_cliente_memoria, algoritmo_tlb, cantidad_entradas_tlb);
+        marcos_a_leer(contexto->pid, valor_registro, tamanio_registro, socket_cliente_memoria, algoritmo_tlb, cantidad_entradas_tlb);
         
     }
     /*
@@ -151,6 +150,10 @@ void check_interrupt(int socket_cliente_memoria, int socket_kernel_dispatch){
     }else if(existe_recurso){
         enviar_pcb_contexto_motivo(socket_kernel_dispatch, contexto, instruccion_exec);
         log_info (logger, "PID: %s - Desalojado por syscall a recurso", string_itoa(contexto->pid));
+        sem_wait(&sem_execute);
+    }else if(strcmp(instruccion_exec_split[0],"EXIT")){
+        enviar_pcb_contexto_motivo(socket_kernel_dispatch, contexto, "SUCCESS");
+        log_info (logger, "PID: %s - Desalojado por instruccion EXIT", string_itoa(contexto->pid));
         sem_wait(&sem_execute);
     }
     

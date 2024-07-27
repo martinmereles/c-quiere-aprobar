@@ -45,6 +45,7 @@ pcb_t* crear_pcb (int quantum){
 void pasar_new_ready (){
     sem_wait(&sem_grado_multiprog);
     sem_wait(&detencion_planificador_largo);
+    sem_post(&detencion_planificador_largo);
     pcb_t * aux =  malloc(sizeof(pcb_t));
     sem_wait(&sem_array_estados[0].contador);
     sem_wait(&sem_array_estados[0].mutex);
@@ -54,5 +55,4 @@ void pasar_new_ready (){
     sem_post(&sem_array_estados[0].mutex);
     sem_post(&sem_array_estados[1].mutex);
     sem_post(&sem_array_estados[1].contador);
-    sem_post(&detencion_planificador_largo);
 }

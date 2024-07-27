@@ -154,7 +154,6 @@ void detener_planificacion(){
     detuvo_planificacion = 1;
     sem_wait(&detencion_planificador_corto);
     sem_wait(&detencion_planificador_largo);
-
     }
 
 }

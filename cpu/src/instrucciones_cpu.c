@@ -1114,9 +1114,14 @@ void io_stdout_write (char * interfaz, char * direccion, char * tamanio, int soc
 }
 
 void exit_inst(int socket_kernel){
-    //TODO Ver que implica el exit
-    enviar_pcb_contexto(socket_kernel, contexto);
-    enviar_pcb_contexto_motivo(socket_kernel, contexto, "SUCCESS");
+    temporal_stop(temporizador);
+    int64_t tiempo_transcurrido = temporal_gettime(temporizador);
+    if((contexto->quantum - (int) tiempo_transcurrido) <= 0){
+        contexto->quantum = 0;
+    }else{
+        contexto->quantum = contexto->quantum - (int) tiempo_transcurrido;
+    }
+    
 }
 
 void mov_in(char* registro, char * direccion, int socket_cliente_memoria){ /*
