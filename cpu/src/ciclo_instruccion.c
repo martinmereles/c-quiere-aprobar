@@ -198,9 +198,3 @@ int get_tamanio_registro(char * registro){
 
 }
 
-
-void traducir_a_direccion_fisica(int pid, int valor_registro, int socket_cliente_memoria, char* algoritmo_tlb, int cantidad_entradas_tlb){
-    //MOV_IN EDX ECX
-
-    int 
-}

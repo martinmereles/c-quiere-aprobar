@@ -1227,10 +1227,10 @@ void mov_out(){ /*
 void resize(char* tamanio, int socket_cliente_memoria){
 
 char* mensaje = string_new();
-string_append (mensaje, "RESIZE ");
-string_append (mensaje, tamanio);
-string_append (mensaje, " ");
-string_append (mensaje, string_itoa(contexto->pid));
+string_append (&mensaje, "RESIZE ");
+string_append (&mensaje, tamanio);
+string_append (&mensaje, " ");
+string_append (&mensaje, string_itoa(contexto->pid));
 enviar_mensaje(mensaje, socket_cliente_memoria);
 
 int cod_op = recibir_operacion(socket_cliente_memoria);; 

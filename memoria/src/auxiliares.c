@@ -208,7 +208,6 @@ void resize(int tamanio, int pid, int socket_cliente)
 int cantidad_marcos_libres()
 {
     int cantidad_total_marcos_libres = 0;
-    sem_wait(&sem_bitmap_marcos_libres);
     for (int i = 0; bitmap_marcos_libres->size * 8 > i; i++)
     {
         if (!bitarray_test_bit(bitmap_marcos_libres, i))
@@ -216,7 +215,6 @@ int cantidad_marcos_libres()
             cantidad_total_marcos_libres++;
         }
     }
-    sem_post(&sem_bitmap_marcos_libres);
     return cantidad_total_marcos_libres;
 }
 
@@ -241,7 +239,6 @@ bool es_pid_buscado(int pid_buscado, void *elemento)
 int primer_marco_libre()
 {
     int posicion = 0;
-    sem_wait(&sem_bitmap_marcos_libres);
     while (bitarray_test_bit(bitmap_marcos_libres, posicion) && posicion < (bitmap_marcos_libres->size * 8 - 1))
     {
         posicion++;
@@ -251,6 +248,5 @@ int primer_marco_libre()
     {
         posicion = -1;
     }
-    sem_post(&sem_bitmap_marcos_libres);
     return posicion;
 }

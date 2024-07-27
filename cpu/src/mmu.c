@@ -114,8 +114,8 @@ int obtener_marco(int pid, int numero_pagina, int socket_cliente, char * algorit
     
 }
 
-void marcos_a_leer(int pid, unsigned int dir_logica, int tam_registro, int socket_cliente, char * algoritmo_tlb, int tamanio_tlb){
-
+void marcos_a_leer(int pid, unsigned int dir_logica, int tam_registro, int socket_cliente, char * algoritmo_tlb, int tamanio_tlb)
+{
     int numero_pagina = floor(dir_logica / tamanio_pagina);
     int desplazamiento = dir_logica - numero_pagina * tamanio_pagina;
 
