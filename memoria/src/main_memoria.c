@@ -48,6 +48,8 @@ int main(int argc, char* argv[]) {
 	sem_post(&sem_bitmap_marcos_libres);
 	
 
+
+
 	pthread_join(hiloServidor, NULL);
 	//Cierre de log y config
     cerrar_log_config (logger,config); 

@@ -325,7 +325,7 @@ void leer(int direccion_fisica, int tamanio, int pid, int socket_cliente)
     void *lectura = malloc(tamanio);
     memcpy(lectura, memoria + direccion_fisica, tamanio);
     string_append(&mensaje, lectura);
-    //enviar_mensaje(mensaje, socket_cliente);
+    enviar_mensaje(mensaje, socket_cliente);
 }
 
 void escribir(int direccion_fisica, int tamanio, void* valor, int pid, int socket_cliente)
@@ -334,6 +334,6 @@ void escribir(int direccion_fisica, int tamanio, void* valor, int pid, int socke
     memcpy(memoria + direccion_fisica, valor, tamanio);
     char *mensaje = string_new();
     string_append(&mensaje, "ESCRIBIR OK");
-   // enviar_mensaje(mensaje, socket_cliente);
+   enviar_mensaje(mensaje, socket_cliente);
 
 }
