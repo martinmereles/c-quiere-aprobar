@@ -126,7 +126,7 @@ void set(char *registro, char *valor)
         reg->SI = valorASetear;
         break;
     case DI:
-        reg->DX = valorASetear;
+        reg->DI = valorASetear;
         break;
     default:
         break;
@@ -1325,7 +1325,6 @@ void resize(char *tamanio, int socket_cliente_memoria)
     enviar_mensaje(mensaje, socket_cliente_memoria);
 
     int cod_op = recibir_operacion(socket_cliente_memoria);
-    ;
     switch (cod_op)
     {
     case MENSAJE:
@@ -1375,61 +1374,66 @@ void copy_string(char *tamanio, int socket_cliente_memoria)
     int desplazamiento_di = valor_registro_di - numero_pagina_di * tamanio_pagina;
     int bytes_hasta_final = numero_tamanio;
 
-    if(desplazamiento_di == desplazamiento_si) {
-        for (int i = 0; i < list_size(lista_marcos); i++)
-        {
-            int aux_origen = list_get(lista_marcos, i);
-            int aux_destino = list_get(lista_marcos_destino, i);
-            if (i==0) {
-                int tamanio_a_leer = tamanio_pagina - desplazamiento_di;
-                int df_origen = aux_origen * tamanio_pagina + desplazamiento_si;
-                int df_destino = aux_destino * tamanio_pagina + desplazamiento_di;
-                bytes_hasta_final = bytes_hasta_final - tamanio_a_leer;
-                char* mensaje;
-                mensaje = string_new();
-                string_append (&mensaje, "COPY_STRING ");
-                string_append (&mensaje,string_itoa(df_origen));
-                string_append (&mensaje, " ");
-                string_append (&mensaje, string_itoa(df_destino));
-                string_append (&mensaje, " ");
-                string_append (&mensaje, string_itoa(tamanio_a_leer));
-                enviar_mensaje(mensaje, socket_cliente_memoria);
-            }
-            else if (i > 0 && i < (list_size(lista_marcos) - 1)){
-                int df_origen = aux_origen * tamanio_pagina;
-                int df_destino = aux_destino * tamanio_pagina;
-                bytes_hasta_final = bytes_hasta_final - tamanio_pagina;
-                char* mensaje;
-                mensaje = string_new();
-                string_append (&mensaje, "COPY_STRING ");
-                string_append (&mensaje,string_itoa(df_origen));
-                string_append (&mensaje, " ");
-                string_append (&mensaje, string_itoa(df_destino));
-                string_append (&mensaje, " ");
-                string_append (&mensaje, string_itoa(tamanio_pagina));
-                enviar_mensaje(mensaje, socket_cliente_memoria);
-            }
-             else if (i == (list_size(lista_marcos) - 1)){
-                int df_origen = aux_origen * tamanio_pagina;
-                int df_destino = aux_destino * tamanio_pagina;
-                char* mensaje;
-                mensaje = string_new();
-                string_append (&mensaje, "COPY_STRING ");
-                string_append (&mensaje,string_itoa(df_origen));
-                string_append (&mensaje, " ");
-                string_append (&mensaje, string_itoa(df_destino));
-                string_append (&mensaje, " ");
-                string_append (&mensaje, string_itoa(bytes_hasta_final));
-                enviar_mensaje(mensaje, socket_cliente_memoria);
+    //Almacena lo que tiene origen
+    void* origen_leido = malloc(numero_tamanio);
 
-            }
+    for (int i = 0; i < list_size(lista_marcos); i++){
 
-
+        int aux_origen = list_get(lista_marcos, i);
+        char* mensaje = string_new();
+        int df_origen;
+        int tamanio_lectura;
+        if (i==0) {
+            df_origen = aux_origen * tamanio_pagina + desplazamiento_si;
+            tamanio_lectura = tamanio_pagina - desplazamiento_si;
+            mensaje = generar_mensaje_lectura(df_origen, tamanio_lectura);
+        }else if (i > 0 && i < (list_size(lista_marcos) - 1)){
+            df_origen = aux_origen * tamanio_pagina;
+            tamanio_lectura = tamanio_pagina;
+            mensaje = generar_mensaje_lectura(df_origen, tamanio_lectura);
+        }else if (i == (list_size(lista_marcos) - 1)){
+            tamanio_lectura = bytes_hasta_final;
+            df_origen = aux_origen * tamanio_pagina;
+            mensaje = generar_mensaje_lectura(df_origen, tamanio_lectura);
         }
+        enviar_mensaje(mensaje, socket_cliente_memoria);
+        void *resultado = malloc(tamanio_lectura);
+        resultado = recibir_desde_memoria(socket_cliente_memoria);
         
+        memcpy(origen_leido+(numero_tamanio-bytes_hasta_final), resultado, tamanio_lectura);
+        bytes_hasta_final = bytes_hasta_final - tamanio_lectura;
     }
-    else {
-        
+
+    void* valor_a_escribir;
+    int bytes_a_escribir = numero_tamanio;
+
+    for (int i = 0; i < list_size(lista_marcos_destino); i++){
+
+        int aux_destino = list_get(lista_marcos_destino, i);
+        char* mensaje = NULL;
+        int df_destino;
+        int tamanio_escritura;
+        if (i==0) {
+            df_destino = aux_destino * tamanio_pagina + desplazamiento_di;
+            tamanio_escritura = tamanio_pagina - desplazamiento_di;
+            valor_a_escribir = malloc(tamanio_escritura);
+            memcpy(valor_a_escribir, origen_leido+(numero_tamanio-bytes_a_escribir), tamanio_escritura);
+            mensaje = generar_mensaje_escritura(df_destino, tamanio_escritura, valor_a_escribir);
+        }else if (i > 0 && i < (list_size(lista_marcos) - 1)){
+            df_destino = aux_destino * tamanio_pagina;
+            tamanio_escritura = tamanio_pagina;
+            valor_a_escribir = realloc(valor_a_escribir, tamanio_escritura);
+            memcpy(valor_a_escribir, origen_leido+(numero_tamanio-bytes_a_escribir), tamanio_escritura);
+            mensaje = generar_mensaje_escritura(df_destino, tamanio_escritura, valor_a_escribir);
+        }else if (i == (list_size(lista_marcos) - 1)){
+            tamanio_escritura = bytes_hasta_final;
+            df_destino = aux_destino * tamanio_pagina;
+            valor_a_escribir = realloc(valor_a_escribir, tamanio_escritura);
+            memcpy(valor_a_escribir, origen_leido+(numero_tamanio-bytes_a_escribir), tamanio_escritura);
+            mensaje = generar_mensaje_escritura(df_destino, tamanio_escritura, valor_a_escribir);
+        }
+        enviar_mensaje(mensaje, socket_cliente_memoria);
+        bytes_a_escribir = bytes_a_escribir - tamanio_escritura;
     }
 }
 

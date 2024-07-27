@@ -1,6 +1,7 @@
 #ifndef INSTRUCCIONES_CPU_H
 #define INSTRUCCIONES_CPU_H
 #include <utils/estructuras/estructuras.h>
+#include <../include/auxiliares.h>
 #include <stdint.h>
 #include <commons/log.h>
 #include <string.h>
@@ -29,8 +30,8 @@ void io_gen_sleep(char * interfaz, char * unidadesDeTrabajo, int socket_kernel);
 void exit_inst(int socket_kernel);
 void mov_in(char* registro_dato, char * registro_direccion, int socket_cliente_memoria);
 void mov_out(char *registro_direccion, char *registro_dato, int socket_cliente_memoria);
-void resize();
-void copy_string();
+void resize(char *tamanio, int socket_cliente_memoria);
+void copy_string(char *tamanio, int socket_cliente_memoria);
 void wait();
 void signal_instruccion();
 void io_fs_create();

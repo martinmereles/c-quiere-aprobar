@@ -7,10 +7,10 @@ void iniciar_tlb(){
 
 
 entrada_tlb_t * obtener_entrada(int pid, int pagina){
+
     entrada_tlb_t * aux = malloc(sizeof(entrada_tlb_t));
-    aux = NULL;
     entrada_tlb_t * entrada_buscada = malloc(sizeof(entrada_tlb_t));
-    entrada_buscada = NULL;
+    entrada_buscada->marco = -1;
     for(int i = 0;i < list_size(tlb); i++){
         aux = list_get(tlb, i);
         if(aux->pid == pid && aux->pagina == pagina){
@@ -75,22 +75,22 @@ int obtener_marco(int pid, int numero_pagina, int socket_cliente, char * algorit
     int numero_marco;
 
     entrada_tlb_t * entrada = malloc(sizeof(entrada_tlb_t));
-    entrada = NULL;
+    //entrada = NULL;
     entrada = obtener_entrada(pid, numero_pagina);
 
-    if(entrada != NULL){
+    if(entrada->marco != -1){
         return (entrada->marco);
     }else{
-        char* mensaje = string_new();
-        string_append(&mensaje, "OBTENER_MARCO ");
-        string_append(&mensaje, string_itoa(pid));
-        string_append(&mensaje, " ");
-        string_append(&mensaje, string_itoa(numero_pagina));
-        enviar_mensaje(mensaje, socket_cliente);
+        char* mensaje_memoria = string_new();
+        string_append(&mensaje_memoria, "OBTENER_MARCO ");
+        string_append(&mensaje_memoria, string_itoa(pid));
+        string_append(&mensaje_memoria, " ");
+        string_append(&mensaje_memoria, string_itoa(numero_pagina));
+        enviar_mensaje(mensaje_memoria, socket_cliente);
         int cod_op = recibir_operacion(socket_cliente);
         int size;
-        char* buffer = recibir_buffer(&size, socket_cliente);
-        char ** mensaje_split = string_split(buffer, " ");
+        char* mensaje_recibido = recibir_buffer(&size, socket_cliente);
+        char ** mensaje_split = string_split(mensaje_recibido, " ");
         if(strcmp(mensaje_split[0], "OBTENER_MARCO") == 0){
             if(strcmp(mensaje_split[1], "SEGMENTATION_FAULT") == 0){
                 return -1;

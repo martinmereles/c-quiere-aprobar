@@ -124,7 +124,7 @@ void* recibir_buffer(int* size, int socket_cliente)
 	recv(socket_cliente, size, sizeof(int), MSG_WAITALL);
 	buffer = malloc(*size);
 	recv(socket_cliente, buffer, *size, MSG_WAITALL);
-
+	
 	return buffer;
 }
 

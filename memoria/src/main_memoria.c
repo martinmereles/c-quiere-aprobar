@@ -47,11 +47,8 @@ int main(int argc, char* argv[]) {
 	}
 	sem_post(&sem_bitmap_marcos_libres);
 	
-	escribir(14, 10,"PRUEBA123",1,3);
+	escribir(14, 10, 1,"PRUEBA123",3);
     mem_hexdump(memoria, tamanio_memoria);
-    copy_string(14,50,7);
-	mem_hexdump(memoria, tamanio_memoria);
-
 
 	pthread_join(hiloServidor, NULL);
 	//Cierre de log y config

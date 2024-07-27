@@ -193,8 +193,9 @@ char* generar_mensaje_escritura(int dir_fisica, int tamanio, int valor){
     string_append(&mensaje, " ");
     string_append(&mensaje, string_itoa(tamanio));
     string_append(&mensaje, " ");
-    string_append(&mensaje, string_itoa(valor));
-    string_append(&mensaje, " ");
     string_append(&mensaje, string_itoa(contexto->pid));
+    string_append(&mensaje, " ");
+    string_append(&mensaje, string_itoa(valor));
+    
     return mensaje;
 }

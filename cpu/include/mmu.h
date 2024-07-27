@@ -1,9 +1,11 @@
 #ifndef MMU_H_
 #define MMU_H_
 
+#include <utils/client-server.h>
 #include <commons/collections/list.h>
 #include <time.h>
 #include <commons/log.h>
+#include <commons/string.h>
 
 extern t_log* logger;
 extern t_list *tlb;

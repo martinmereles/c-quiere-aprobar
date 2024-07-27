@@ -159,7 +159,7 @@ void check_interrupt(int socket_cliente_memoria, int socket_kernel_dispatch){
         enviar_pcb_contexto_motivo(socket_kernel_dispatch, contexto, instruccion_exec);
         log_info (logger, "PID: %s - Desalojado por syscall a recurso", string_itoa(contexto->pid));
         sem_wait(&sem_execute);
-    }else if(strcmp(instruccion_exec_split[0],"EXIT")){
+    }else if(strcmp(instruccion_exec_split[0],"EXIT") == 0){
         enviar_pcb_contexto_motivo(socket_kernel_dispatch, contexto, "SUCCESS");
         log_info (logger, "PID: %s - Desalojado por instruccion EXIT", string_itoa(contexto->pid));
         sem_wait(&sem_execute);

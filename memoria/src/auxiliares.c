@@ -59,8 +59,10 @@ void atender_cliente_memoria(int socket_cliente)
                 leer(atoi(mensaje_split[1]), atoi(mensaje_split[2]), atoi(mensaje_split[3]), socket_cliente);
             }
             if (strcmp(mensaje_split[0], "ESCRIBIR") == 0)
-            {
-                escribir(atoi(mensaje_split[1]), atoi(mensaje_split[2]), atoi(mensaje_split[3]), atoi(mensaje_split[4]), socket_cliente);
+            {   
+                void* valor = malloc(atoi(mensaje_split[2]));
+                memcpy(valor, buffer + (string_length(buffer)-atoi(mensaje_split[2])), atoi(mensaje_split[2]));
+                escribir(atoi(mensaje_split[1]), atoi(mensaje_split[2]), atoi(mensaje_split[3]), valor, socket_cliente);
             }
              if (strcmp(mensaje_split[0], "COPY_STRING") == 0)
             {
@@ -331,14 +333,13 @@ void leer(int direccion_fisica, int tamanio, int pid, int socket_cliente)
     enviar_mensaje(mensaje, socket_cliente);
 }
 
-void escribir(int direccion_fisica, int tamanio, void* valor, int pid, int socket_cliente)
+void escribir(int direccion_fisica, int tamanio, int pid, void* valor, int socket_cliente)
 {
-
-    memcpy(memoria + direccion_fisica, valor, tamanio);
+    memcpy(memoria + direccion_fisica, valor, tamanio);//Revisar valor
     char *mensaje = string_new();
     string_append(&mensaje, "ESCRIBIR OK");
-//   enviar_mensaje(mensaje, socket_cliente);
-
+    //enviar_mensaje(mensaje, socket_cliente);
+    mem_hexdump(memoria, 4096);
 }
 
 void copy_string (int df_origen, int df_destino, int tamanio ){
