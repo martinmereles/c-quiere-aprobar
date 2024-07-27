@@ -177,22 +177,24 @@ void liberar_elemento(void* elemento) {
 
 char* generar_mensaje_lectura(int dir_fisica, int tamanio){
     char* mensaje = string_new();//Enviar a Memoria=>"Direccion_fisica valor tamanio"
-    string_append(&mensaje, "Leer ");
+    string_append(&mensaje, "LEER ");
     string_append(&mensaje, string_itoa(dir_fisica));
     string_append(&mensaje, " ");
     string_append(&mensaje, string_itoa(tamanio));
-    
+    string_append(&mensaje, " ");
+    string_append(&mensaje, string_itoa(contexto->pid));
     return mensaje;
 }
 
 char* generar_mensaje_escritura(int dir_fisica, int tamanio, int valor){
     char* mensaje = string_new();//Enviar a Memoria=>"Direccion_fisica valor tamanio"
-    string_append(&mensaje, "Escribir ");
+    string_append(&mensaje, "ESCRIBIR ");
     string_append(&mensaje, string_itoa(dir_fisica));
     string_append(&mensaje, " ");
     string_append(&mensaje, string_itoa(tamanio));
     string_append(&mensaje, " ");
     string_append(&mensaje, string_itoa(valor));
-    
+    string_append(&mensaje, " ");
+    string_append(&mensaje, string_itoa(contexto->pid));
     return mensaje;
 }

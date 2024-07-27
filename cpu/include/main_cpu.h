@@ -22,6 +22,7 @@
 #include <semaphore.h>
 #include <../include/ciclo_instruccion.h>
 #include <commons/temporal.h>
+#include <commons/memory.h>
 
 
 void iterator(char*); 

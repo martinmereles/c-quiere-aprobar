@@ -31,5 +31,8 @@ int cantidad_marcos_asignados(int pid);
 bool es_pid_buscado(int pid_buscado, void *elemento);
 int primer_marco_libre();
 void finalizar_proceso(int pid);
+void obtener_marco(int pid, int nro_pagina, int socket_cliente);
+void leer(int direccion_fisica, int tamanio, int pid ,int socket_cliente);
+void escribir(int direccion_fisica, int tamanio, void* valor, int pid, int socket_cliente);
 
 #endif

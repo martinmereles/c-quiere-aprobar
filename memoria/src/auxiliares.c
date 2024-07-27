@@ -50,6 +50,19 @@ void atender_cliente_memoria(int socket_cliente)
             {
                 resize(atoi(mensaje_split[1]), atoi(mensaje_split[2]), socket_cliente);
             }
+            if (strcmp(mensaje_split[0], "OBTENER_MARCO") == 0)
+            {
+                obtener_marco(atoi(mensaje_split[1]), atoi(mensaje_split[2]), socket_cliente);
+            }
+            if (strcmp(mensaje_split[0], "LEER") == 0)
+            {
+                leer(atoi(mensaje_split[1]), atoi(mensaje_split[2]), atoi(mensaje_split[3]), socket_cliente);
+            }
+            if (strcmp(mensaje_split[0], "ESCRIBIR") == 0)
+            {
+                escribir(atoi(mensaje_split[1]), atoi(mensaje_split[2]), atoi(mensaje_split[3]), atoi(mensaje_split[4]), socket_cliente);
+            }
+
             free(buffer);
             break;
         case PAQUETE:
@@ -157,7 +170,8 @@ void resize(int tamanio, int pid, int socket_cliente)
     if (tamanio > 0)
     {
         int cantidad_marcos_solicitados = floor(tamanio / tamanio_pagina);
-        if(tamanio%tamanio_pagina>0){
+        if (tamanio % tamanio_pagina > 0)
+        {
             cantidad_marcos_solicitados++;
         }
         int marcos_libres = cantidad_marcos_libres();
@@ -171,7 +185,7 @@ void resize(int tamanio, int pid, int socket_cliente)
 
         if (marcos_a_agregar > 0)
         {
-            
+
             if (marcos_libres >= marcos_a_agregar)
             {
                 sem_wait(&sem_bitmap_marcos_libres);
@@ -183,7 +197,7 @@ void resize(int tamanio, int pid, int socket_cliente)
                     list_add(aux->lista_paginas, primer_marco_free);
                 }
                 sem_post(&sem_bitmap_marcos_libres);
-                aux -> memoria_reservada = tamanio;
+                aux->memoria_reservada = tamanio;
             }
             else
             {
@@ -201,14 +215,13 @@ void resize(int tamanio, int pid, int socket_cliente)
                 int tamanio_lista_marcos = list_size(aux->lista_paginas);
                 int pagina_a_borrar = list_remove(aux->lista_paginas, (tamanio_lista_marcos - 1));
                 bitarray_clean_bit(bitmap_marcos_libres, pagina_a_borrar);
-
             }
             sem_post(&sem_bitmap_marcos_libres);
-            aux -> memoria_reservada = tamanio;
+            aux->memoria_reservada = tamanio;
         }
-           char *mensaje = string_new();
-                string_append(&mensaje, "RESIZE OK");
-                enviar_mensaje(mensaje, socket_cliente);
+        char *mensaje = string_new();
+        string_append(&mensaje, "RESIZE OK");
+        enviar_mensaje(mensaje, socket_cliente);
     }
 }
 
@@ -231,7 +244,7 @@ int cantidad_marcos_asignados(int pid)
     {
         return es_pid_buscado(pid, elemento);
     };
-    t_instruccion_memoria *aux = list_find(memoria_instrucciones, _es_pid_buscado); 
+    t_instruccion_memoria *aux = list_find(memoria_instrucciones, _es_pid_buscado);
     return (list_size(aux->lista_paginas));
 }
 
@@ -258,16 +271,17 @@ int primer_marco_libre()
     return posicion;
 }
 
-
-void finalizar_proceso(int pid){
-     bool _es_pid_buscado(void *elemento)
+void finalizar_proceso(int pid)
+{
+    bool _es_pid_buscado(void *elemento)
     {
         return es_pid_buscado(pid, elemento);
     };
-    t_instruccion_memoria *aux = list_find(memoria_instrucciones, _es_pid_buscado); 
+    t_instruccion_memoria *aux = list_find(memoria_instrucciones, _es_pid_buscado);
     sem_wait(&sem_bitmap_marcos_libres);
-    for(int i = 0; list_size(aux->lista_paginas)>i; i++){
-        int pagina_a_liberar = list_get(aux->lista_paginas,i);
+    for (int i = 0; list_size(aux->lista_paginas) > i; i++)
+    {
+        int pagina_a_liberar = list_get(aux->lista_paginas, i);
         bitarray_clean_bit(bitmap_marcos_libres, pagina_a_liberar);
     }
 
@@ -277,4 +291,49 @@ void finalizar_proceso(int pid){
     free(aux2);
 
     sem_post(&sem_bitmap_marcos_libres);
+}
+
+void obtener_marco(int pid, int nro_pagina, int socket_cliente)
+{
+    bool _es_pid_buscado(void *elemento)
+    {
+        return es_pid_buscado(pid, elemento);
+    };
+    t_instruccion_memoria *aux = list_find(memoria_instrucciones, _es_pid_buscado);
+
+    if (list_size(aux->lista_paginas) <= nro_pagina)
+    {
+        char *mensaje = string_new();
+        string_append(&mensaje, "OBTENER_MARCO SEGMENTATION_FAULT");
+        enviar_mensaje(mensaje, socket_cliente);
+    }
+    else
+    {
+        int numero_pagina = list_get(aux->lista_paginas, nro_pagina);
+        char *mensaje = string_new();
+        string_append(&mensaje, "OBTENER_MARCO ");
+        string_append(&mensaje, string_itoa(numero_pagina));
+        enviar_mensaje(mensaje, socket_cliente);
+    }
+}
+
+void leer(int direccion_fisica, int tamanio, int pid, int socket_cliente)
+{
+
+    char *mensaje = string_new();
+    string_append(&mensaje, "LEER ");
+    void *lectura = malloc(tamanio);
+    memcpy(lectura, memoria + direccion_fisica, tamanio);
+    string_append(&mensaje, lectura);
+    //enviar_mensaje(mensaje, socket_cliente);
+}
+
+void escribir(int direccion_fisica, int tamanio, void* valor, int pid, int socket_cliente)
+{
+
+    memcpy(memoria + direccion_fisica, valor, tamanio);
+    char *mensaje = string_new();
+    string_append(&mensaje, "ESCRIBIR OK");
+   // enviar_mensaje(mensaje, socket_cliente);
+
 }
