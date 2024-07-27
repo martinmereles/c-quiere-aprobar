@@ -57,7 +57,7 @@ void ejecutarSentencia(int socket_kernel, int socket_cliente_memoria){
     if(strcmp(sentenciasSplit[0],"IO_FS_TRUNCATE")==0) io_fs_truncate();
     if(strcmp(sentenciasSplit[0],"IO_FS_WRITE")==0) io_fs_write();
     if(strcmp(sentenciasSplit[0],"IO_FS_READ")==0) io_fs_read();
-    if(strcmp(sentenciasSplit[0],"EXIT")==0) exit_inst();
+    if(strcmp(sentenciasSplit[0],"EXIT")==0) exit_inst(socket_kernel);
 }
 
 void set (char * registro, char * valor)    
@@ -1118,7 +1118,7 @@ void exit_inst(int socket_kernel){
     enviar_pcb_contexto(socket_kernel, contexto);
 }
 
-void mov_in(char* registro, char * direccion, int socket_cliente_memoria){
+void mov_in(char* registro, char * direccion, int socket_cliente_memoria){ /*
     
     int num_pag = calcular_num_pagina(valor_registro);
     int bytes_hasta_final = tamanio_registro;
@@ -1168,11 +1168,11 @@ void mov_in(char* registro, char * direccion, int socket_cliente_memoria){
         valor_leido = recibir_desde_memoria(socket_cliente_memoria);
     }
 
-    set_valor_registro(instruccion_exec_split[1], valor_leido);
+    set_valor_registro(instruccion_exec_split[1], valor_leido); */
     //log_info(logger, "Se ejecuto la instrucción IO_STDOUT_WRITE con los parametros interfaz %s , direccion %s , tamanio %s y pid %d", interfaz, direccion, tamanio, contexto->pid);
 }
 
-void mov_out(){
+void mov_out(){ /*
     int num_pag = calcular_num_pagina(valor_registro);
     int bytes_hasta_final = tamanio_registro;
     int offset = calcular_desplazamiento(valor_registro, num_pag);
@@ -1221,7 +1221,7 @@ void mov_out(){
         valor_leido = recibir_desde_memoria(socket_cliente_memoria);
     }
 
-    set_valor_registro(instruccion_exec_split[1], valor_leido);
+    set_valor_registro(instruccion_exec_split[1], valor_leido); */
 }
 
 void resize(char* tamanio, int socket_cliente_memoria){
@@ -1242,7 +1242,7 @@ int cod_op = recibir_operacion(socket_cliente_memoria);;
             char ** mensaje_split = string_split(buffer, " ");
         if (strcmp(mensaje_split[0], "RESIZE") == 0 && strcmp(mensaje_split[1], "OUT_OF_MEMORY") == 0)
             {
-            desalojo_out_of_memory; = 1;
+            desalojo_out_of_memory = 1;
             temporal_stop(temporizador);
             int64_t tiempo_transcurrido = temporal_gettime(temporizador);
             if((contexto->quantum - (int) tiempo_transcurrido) <= 0){
@@ -1251,7 +1251,9 @@ int cod_op = recibir_operacion(socket_cliente_memoria);;
             contexto->quantum = contexto->quantum - (int) tiempo_transcurrido;
             }  
             }
-            
+        if (strcmp(mensaje_split[0], "RESIZE") == 0 && strcmp(mensaje_split[1], "OK") == 0){
+            log_info(logger, "Se ejecuto correctamente RESIZE");
+            }
             free(buffer);
             break;
 

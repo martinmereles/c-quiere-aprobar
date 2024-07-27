@@ -191,13 +191,14 @@ void iniciar_dialfs(t_config *config)
 
         // Inicializo bitmap
         void *bitmap = malloc(cantidad_bloques / 8);
+        sem_wait(&sem_fs);
         bitmap_bloques_libres = bitarray_create_with_mode(bitmap, cantidad_bloques / 8, LSB_FIRST);
         for (int i = 0; i < cantidad_bloques; i++)
         {
             bitarray_clean_bit(bitmap_bloques_libres, i);
         }
         fwrite(bitmap_bloques_libres->bitarray, bitmap_bloques_libres->size, 1, file_bitmap);
-
+        sem_post(&sem_fs);
         // Inicializo bloques
         void *bloques = calloc(cantidad_bloques, tamanio_bloque);
         fwrite(bloques, tamanio_bloque, cantidad_bloques, file_bloques);
@@ -212,8 +213,10 @@ void iniciar_dialfs(t_config *config)
         rewind(file_bitmap);
 
         void *bitmap = malloc(cantidad_bloques / 8);
+        sem_wait(&sem_fs);
         bitmap_bloques_libres = bitarray_create_with_mode(bitmap, cantidad_bloques / 8, LSB_FIRST);
         fread(bitmap_bloques_libres->bitarray, sz, 1, file_bitmap);
+        sem_post(&sem_fs);
         fclose(file_bitmap);
         fclose(file_bloques);
     }
@@ -396,16 +399,19 @@ void io_fs_truncate(char *nombre_archivo, int tamanio_a_truncar, t_config *confi
 int cantidad_bloques_contiguos(int bloque_final_archivo)
 {
     int cantidad_libres_contiguos = 0;
-    while ((bloque_final_archivo + cantidad_libres_contiguos + 1) <= (bitmap_bloques_libres->size * 8 - 1) && !bitarray_test_bit(bitmap_bloques_libres, (bloque_final_archivo + cantidad_libres_contiguos + 1)))
+    sem_wait(&sem_fs);
+    while ((bloque_final_archivo + cantidad_lisem_waitbres_contiguos + 1) <= (bitmap_bloques_libres->size * 8 - 1) && !bitarray_test_bit(bitmap_bloques_libres, (bloque_final_archivo + cantidad_libres_contiguos + 1)))
     {
         cantidad_libres_contiguos++;
     }
+    sem_post(&sem_fs);
     return (cantidad_libres_contiguos);
 }
 
 int cantidad_bloques_libres()
 {
     int cantidad_total_bloques_libres = 0;
+    sem_wait(&sem_fs);
     for (int i = 0; bitmap_bloques_libres->size * 8 > i; i++)
     {
         if (!bitarray_test_bit(bitmap_bloques_libres, i))
@@ -413,12 +419,14 @@ int cantidad_bloques_libres()
             cantidad_total_bloques_libres++;
         }
     }
+    sem_post(&sem_fs);
     return cantidad_total_bloques_libres;
 }
 
 int primer_bloque_libre()
 {
     int posicion = 0;
+    sem_wait(&sem_fs);
     while (bitarray_test_bit(bitmap_bloques_libres, posicion) && posicion < (bitmap_bloques_libres->size * 8 - 1))
     {
         posicion++;
@@ -428,7 +436,7 @@ int primer_bloque_libre()
     {
         posicion = -1;
     }
-
+    sem_post(&sem_fs);
     return posicion;
 }
 
@@ -440,8 +448,10 @@ void set_bloque_usado(int posicion, t_config *config)
     string_append(&path_dialfs_bitmap, "/");
     string_append(&path_dialfs_bitmap, "bitmap.dat");
     FILE* file_bitmap = fopen(path_dialfs_bitmap, "r+");
+    sem_wait(&sem_fs);
     bitarray_set_bit(bitmap_bloques_libres, posicion);
     fwrite(bitmap_bloques_libres->bitarray, bitmap_bloques_libres->size, 1, file_bitmap);
+    sem_post(&sem_fs);
     fclose(file_bitmap);
 }
 
@@ -452,8 +462,10 @@ void set_bloque_libre(int posicion, t_config * config){
     string_append(&path_dialfs_bitmap, "/");
     string_append(&path_dialfs_bitmap, "bitmap.dat");
     FILE* file_bitmap = fopen(path_dialfs_bitmap, "r+");
+    sem_wait(&sem_fs);
     bitarray_clean_bit(bitmap_bloques_libres, posicion);
     fwrite(bitmap_bloques_libres->bitarray, bitmap_bloques_libres->size, 1, file_bitmap);
+    sem_post(&sem_fs);
     fclose(file_bitmap);
 }
 
@@ -465,10 +477,12 @@ bool esta_ordenado(archivo_t *element1, archivo_t *element2)
 
 void limpiar_bitmap(t_config *config)
 {
+    sem_wait(&sem_fs);
     for (int i = 0; i < bitarray_get_max_bit(bitmap_bloques_libres); i++)
     {
         set_bloque_libre(i, config);
     }
+    sem_post(&sem_fs);
 }
 
 void compactar(char* no_compactar_arch, t_config *config)
@@ -480,8 +494,7 @@ void compactar(char* no_compactar_arch, t_config *config)
     char *path_bloques = string_new();
     string_append(&path_bloques, path_dialfs);
     string_append(&path_bloques, "/");
-    string_append(&path_bloques, "bloques.dat");
-
+    string_append(&path_bloques, "bloques.dat");size_t
     DIR *d;
     struct dirent *dir;
     d = opendir(path_dialfs);

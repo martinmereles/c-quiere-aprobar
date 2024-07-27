@@ -6,6 +6,7 @@
 #include <semaphore.h>
 #include <commons/temporal.h>
 
+
 extern char* instruccion_exec;
 extern pcb_t* contexto;
 extern sem_t sem_execute;

@@ -7,6 +7,7 @@ typedef struct{
     int process_id;
     t_list* lista_paginas;
     t_list* lista_instrucciones;
+    int memoria_reservada;
 }t_instruccion_memoria;
 
 typedef struct{

@@ -6,11 +6,14 @@ t_list* memoria_instrucciones;
 int retardo_respuesta;
 void* memoria;
 int tamanio_pagina;
+t_bitarray * bitmap_marcos_libres;
+sem_t *sem_bitmap_marcos_libres;
 
 int main(int argc, char* argv[]) {
 	memoria_instrucciones = list_create();
 	logger = iniciar_logger("./cfg/memoria-log.log", "memoria");
 	t_config* config = iniciar_config(logger, "./cfg/memoria.config");
+	sem_init(&sem_bitmap_marcos_libres, 0, 1);
 
 	//Inicio de hilo server
 	char* puerto = config_get_string_value(config, "PUERTO_ESCUCHA");
@@ -36,13 +39,13 @@ int main(int argc, char* argv[]) {
 	int cantidad_marcos_bytes = cantidad_marcos/8;
 
 	void * marcos_libres = malloc(cantidad_marcos_bytes);
-
-	t_bitarray * bitmap_marcos_libres = bitarray_create_with_mode(marcos_libres, cantidad_marcos_bytes, LSB_FIRST);
+	sem_wait(&sem_bitmap_marcos_libres);
+	bitmap_marcos_libres = bitarray_create_with_mode(marcos_libres, cantidad_marcos_bytes, LSB_FIRST);
 	//Seteamos en 0 el array
 	for(int i = 0;i < cantidad_marcos;i++){
 		bitarray_clean_bit(bitmap_marcos_libres, i);
 	}
-
+	sem_post(&sem_bitmap_marcos_libres);
 	
 	pthread_join(hiloServidor, NULL);
 	//Cierre de log y config

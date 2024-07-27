@@ -16,6 +16,7 @@ extern char* instruccion_exec;
 extern pcb_t* contexto;
 extern t_temporal* temporizador;
 extern bool desalojo_out_of_memory;
+extern int tamanio_pagina;
 
 void ejecutarSentencia(int socket_kernel, int socket_cliente_memoria);
 void set(char * registro, char * valor);
