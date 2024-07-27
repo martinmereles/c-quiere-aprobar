@@ -16,6 +16,7 @@ extern t_list* QUEUE_BLOCKED;
 extern t_sem_estados sem_array_estados[6];
 extern sem_t detencion_planificador_corto;
 extern int socket_cpu_interrupt;
+extern char* algoritmo;
 
 void planificador_corto_plazo(socket_info_t* params);
 void ejecutar_fifo(int socket_cpu_dispatch);

@@ -12,6 +12,14 @@ extern t_list* INTERFACES;
 extern int socket_memoria;
 extern int socket_cpu_interrupt;
 extern sem_t mutex_lista_interfaces;
+extern t_list* lista_recursos;
+extern char* algoritmo;
+extern t_list* QUEUE_NEW;
+extern t_list* QUEUE_READY;
+extern t_list* QUEUE_READY_PLUS;
+extern t_list* QUEUE_RUNNING;
+extern t_list* QUEUE_BLOCKED;
+extern t_list* QUEUE_TERMINATED;
 
 void atender_cliente_kernel(int socket_cliente);
 void iniciar_hilo_server_kernel(char* socket_cliente);
@@ -28,11 +36,11 @@ void io_fs_truncate(char * interfaz, char* nombre_archivo, char* tamanio_a_trunc
 void io_fs_write(char * interfaz, char* nombre_archivo, char* direccion, char* tamanio, char* puntero_archivo, char *pid);
 void io_fs_read(char * interfaz, char* nombre_archivo, char* direccion, char* tamanio, char* puntero_archivo, char *pid);
 
-void liberar_interfaz(char * interfaz, char* pid, char* algoritmo);
+void liberar_interfaz(char * interfaz, char* pid);
 bool es_interfaz_buscada_socket (int socket, void* elemento);
 void consumidor_interfaz(t_interfaz* interfaz);
 void desconectar_interfaz(int socket_cliente);
-
+void liberar_recursos(int pid);
 
 bool admite_instruccion(char *tipo, char *instruccion);
 

@@ -17,6 +17,7 @@ extern t_list* QUEUE_TERMINATED;
 extern t_sem_estados sem_array_estados[6];
 extern sem_t sem_grado_multiprog;
 extern sem_t detencion_planificador_largo;
+extern char* algoritmo;
 
 void planificador_largo_plazo();
 void iniciar_proceso (char* ruta, char* quantum, int socket_cliente_memoria);

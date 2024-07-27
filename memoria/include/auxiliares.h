@@ -2,6 +2,7 @@
 #define AUXILIARES_H
 
 #include <stdio.h>
+#include <math.h>
 #include <stdlib.h>
 #include <commons/string.h>
 #include <commons/txt.h>
@@ -29,5 +30,6 @@ int cantidad_marcos_libres();
 int cantidad_marcos_asignados(int pid);
 bool es_pid_buscado(int pid_buscado, void *elemento);
 int primer_marco_libre();
+void finalizar_proceso(int pid);
 
 #endif

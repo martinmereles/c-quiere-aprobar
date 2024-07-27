@@ -1116,6 +1116,7 @@ void io_stdout_write (char * interfaz, char * direccion, char * tamanio, int soc
 void exit_inst(int socket_kernel){
     //TODO Ver que implica el exit
     enviar_pcb_contexto(socket_kernel, contexto);
+    enviar_pcb_contexto_motivo(socket_kernel, contexto, "SUCCESS");
 }
 
 void mov_in(char* registro, char * direccion, int socket_cliente_memoria){ /*

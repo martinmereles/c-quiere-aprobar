@@ -23,6 +23,7 @@ extern sem_t sem_grado_multiprog;
 extern sem_t detencion_planificador_corto;
 extern sem_t detencion_planificador_largo;
 extern bool detuvo_planificacion;
+extern char* algoritmo;
 
 
 void lanzar_consola (char* quantum, int socket_cliente_memoria, int socket_cpu_dispatch, int socket_cpu_interrupt, t_config* config);

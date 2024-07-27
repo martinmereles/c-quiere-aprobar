@@ -6,7 +6,6 @@ void planificador_corto_plazo(socket_info_t* params){
     int socket_cpu_interrupt = params->socket_interrupt;
 
     t_config* config = iniciar_config(logger, "./cfg/kernel.config");
-    char* algoritmo = config_get_string_value(config, "ALGORITMO_PLANIFICACION");
     char* quantum = config_get_string_value(config, "QUANTUM");
     int quantum_int = atoi(quantum);
 
@@ -18,6 +17,7 @@ void planificador_corto_plazo(socket_info_t* params){
     }else if(!strcmp(algoritmo,"VRR")){
         ejecutar_virtual_rr(socket_cpu_dispatch, socket_cpu_interrupt, quantum_int);
     }
+    config_destroy(config);
 
 }
 

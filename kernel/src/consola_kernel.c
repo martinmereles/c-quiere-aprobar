@@ -220,8 +220,7 @@ void  proceso_estado (t_config* config){
         printf("PID %d\n", aux->pid);
     }
 
-    char* algoritmo_plani = config_get_string_value (config, "ALGORITMO_PLANIFICACION");
-    if (strcmp (algoritmo_plani, "VRR")== 0) {
+    if (strcmp (algoritmo, "VRR")== 0) {
         printf ("Se encuentran en estado READY PLUS los Procesos:\n\n");
         for (int i = 0; i < list_size (QUEUE_READY_PLUS) ; i++)
         {

@@ -26,6 +26,7 @@ sem_t mutex_lista_recursos;
 sem_t detencion_planificador_corto;
 sem_t detencion_planificador_largo;
 bool detuvo_planificacion;
+char* algoritmo;
 
 t_list* lista_recursos;
 
@@ -42,6 +43,7 @@ int main(int argc, char* argv[]) {
     t_config* config = iniciar_config(logger, "./cfg/kernel.config");
     char* quantum = config_get_string_value(config, "QUANTUM");
     int grado_multiprog = config_get_int_value(config, "GRADO_MULTIPROGRAMACION");
+    algoritmo = config_get_string_value(config, "ALGORITMO_PLANIFICACION");
     sem_init(&sem_grado_multiprog, 0, grado_multiprog);
     sem_init(&sem_sincro_cpu, 0, 0);
     sem_init(&sem_multiprocesamiento, 0, 1);

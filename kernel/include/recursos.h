@@ -11,6 +11,7 @@
 extern int GLOBAL_PID;
 extern t_list* QUEUE_NEW;
 extern t_list* QUEUE_READY;
+extern t_list* QUEUE_READY_PLUS;
 extern t_list* QUEUE_RUNNING;
 extern t_list* QUEUE_BLOCKED;
 extern t_list* QUEUE_TERMINATED;
@@ -20,6 +21,7 @@ extern sem_t mutex_lista_recursos;
 extern t_list* lista_recursos;
 extern int socket_cpu_interrupt;
 extern int socket_memoria;
+extern char* algoritmo;
 
 typedef struct 
 {
@@ -27,6 +29,7 @@ typedef struct
     int instancias;
     t_list* procesos_bloqueados;
     sem_t mutex_recurso;
+    t_list* procesos_asignados_al_recurso;
 }recurso_t;
 
 void cargar_recursos(t_config* config);
@@ -37,4 +40,5 @@ bool es_recurso_buscado(char* identificador, void* elemento);
 void desbloquear_proceso(int pid);
 bool es_pid_buscado_recurso(int identificador, void *elemento);
 void bloquear_proceso(int pid);
+bool es_entero_buscado_recurso(int identificador, void *elemento);
 #endif

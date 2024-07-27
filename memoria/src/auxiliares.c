@@ -42,6 +42,10 @@ void atender_cliente_memoria(int socket_cliente)
             {
                 enviar_tamanio_pagina(socket_cliente);
             }
+            if (strcmp(mensaje_split[0], "EXIT") == 0)
+            {
+                finalizar_proceso(atoi(mensaje_split[1]));
+            }
             if (strcmp(mensaje_split[0], "RESIZE") == 0)
             {
                 resize(atoi(mensaje_split[1]), atoi(mensaje_split[2]), socket_cliente);
@@ -152,7 +156,10 @@ void resize(int tamanio, int pid, int socket_cliente)
 
     if (tamanio > 0)
     {
-        int cantidad_marcos_solicitados = floor(tamanio / tamanio_pagina) + 1;
+        int cantidad_marcos_solicitados = floor(tamanio / tamanio_pagina);
+        if(tamanio%tamanio_pagina>0){
+            cantidad_marcos_solicitados++;
+        }
         int marcos_libres = cantidad_marcos_libres();
         int marcos_asignados = cantidad_marcos_asignados(pid);
         int marcos_a_agregar = cantidad_marcos_solicitados - marcos_asignados;
@@ -249,4 +256,25 @@ int primer_marco_libre()
         posicion = -1;
     }
     return posicion;
+}
+
+
+void finalizar_proceso(int pid){
+     bool _es_pid_buscado(void *elemento)
+    {
+        return es_pid_buscado(pid, elemento);
+    };
+    t_instruccion_memoria *aux = list_find(memoria_instrucciones, _es_pid_buscado); 
+    sem_wait(&sem_bitmap_marcos_libres);
+    for(int i = 0; list_size(aux->lista_paginas)>i; i++){
+        int pagina_a_liberar = list_get(aux->lista_paginas,i);
+        bitarray_clean_bit(bitmap_marcos_libres, pagina_a_liberar);
+    }
+
+    t_instruccion_memoria *aux2 = list_remove_by_condition(memoria_instrucciones, _es_pid_buscado);
+    list_destroy(aux2->lista_instrucciones);
+    list_destroy(aux2->lista_paginas);
+    free(aux2);
+
+    sem_post(&sem_bitmap_marcos_libres);
 }
