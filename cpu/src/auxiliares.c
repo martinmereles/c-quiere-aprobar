@@ -196,19 +196,11 @@ void* generar_mensaje_escritura(int dir_fisica, int tamanio, void* valor){
     string_append(&mensaje, " ");
     string_append(&mensaje, string_itoa(contexto->pid));
     string_append(&mensaje, " ");
-    /*
-    int a = string_length(mensaje);
-    void* aux = malloc(string_length(mensaje)+tamanio+1);
-    memcpy(aux,mensaje,string_length(mensaje));
-    memcpy(aux+string_length(mensaje),valor, tamanio);
-    memcpy(aux+string_length(mensaje)+tamanio,'\0',1);
-    */
     char* aux =malloc(tamanio+1);
     memcpy(aux, valor, tamanio);
     aux[tamanio + 1] = '\0'; 
 
 
     string_append(&mensaje, aux);
-    mem_hexdump(mensaje, string_length(mensaje));
     return mensaje;
 }

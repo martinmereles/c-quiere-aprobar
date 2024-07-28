@@ -1458,7 +1458,6 @@ void copy_string(char *tamanio, int socket_cliente_memoria)
             memcpy(valor_a_escribir, origen_leido + (numero_tamanio - bytes_a_escribir), tamanio_escritura);
             mensaje = generar_mensaje_escritura(df_destino, tamanio_escritura, valor_a_escribir);
         }
-        mem_hexdump(mensaje, string_length(mensaje));
         enviar_mensaje(mensaje, socket_cliente_memoria);
        
         bytes_a_escribir = bytes_a_escribir - tamanio_escritura;

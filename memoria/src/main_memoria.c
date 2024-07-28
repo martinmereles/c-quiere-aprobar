@@ -47,11 +47,7 @@ int main(int argc, char* argv[]) {
 	}
 	sem_post(&sem_bitmap_marcos_libres);
 	
-
-	//PARA PRUEBA
-	escribir(0, 70, 1,"PRUEBA VER SI ANDA LA ESCRITURA EN VARIOS MARCOS, OSEA MAS DE 3 MARCOS",3);
-	//FIN PRUEBA
-
+	
 	
 	pthread_join(hiloServidor, NULL);
 	//Cierre de log y config
