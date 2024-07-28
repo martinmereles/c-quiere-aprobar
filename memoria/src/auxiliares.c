@@ -59,10 +59,11 @@ void atender_cliente_memoria(int socket_cliente)
                 leer(atoi(mensaje_split[1]), atoi(mensaje_split[2]), atoi(mensaje_split[3]), socket_cliente);
             }
             if (strcmp(mensaje_split[0], "ESCRIBIR") == 0)
-            {   
+            {   mem_hexdump(buffer, size);
                 void* valor = malloc(atoi(mensaje_split[2]));
                 memcpy(valor, buffer + (string_length(buffer)-atoi(mensaje_split[2])), atoi(mensaje_split[2]));
                 escribir(atoi(mensaje_split[1]), atoi(mensaje_split[2]), atoi(mensaje_split[3]), valor, socket_cliente);
+                
             }
              if (strcmp(mensaje_split[0], "COPY_STRING") == 0)
             {
@@ -329,17 +330,24 @@ void leer(int direccion_fisica, int tamanio, int pid, int socket_cliente)
     string_append(&mensaje, "LEER ");
     void *lectura = malloc(tamanio);
     memcpy(lectura, memoria + direccion_fisica, tamanio);
-    string_append(&mensaje, lectura);
-    enviar_mensaje(mensaje, socket_cliente);
+    void* aux = malloc(string_length(mensaje)+tamanio);
+    memcpy(aux,mensaje,string_length(mensaje));
+    memcpy(aux+string_length(mensaje),lectura, tamanio);
+    enviar_mensaje(aux,socket_cliente);
 }
 
 void escribir(int direccion_fisica, int tamanio, int pid, void* valor, int socket_cliente)
 {
-    memcpy(memoria + direccion_fisica, valor, tamanio);//Revisar valor
+
+    printf("LO QUE SE VA A ESCRIBIR");
+    mem_hexdump(valor, tamanio);
+    memcpy(memoria + direccion_fisica, valor, tamanio);
     char *mensaje = string_new();
     string_append(&mensaje, "ESCRIBIR OK");
+
+    printf("LO QUE QUEDO");
+    mem_hexdump(memoria, 200);
     //enviar_mensaje(mensaje, socket_cliente);
-    mem_hexdump(memoria, 4096);
 }
 
 void copy_string (int df_origen, int df_destino, int tamanio ){

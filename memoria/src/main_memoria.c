@@ -47,9 +47,12 @@ int main(int argc, char* argv[]) {
 	}
 	sem_post(&sem_bitmap_marcos_libres);
 	
-	escribir(14, 10, 1,"PRUEBA123",3);
-    mem_hexdump(memoria, tamanio_memoria);
 
+	//PARA PRUEBA
+	escribir(0, 70, 1,"PRUEBA VER SI ANDA LA ESCRITURA EN VARIOS MARCOS, OSEA MAS DE 3 MARCOS",3);
+	//FIN PRUEBA
+
+	
 	pthread_join(hiloServidor, NULL);
 	//Cierre de log y config
     cerrar_log_config (logger,config); 

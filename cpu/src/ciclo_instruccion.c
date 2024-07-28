@@ -16,7 +16,8 @@ void fetch(int socket_cliente_memoria){
 
 void decode(int socket_cliente_memoria, char* algoritmo_tlb, int cantidad_entradas_tlb){
     
-    list_clean_and_destroy_elements(lista_marcos, liberar_elemento);
+    list_clean(lista_marcos);
+    list_clean(lista_marcos_destino);
 
     char ** instruccion_exec_split = string_split(instruccion_exec, " ");
     int direccion_fisica;

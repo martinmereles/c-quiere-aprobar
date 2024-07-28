@@ -22,7 +22,7 @@ void atender_cliente_interrupt(int socket_servidor_interrupt);
 void guardar_tamanio_pagina(char* tamanio);
 void* recibir_desde_memoria(int socket_cliente);
 char* generar_mensaje_lectura(int dir_fisica, int tamanio);
-char* generar_mensaje_escritura(int dir_fisica, int tamanio, int valor);
+void* generar_mensaje_escritura(int dir_fisica, int tamanio, void* valor);
 void liberar_elemento(void* elemento);
 
 #endif

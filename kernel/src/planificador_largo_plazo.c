@@ -52,7 +52,7 @@ void pasar_new_ready (){
     sem_wait(&sem_array_estados[1].mutex);
     aux = list_remove(QUEUE_NEW, 0);
     list_add(QUEUE_READY, aux);
-    sem_post(&sem_array_estados[0].mutex);
     sem_post(&sem_array_estados[1].mutex);
+    sem_post(&sem_array_estados[0].mutex);
     sem_post(&sem_array_estados[1].contador);
 }
