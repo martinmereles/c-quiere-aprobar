@@ -131,7 +131,12 @@ void check_interrupt(int socket_cliente_memoria, int socket_kernel_dispatch){
     }
     
     char ** instruccion_exec_split = string_split(instruccion_exec, " ");
-    if(!strcmp(instruccion_exec_split[0],"IO_GEN_SLEEP")){
+    if(!strcmp(instruccion_exec_split[0],"IO_GEN_SLEEP") ||
+        !strcmp(instruccion_exec_split[0],"IO_FS_CREATE") ||
+        !strcmp(instruccion_exec_split[0],"IO_FS_DELETE") ||
+        !strcmp(instruccion_exec_split[0],"IO_FS_TRUNCATE") ||
+        !strcmp(instruccion_exec_split[0],"IO_FS_WRITE") ||
+        !strcmp(instruccion_exec_split[0],"IO_FS_READ")){
         existe_io = true;
     }
     if(!strcmp(instruccion_exec_split[0],"WAIT") || !strcmp(instruccion_exec_split[0],"SIGNAL")){
@@ -157,7 +162,7 @@ void check_interrupt(int socket_cliente_memoria, int socket_kernel_dispatch){
         log_info (logger, "PID: %s - Desalojado por fin de Quantum", string_itoa(contexto->pid));
         sem_wait(&sem_execute);
     }else if(existe_recurso){
-        enviar_pcb_contexto_motivo(socket_kernel_dispatch, contexto, instruccion_exec);
+        enviar_pcb_contexto_motivo(socket_kernel_dispatch, contexto, instruccion_exec_split[0]);
         log_info (logger, "PID: %s - Desalojado por syscall a recurso", string_itoa(contexto->pid));
         sem_wait(&sem_execute);
     }else if(strcmp(instruccion_exec_split[0],"EXIT") == 0){
