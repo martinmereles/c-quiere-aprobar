@@ -43,63 +43,26 @@ void decode(int socket_cliente_memoria, char* algoritmo_tlb, int cantidad_entrad
         marcos_a_leer(contexto->pid, valor_registro_si, tamanio_a_leer, socket_cliente_memoria, algoritmo_tlb, cantidad_entradas_tlb);
         marcos_a_escribir(contexto->pid, valor_registro_di, tamanio_a_leer, socket_cliente_memoria, algoritmo_tlb, cantidad_entradas_tlb);
     }
-    /*
-    if(strcmp(instruccion_exec_split[0],"IO_STDIN_READ") == 0){
-        unsigned int valor_registro = get_valor_registro(instruccion_exec_split[2]);
-        direccion_fisica = traducir_a_direccion_fisica(contexto->pid, valor_registro, socket_cliente_memoria, algoritmo_tlb, cantidad_entradas_tlb);
-        string_append(&instruccion_decode, instruccion_exec_split[0]);
-        string_append(&instruccion_decode, " ");
-        string_append(&instruccion_decode, instruccion_exec_split[1]);
-        string_append(&instruccion_decode, " ");
-        string_append(&instruccion_decode, string_itoa(direccion_fisica));
-        string_append(&instruccion_decode, " ");
-        string_append(&instruccion_decode, instruccion_exec_split[3]);
+     if(strcmp(instruccion_exec_split[0],"IO_STDIN_READ") == 0){
+        unsigned int direccion = get_valor_registro(instruccion_exec_split[2]);
+        unsigned int tamanio = get_valor_registro(instruccion_exec_split[3]);
+        marcos_a_leer(contexto->pid, direccion, tamanio, socket_cliente_memoria, algoritmo_tlb, cantidad_entradas_tlb);
     }
     if(strcmp(instruccion_exec_split[0],"IO_STDOUT_WRITE") == 0){
-        unsigned int valor_registro = get_valor_registro(instruccion_exec_split[2]);
-        direccion_fisica = traducir_a_direccion_fisica(contexto->pid, valor_registro, socket_cliente_memoria, algoritmo_tlb, cantidad_entradas_tlb);
-        string_append(&instruccion_decode, instruccion_exec_split[0]);
-        string_append(&instruccion_decode, " ");
-        string_append(&instruccion_decode, instruccion_exec_split[1]);
-        string_append(&instruccion_decode, " ");
-        string_append(&instruccion_decode, string_itoa(direccion_fisica));
-        string_append(&instruccion_decode, " ");
-        string_append(&instruccion_decode, instruccion_exec_split[3]);
+        unsigned int direccion = get_valor_registro(instruccion_exec_split[2]);
+        unsigned int tamanio = get_valor_registro(instruccion_exec_split[3]);
+        marcos_a_leer(contexto->pid, direccion, tamanio, socket_cliente_memoria, algoritmo_tlb, cantidad_entradas_tlb);
     }
     if(strcmp(instruccion_exec_split[0],"IO_FS_WRITE") == 0){
-        unsigned int valor_registro = get_valor_registro(instruccion_exec_split[3]);
-        direccion_fisica = traducir_a_direccion_fisica(contexto->pid, valor_registro, socket_cliente_memoria, algoritmo_tlb, cantidad_entradas_tlb);
-        string_append(&instruccion_decode, instruccion_exec_split[0]);
-        string_append(&instruccion_decode, " ");
-        string_append(&instruccion_decode, instruccion_exec_split[1]);
-        string_append(&instruccion_decode, " ");
-        string_append(&instruccion_decode, instruccion_exec_split[2]);
-        string_append(&instruccion_decode, " ");
-        string_append(&instruccion_decode, string_itoa(direccion_fisica));
-        string_append(&instruccion_decode, " ");
-        string_append(&instruccion_decode, instruccion_exec_split[4]);
-        string_append(&instruccion_decode, " ");
-        string_append(&instruccion_decode, instruccion_exec_split[5]);
+        unsigned int direccion = get_valor_registro(instruccion_exec_split[3]);
+        unsigned int tamanio = get_valor_registro(instruccion_exec_split[4]);
+        marcos_a_leer(contexto->pid, direccion, tamanio, socket_cliente_memoria, algoritmo_tlb, cantidad_entradas_tlb);
     }
     if(strcmp(instruccion_exec_split[0],"IO_FS_READ") == 0){
-        unsigned int valor_registro = get_valor_registro(instruccion_exec_split[1]);
-        direccion_fisica = traducir_a_direccion_fisica(contexto->pid, valor_registro, socket_cliente_memoria, algoritmo_tlb, cantidad_entradas_tlb);
-        string_append(&instruccion_decode, instruccion_exec_split[0]);
-        string_append(&instruccion_decode, " ");
-        string_append(&instruccion_decode, instruccion_exec_split[1]);
-        string_append(&instruccion_decode, " ");
-        string_append(&instruccion_decode, instruccion_exec_split[2]);
-        string_append(&instruccion_decode, " ");
-        string_append(&instruccion_decode, string_itoa(direccion_fisica));
-        string_append(&instruccion_decode, " ");
-        string_append(&instruccion_decode, instruccion_exec_split[4]);
-        string_append(&instruccion_decode, " ");
-        string_append(&instruccion_decode, instruccion_exec_split[5]);
+        unsigned int direccion = get_valor_registro(instruccion_exec_split[3]);
+        unsigned int tamanio = get_valor_registro(instruccion_exec_split[4]);
+        marcos_a_leer(contexto->pid, direccion, tamanio, socket_cliente_memoria, algoritmo_tlb, cantidad_entradas_tlb);
     }
-    if(string_length(instruccion_decode) > 0){
-        instruccion_exec = instruccion_decode;
-    }
-    */
 }
 
 void execute(int socket_cliente_kernel, int socket_cliente_memoria){
@@ -132,7 +95,9 @@ void check_interrupt(int socket_cliente_memoria, int socket_kernel_dispatch){
     
     char ** instruccion_exec_split = string_split(instruccion_exec, " ");
     if(!strcmp(instruccion_exec_split[0],"IO_GEN_SLEEP") ||
-        !strcmp(instruccion_exec_split[0],"IO_FS_CREATE") ||
+        !strcmp(instruccion_exec_split[0],"IO_STDIN_READ") ||
+        !strcmp(instruccion_exec_split[0],"IO_STDOUT_WRITE") ||
+         !strcmp(instruccion_exec_split[0],"IO_FS_CREATE") ||
         !strcmp(instruccion_exec_split[0],"IO_FS_DELETE") ||
         !strcmp(instruccion_exec_split[0],"IO_FS_TRUNCATE") ||
         !strcmp(instruccion_exec_split[0],"IO_FS_WRITE") ||

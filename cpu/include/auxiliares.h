@@ -24,5 +24,6 @@ void* recibir_desde_memoria(int socket_cliente);
 char* generar_mensaje_lectura(int dir_fisica, int tamanio);
 void* generar_mensaje_escritura(int dir_fisica, int tamanio, void* valor);
 void liberar_elemento(void* elemento);
+char* iterar_lista_mensaje(t_list* lista, int dir_logica, int tamanio);
 
 #endif

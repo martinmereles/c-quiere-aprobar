@@ -75,19 +75,19 @@ void ejecutarSentencia(int socket_kernel, int socket_cliente_memoria)
     if (strcmp(sentenciasSplit[0], "IO_GEN_SLEEP") == 0)
         io_gen_sleep(sentenciasSplit[1], sentenciasSplit[2], socket_kernel);
     if (strcmp(sentenciasSplit[0], "IO_STDIN_READ") == 0)
-        io_stdin_read();
+        io_stdin_read(sentenciasSplit[1], sentenciasSplit[2], sentenciasSplit[3], socket_kernel);
     if (strcmp(sentenciasSplit[0], "IO_STDOUT_WRITE") == 0)
-        io_stdout_write();
+        io_stdout_write(sentenciasSplit[1], sentenciasSplit[2], sentenciasSplit[3], socket_kernel);
     if (strcmp(sentenciasSplit[0], "IO_FS_CREATE") == 0)
-        io_fs_create(sentenciasSplit[1],sentenciasSplit[2], socket_kernel);
+        io_fs_create(sentenciasSplit[1], sentenciasSplit[2], socket_kernel);
     if (strcmp(sentenciasSplit[0], "IO_FS_DELETE") == 0)
-        io_fs_delete(sentenciasSplit[1],sentenciasSplit[2], socket_kernel);
+        io_fs_delete(sentenciasSplit[1], sentenciasSplit[2], socket_kernel);
     if (strcmp(sentenciasSplit[0], "IO_FS_TRUNCATE") == 0)
-        io_fs_truncate(sentenciasSplit[1],sentenciasSplit[2],sentenciasSplit[3],socket_kernel);
+        io_fs_truncate(sentenciasSplit[1], sentenciasSplit[2], sentenciasSplit[3], socket_kernel);
     if (strcmp(sentenciasSplit[0], "IO_FS_WRITE") == 0)
-        io_fs_write(sentenciasSplit[1],sentenciasSplit[2],sentenciasSplit[3],sentenciasSplit[4], sentenciasSplit[5],socket_kernel);
+        io_fs_write(sentenciasSplit[1], sentenciasSplit[2], sentenciasSplit[3], sentenciasSplit[4], sentenciasSplit[5], socket_kernel);
     if (strcmp(sentenciasSplit[0], "IO_FS_READ") == 0)
-        io_fs_read(sentenciasSplit[1],sentenciasSplit[2],sentenciasSplit[3],sentenciasSplit[4], sentenciasSplit[5],socket_kernel);
+        io_fs_read(sentenciasSplit[1], sentenciasSplit[2], sentenciasSplit[3], sentenciasSplit[4], sentenciasSplit[5], socket_kernel);
     if (strcmp(sentenciasSplit[0], "EXIT") == 0)
         exit_inst(socket_kernel);
 }
@@ -1116,7 +1116,7 @@ void io_gen_sleep(char *interfaz, char *unidadesDeTrabajo, int socket_kernel)
     log_info(logger, "Se ejecuto la instrucción IO_GEN_SLEEP con los parametros interfaz %s y unidades de trabajo %s", interfaz, unidadesDeTrabajo);
 }
 
-void io_stdin_read(char *interfaz, char *direccion, char *tamanio, int socket_kernel)
+void io_stdin_read(char *interfaz, char *registro_direccion, char *registro_tamanio, int socket_kernel)
 {
     char *mensaje = string_new();
     // Paramos contador
@@ -1130,20 +1130,20 @@ void io_stdin_read(char *interfaz, char *direccion, char *tamanio, int socket_ke
     {
         contexto->quantum = contexto->quantum - (int)tiempo_transcurrido;
     }
-
+    int direccion = get_valor_registro(registro_direccion);
+    int tamanio = get_valor_registro(registro_tamanio);
     string_append(&mensaje, "IO_STDIN_READ ");
     string_append(&mensaje, interfaz);
     string_append(&mensaje, " ");
-    string_append(&mensaje, direccion);
-    string_append(&mensaje, " ");
-    string_append(&mensaje, tamanio);
-    string_append(&mensaje, " ");
     string_append(&mensaje, string_itoa(contexto->pid));
+    string_append(&mensaje, " ");
+    char* marcos = iterar_lista_mensaje(lista_marcos,direccion,tamanio);
+    string_append(&mensaje, marcos);
     enviar_mensaje(mensaje, socket_kernel);
-    log_info(logger, "Se ejecuto la instrucción IO_STDIN_READ con los parametros interfaz %s , direccion %s , tamanio %s y pid %d", interfaz, direccion, tamanio, contexto->pid);
+    log_info(logger, "Se ejecuto la instrucción IO_STDIN_READ con los parametros interfaz %s , direccion %d , tamanio %d y pid %d", interfaz, direccion, tamanio, contexto->pid);
 }
 
-void io_stdout_write(char *interfaz, char *direccion, char *tamanio, int socket_kernel)
+void io_stdout_write(char *interfaz, char *registro_direccion, char *registro_tamanio, int socket_kernel)
 {
     char *mensaje = string_new();
     // Paramos contador
@@ -1157,17 +1157,17 @@ void io_stdout_write(char *interfaz, char *direccion, char *tamanio, int socket_
     {
         contexto->quantum = contexto->quantum - (int)tiempo_transcurrido;
     }
-
+    int direccion = get_valor_registro(registro_direccion);
+    int tamanio = get_valor_registro(registro_tamanio);
     string_append(&mensaje, "IO_STDOUT_WRITE ");
     string_append(&mensaje, interfaz);
     string_append(&mensaje, " ");
-    string_append(&mensaje, direccion);
-    string_append(&mensaje, " ");
-    string_append(&mensaje, tamanio);
-    string_append(&mensaje, " ");
     string_append(&mensaje, string_itoa(contexto->pid));
+    string_append(&mensaje, " ");
+    char* marcos = iterar_lista_mensaje(lista_marcos,direccion,tamanio);
+    string_append(&mensaje, marcos);
     enviar_mensaje(mensaje, socket_kernel);
-    log_info(logger, "Se ejecuto la instrucción IO_STDOUT_WRITE con los parametros interfaz %s , direccion %s , tamanio %s y pid %d", interfaz, direccion, tamanio, contexto->pid);
+    log_info(logger, "Se ejecuto la instrucción IO_STDOUT_WRITE con los parametros interfaz %s , direccion %d , tamanio %d y pid %d", interfaz, direccion, tamanio, contexto->pid);
 }
 
 void exit_inst(int socket_kernel)
@@ -1419,8 +1419,6 @@ void copy_string(char *tamanio, int socket_cliente_memoria)
     void *valor_a_escribir;
     int bytes_a_escribir = numero_tamanio;
 
-    
-
     for (int i = 0; i < list_size(lista_marcos_destino); i++)
     {
 
@@ -1450,7 +1448,6 @@ void copy_string(char *tamanio, int socket_cliente_memoria)
             valor_a_escribir = realloc(valor_a_escribir, tamanio_escritura);
             memcpy(valor_a_escribir, origen_leido + (numero_tamanio - bytes_a_escribir), tamanio_escritura);
             mensaje = generar_mensaje_escritura(df_destino, tamanio_escritura, valor_a_escribir);
-            
         }
         else if (i == (list_size(lista_marcos_destino) - 1))
         {
@@ -1461,7 +1458,7 @@ void copy_string(char *tamanio, int socket_cliente_memoria)
             mensaje = generar_mensaje_escritura(df_destino, tamanio_escritura, valor_a_escribir);
         }
         enviar_mensaje(mensaje, socket_cliente_memoria);
-       
+
         bytes_a_escribir = bytes_a_escribir - tamanio_escritura;
     }
 }
@@ -1476,7 +1473,7 @@ void signal_instruccion()
     // No hace nada
 }
 
-void io_fs_create(char* interfaz, char* nombre_archivo, int socket_kernel)
+void io_fs_create(char *interfaz, char *nombre_archivo, int socket_kernel)
 {
     char *mensaje = string_new();
     // Paramos contador
@@ -1501,7 +1498,7 @@ void io_fs_create(char* interfaz, char* nombre_archivo, int socket_kernel)
     log_info(logger, "Se ejecuto la instrucción IO_FS_CREATE con los parametros interfaz %s y nombre %s", interfaz, nombre_archivo);
 }
 
-void io_fs_delete(char* interfaz, char* nombre_archivo, int socket_kernel)
+void io_fs_delete(char *interfaz, char *nombre_archivo, int socket_kernel)
 {
     char *mensaje = string_new();
     // Paramos contador
@@ -1526,7 +1523,7 @@ void io_fs_delete(char* interfaz, char* nombre_archivo, int socket_kernel)
     log_info(logger, "Se ejecuto la instrucción IO_FS_DELETE con los parametros interfaz %s y nombre %s", interfaz, nombre_archivo);
 }
 
-void io_fs_truncate(char* interfaz, char* nombre_archivo, char* registro_tamanio, int socket_kernel)
+void io_fs_truncate(char *interfaz, char *nombre_archivo, char *registro_tamanio, int socket_kernel)
 {
     char *mensaje = string_new();
     // Paramos contador
@@ -1553,7 +1550,7 @@ void io_fs_truncate(char* interfaz, char* nombre_archivo, char* registro_tamanio
     log_info(logger, "Se ejecuto la instrucción IO_FS_TRUNCATE con los parametros interfaz %s y tamanio %s", interfaz, registro_tamanio);
 }
 
-void io_fs_write(char* interfaz, char* nombre_archivo,char* registro_direccion, char* registro_tamanio, char* registro_puntero_archivo, int socket_kernel)
+void io_fs_write(char *interfaz, char *nombre_archivo, char *registro_direccion, char *registro_tamanio, char *registro_puntero_archivo, int socket_kernel)
 {
     char *mensaje = string_new();
     // Paramos contador
@@ -1575,18 +1572,17 @@ void io_fs_write(char* interfaz, char* nombre_archivo,char* registro_direccion, 
     string_append(&mensaje, " ");
     string_append(&mensaje, nombre_archivo);
     string_append(&mensaje, " ");
-    string_append(&mensaje, direccion);
-    string_append(&mensaje, " ");
-    string_append(&mensaje, tamanio);
-    string_append(&mensaje, " ");
     string_append(&mensaje, puntero_archivo);
     string_append(&mensaje, " ");
     string_append(&mensaje, string_itoa(contexto->pid));
+    string_append(&mensaje, " ");
+    char* marcos = iterar_lista_mensaje(lista_marcos,direccion,tamanio);
+    string_append(&mensaje, marcos);
     enviar_mensaje(mensaje, socket_kernel);
     log_info(logger, "Se ejecuto la instrucción IO_FS_WRITE con los parametros interfaz %s, nombre %s, direccion %s, tamanio %s y puntero %s", interfaz, nombre_archivo, registro_direccion, registro_tamanio, registro_puntero_archivo);
 }
 
-void io_fs_read(char* interfaz, char* nombre_archivo,char* registro_direccion, char* registro_tamanio, char* registro_puntero_archivo, int socket_kernel)
+void io_fs_read(char *interfaz, char *nombre_archivo, char *registro_direccion, char *registro_tamanio, char *registro_puntero_archivo, int socket_kernel)
 {
     char *mensaje = string_new();
     // Paramos contador
@@ -1608,13 +1604,12 @@ void io_fs_read(char* interfaz, char* nombre_archivo,char* registro_direccion, c
     string_append(&mensaje, " ");
     string_append(&mensaje, nombre_archivo);
     string_append(&mensaje, " ");
-    string_append(&mensaje, direccion);
-    string_append(&mensaje, " ");
-    string_append(&mensaje, tamanio);
-    string_append(&mensaje, " ");
     string_append(&mensaje, puntero_archivo);
     string_append(&mensaje, " ");
     string_append(&mensaje, string_itoa(contexto->pid));
+    string_append(&mensaje, " ");
+    char* marcos = iterar_lista_mensaje(lista_marcos,direccion,tamanio);
+    string_append(&mensaje, marcos);
     enviar_mensaje(mensaje, socket_kernel);
     log_info(logger, "Se ejecuto la instrucción IO_FS_READ con los parametros interfaz %s, nombre %s, direccion %s, tamanio %s y puntero %s", interfaz, nombre_archivo, registro_direccion, registro_tamanio, registro_puntero_archivo);
 }

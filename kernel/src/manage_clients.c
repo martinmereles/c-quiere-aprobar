@@ -34,12 +34,12 @@ void atender_cliente_kernel(int socket_cliente)
                 io_gen_sleep(mensaje_split[1], mensaje_split[2], mensaje_split[3]);
             }
             if (strcmp(mensaje_split[0], "IO_STDIN_READ") == 0)
-            {
-                io_stdin_read(mensaje_split[1], mensaje_split[2], mensaje_split[3], mensaje_split[4]);
+            {   
+                io_stdin_read(mensaje_split[1], mensaje_split[2], buffer);
             }
             if (strcmp(mensaje_split[0], "IO_STDOUT_WRITE") == 0)
             {
-                io_stdout_write(mensaje_split[1], mensaje_split[2], mensaje_split[3], mensaje_split[4]);
+                io_stdout_write(mensaje_split[1], mensaje_split[2], buffer);
             }
             if (strcmp(mensaje_split[0], "IO_FS_CREATE") == 0)
             {
@@ -55,11 +55,11 @@ void atender_cliente_kernel(int socket_cliente)
             }
             if (strcmp(mensaje_split[0], "IO_FS_WRITE") == 0)
             {
-                io_fs_write(mensaje_split[1], mensaje_split[2], mensaje_split[3], mensaje_split[4], mensaje_split[5], mensaje_split[6]);
+                io_fs_write(mensaje_split[1], mensaje_split[2], mensaje_split[3], mensaje_split[4], buffer);
             }
             if (strcmp(mensaje_split[0], "IO_FS_READ") == 0)
             {
-                io_fs_read(mensaje_split[1], mensaje_split[2], mensaje_split[3], mensaje_split[4], mensaje_split[5], mensaje_split[6]);
+                io_fs_read(mensaje_split[1], mensaje_split[2], mensaje_split[3], mensaje_split[4], buffer);
             }
             if (strcmp(mensaje_split[0], "CONECTAR_INTERFAZ") == 0)
             {
@@ -251,7 +251,7 @@ void io_gen_sleep(char *interfaz, char *unidad_tiempo, char *pid)
     }
 }
 
-void io_stdin_read(char *interfaz, char *direccion, char *tamanio, char *pid)
+void io_stdin_read(char *interfaz, char *pid, char* buffer)
 {
 
     bool _es_interfaz_buscada(void *elemento)
@@ -264,17 +264,15 @@ void io_stdin_read(char *interfaz, char *direccion, char *tamanio, char *pid)
 
     if (interfaz_encontrada != NULL && admite_instruccion(interfaz_encontrada->tipo_interfaz, "IO_STDIN_READ"))
     {
+       
         char *mensaje = string_new();
-        string_append(&mensaje, "IO_STDIN_READ ");
-        string_append(&mensaje, direccion);
-        string_append(&mensaje, " ");
-        string_append(&mensaje, tamanio);
-        string_append(&mensaje, " ");
-        string_append(&mensaje, pid);
+        string_append(&mensaje, buffer);
         sem_wait(&mutex_lista_interfaces);
         list_add(interfaz_encontrada->queue_instrucciones, mensaje);
         sem_post(&mutex_lista_interfaces);
         sem_post(&interfaz_encontrada->contador);
+
+        }
     }
     else
     {
@@ -283,7 +281,7 @@ void io_stdin_read(char *interfaz, char *direccion, char *tamanio, char *pid)
     }
 }
 
-void io_stdout_write(char *interfaz, char *direccion, char *tamanio, char *pid)
+void io_stdout_write(char *interfaz, char *pid, char* buffer)
 {
 
     bool _es_interfaz_buscada(void *elemento)
@@ -297,12 +295,7 @@ void io_stdout_write(char *interfaz, char *direccion, char *tamanio, char *pid)
     if (interfaz_encontrada != NULL && admite_instruccion(interfaz_encontrada->tipo_interfaz, "IO_STDOUT_WRITE"))
     {
         char *mensaje = string_new();
-        string_append(&mensaje, "IO_STDOUT_WRITE ");
-        string_append(&mensaje, direccion);
-        string_append(&mensaje, " ");
-        string_append(&mensaje, tamanio);
-        string_append(&mensaje, " ");
-        string_append(&mensaje, pid);
+        string_append(&mensaje, buffer);
         sem_wait(&mutex_lista_interfaces);
         list_add(interfaz_encontrada->queue_instrucciones, mensaje);
         sem_post(&mutex_lista_interfaces);
@@ -407,7 +400,7 @@ void io_fs_truncate(char *interfaz, char *nombre_archivo, char *tamanio_a_trunca
     }
 }
 
-void io_fs_write(char *interfaz, char *nombre_archivo, char *direccion, char *tamanio, char *puntero_archivo, char *pid)
+void io_fs_write(char *interfaz, char *nombre_archivo, char *puntero_archivo, char *pid, char* buffer)
 {
 
     bool _es_interfaz_buscada(void *elemento)
@@ -421,16 +414,7 @@ void io_fs_write(char *interfaz, char *nombre_archivo, char *direccion, char *ta
     if (interfaz_encontrada != NULL && admite_instruccion(interfaz_encontrada->tipo_interfaz, "IO_FS_WRITE"))
     {
         char *mensaje = string_new();
-        string_append(&mensaje, "IO_FS_WRITE ");
-        string_append(&mensaje, nombre_archivo);
-        string_append(&mensaje, " ");
-        string_append(&mensaje, direccion);
-        string_append(&mensaje, " ");
-        string_append(&mensaje, tamanio);
-        string_append(&mensaje, " ");
-        string_append(&mensaje, puntero_archivo);
-        string_append(&mensaje, " ");
-        string_append(&mensaje, pid);
+        string_append(&mensaje, buffer);
         sem_wait(&mutex_lista_interfaces);
         list_add(interfaz_encontrada->queue_instrucciones, mensaje);
         sem_post(&mutex_lista_interfaces);
@@ -443,7 +427,7 @@ void io_fs_write(char *interfaz, char *nombre_archivo, char *direccion, char *ta
     }
 }
 
-void io_fs_read(char *interfaz, char *nombre_archivo, char *direccion, char *tamanio, char *puntero_archivo, char *pid)
+void io_fs_read(char *interfaz, char *nombre_archivo, char *puntero_archivo, char *pid, char* buffer)
 {
 
     bool _es_interfaz_buscada(void *elemento)
@@ -457,16 +441,7 @@ void io_fs_read(char *interfaz, char *nombre_archivo, char *direccion, char *tam
     if (interfaz_encontrada != NULL && admite_instruccion(interfaz_encontrada->tipo_interfaz, "IO_FS_READ"))
     {
         char *mensaje = string_new();
-        string_append(&mensaje, "IO_FS_READ ");
-        string_append(&mensaje, nombre_archivo);
-        string_append(&mensaje, " ");
-        string_append(&mensaje, direccion);
-        string_append(&mensaje, " ");
-        string_append(&mensaje, tamanio);
-        string_append(&mensaje, " ");
-        string_append(&mensaje, puntero_archivo);
-        string_append(&mensaje, " ");
-        string_append(&mensaje, pid);
+        string_append(&mensaje, buffer);
         sem_wait(&mutex_lista_interfaces);
         list_add(interfaz_encontrada->queue_instrucciones, mensaje);
         sem_post(&mutex_lista_interfaces);

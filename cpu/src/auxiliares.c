@@ -204,3 +204,39 @@ void* generar_mensaje_escritura(int dir_fisica, int tamanio, void* valor){
     string_append(&mensaje, aux);
     return mensaje;
 }
+
+char* iterar_lista_mensaje(t_list* lista, int dir_logica, int tamanio){
+
+    //direccion_fisica tamanio direccion_fisica tamanio
+    int num_pag = calcular_num_pagina(dir_logica);
+    int offset = calcular_desplazamiento(dir_logica, num_pag);
+    char* mensaje = string_new();
+    int bytes_hasta_final = tamanio;
+    for(int i = 0; i<list_size(lista) ; i++){
+        int marco =list_get(lista, i);
+        if(i==0){
+            int dir_fisica = marco * tamanio_pagina + offset;
+            string_append(&mensaje, string_itoa(dir_fisica));
+            string_append(&mensaje, " ");
+            int tamanio_a_leer = tamanio_pagina - offset;
+            string_append(&mensaje, string_itoa(tamanio_a_leer));
+            string_append(&mensaje, " ");
+            bytes_hasta_final = bytes_hasta_final - tamanio_a_leer;
+        }if(i>0 && i<list_size(lista)-1){
+            int dir_fisica = marco * tamanio_pagina;
+            string_append(&mensaje, string_itoa(dir_fisica));
+            string_append(&mensaje, " ");
+            string_append(&mensaje, string_itoa(tamanio_pagina));
+            string_append(&mensaje, " ");
+            bytes_hasta_final = bytes_hasta_final - tamanio_pagina;
+        }if(i= list_size(lista)-1){
+            int dir_fisica = marco * tamanio_pagina;
+            string_append(&mensaje, string_itoa(dir_fisica));
+            string_append(&mensaje, " ");
+            string_append(&mensaje, string_itoa(bytes_hasta_final));
+        }
+
+    }
+    
+    return mensaje;
+}
