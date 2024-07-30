@@ -272,7 +272,7 @@ void io_stdin_read(char *interfaz, char *pid, char* buffer)
         sem_post(&mutex_lista_interfaces);
         sem_post(&interfaz_encontrada->contador);
 
-        }
+        
     }
     else
     {
