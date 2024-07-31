@@ -7,7 +7,7 @@ void cargar_recursos(t_config *config)
     sem_wait(&mutex_lista_recursos);
     for (int i = 0; recursos[i] != NULL; i++)
     {
-        // printf("Se carga el siguiente recurso %s - %s instancia\n", recursos[i], instancias_recursos[i]);
+        
         recurso_t *recurso = malloc(sizeof(recurso_t));
         recurso->nombre = string_new();
         string_append(&recurso->nombre, recursos[i]);

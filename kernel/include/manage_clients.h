@@ -12,6 +12,7 @@ extern t_list* INTERFACES;
 extern int socket_memoria;
 extern int socket_cpu_interrupt;
 extern sem_t mutex_lista_interfaces;
+
 extern t_list* lista_recursos;
 extern char* algoritmo;
 extern t_list* QUEUE_NEW;

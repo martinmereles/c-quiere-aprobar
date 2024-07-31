@@ -59,7 +59,7 @@ void iniciar_hilo_kernel(t_config *config)
     }
 }
 
-void entender_mensajes(char *mensaje, int socket_cliente, int tiempo_unidad_trabajo, t_config* config)
+void entender_mensajes(char *mensaje, int socket_cliente, int tiempo_unidad_trabajo, t_config *config)
 {
     char **mensaje_split = string_split(mensaje, " ");
     if (strcmp(tipo_interfaz, "GENERICA") == 0 && strcmp(mensaje_split[0], "IO_GEN_SLEEP") == 0)
@@ -69,13 +69,13 @@ void entender_mensajes(char *mensaje, int socket_cliente, int tiempo_unidad_trab
     }
     else if (strcmp(tipo_interfaz, "STDIN") == 0 && strcmp(mensaje_split[0], "IO_STDIN_READ") == 0)
     {
-        io_stdin_read(mensaje_split[1], mensaje_split[2]);
-        aviso_finalizar(mensaje_split[3], socket_cliente);
+        io_stdin_read(mensaje_split);
+        aviso_finalizar(mensaje_split[2], socket_cliente);
     }
     else if (strcmp(tipo_interfaz, "STDOUT") == 0 && strcmp(mensaje_split[0], "IO_STDOUT_WRITE") == 0)
     {
-        io_stdout_write(mensaje_split[1], mensaje_split[2]);
-        aviso_finalizar(mensaje_split[3], socket_cliente);
+        io_stdout_write(mensaje_split);
+        aviso_finalizar(mensaje_split[2], socket_cliente);
     }
     else if (strcmp(tipo_interfaz, "DIALFS") == 0 && strcmp(mensaje_split[0], "IO_FS_CREATE") == 0)
     {
@@ -94,13 +94,13 @@ void entender_mensajes(char *mensaje, int socket_cliente, int tiempo_unidad_trab
     }
     else if (strcmp(tipo_interfaz, "DIALFS") == 0 && strcmp(mensaje_split[0], "IO_FS_WRITE") == 0)
     {
-        io_fs_write(mensaje_split[1], mensaje_split[2], atoi(mensaje_split[3]), mensaje_split[4]);//revisar parametro 2 y 4
-        aviso_finalizar(mensaje_split[5], socket_cliente);
+        io_fs_write(mensaje_split);
+        aviso_finalizar(mensaje_split[4], socket_cliente);
     }
     else if (strcmp(tipo_interfaz, "DIALFS") == 0 && strcmp(mensaje_split[0], "IO_FS_READ") == 0)
     {
-        io_fs_read(mensaje_split[1], mensaje_split[2], atoi(mensaje_split[3]), mensaje_split[4]);//revisar parametro 2 y 4
-        aviso_finalizar(mensaje_split[5], socket_cliente);
+        io_fs_read(mensaje_split);
+        aviso_finalizar(mensaje_split[4], socket_cliente);
     }
     else
     {
@@ -108,7 +108,8 @@ void entender_mensajes(char *mensaje, int socket_cliente, int tiempo_unidad_trab
     }
 }
 
-void aviso_finalizar(char* pid, int socket_cliente){
+void aviso_finalizar(char *pid, int socket_cliente)
+{
 
     char *mensaje_kernel = string_new();
     string_append(&mensaje_kernel, "FIN_IO ");
@@ -127,44 +128,74 @@ void io_gen_sleep(char *unidades_tiempo, int tiempo_unidad_trabajo)
     log_info(logger, "Se termino tarea IO_GEN_SLEEP");
 }
 
-void io_stdin_read(char *direccion, char *tamanio)
+void io_stdin_read(char **mensaje_split)
 {
-    int tamanio_int = atoi(tamanio);
     char *texto = readline("Ingrese el texto para STDIN > ");
-    char *texto_a_guardar = string_substring(texto, 0, tamanio_int);
-    char *mensaje = string_new();
-    string_append(&mensaje, "IO_STDIN_READ ");
-    string_append(&mensaje, direccion);
-    string_append(&mensaje, " ");
-    string_append(&mensaje, texto_a_guardar);
-    log_info(logger, "Se enviara el siguiente mensaje a memoria=> %s", mensaje);
-    enviar_mensaje(mensaje, socket_cliente_memoria);
-    log_info(logger, "Se termino tarea IO_STDIN_READ");
+
+    int tamanio_ingresado = string_length(texto);
+    char *pid = mensaje_split[2];
+    char *valor_a_escribir = string_new();
+    for (int i = 3; mensaje_split[i] != NULL && tamanio_ingresado > 0; i += 2)
+    {
+
+        char *direccion = mensaje_split[i];
+        int tamanio_a_escribir = atoi(mensaje_split[i + 1]);
+
+        char *mensaje_a_memoria = string_new();
+        string_append(&mensaje_a_memoria, "ESCRIBIR ");
+        string_append(&mensaje_a_memoria, direccion);
+        string_append(&mensaje_a_memoria, " ");
+
+        if (tamanio_a_escribir > tamanio_ingresado)
+        {
+            string_append(&mensaje_a_memoria, string_itoa(tamanio_ingresado));
+            valor_a_escribir = string_substring(texto, 0, tamanio_ingresado);
+            texto = string_substring(texto, tamanio_ingresado, string_length(texto));
+            tamanio_ingresado = tamanio_ingresado - tamanio_ingresado;
+        }
+        else
+        {
+            string_append(&mensaje_a_memoria, string_itoa(tamanio_a_escribir));
+            valor_a_escribir = string_substring(texto, 0, tamanio_a_escribir);
+            texto = string_substring(texto, tamanio_a_escribir, string_length(texto));
+            tamanio_ingresado = tamanio_ingresado - tamanio_a_escribir;
+        }
+
+        string_append(&mensaje_a_memoria, " ");
+        string_append(&mensaje_a_memoria, pid);
+        string_append(&mensaje_a_memoria, " ");
+        string_append(&mensaje_a_memoria, valor_a_escribir);
+        enviar_mensaje(mensaje_a_memoria, socket_cliente_memoria);
+        
+    }
+
 }
 
-void io_stdout_write(char *direccion, char *tamanio)
+void io_stdout_write(char **mensaje_split)
 {
-    char *mensaje = string_new();
-    string_append(&mensaje, "IO_STDOUT_WRITE ");
-    string_append(&mensaje, direccion);
-    string_append(&mensaje, " ");
-    string_append(&mensaje, tamanio);
-    log_info(logger, "Se enviara el siguiente mensaje a memoria=> %s", mensaje);
-    enviar_mensaje(mensaje, socket_cliente_memoria);
-    int cod_op = recibir_operacion(socket_cliente_memoria);
-    switch (cod_op)
+    char* datos_leidos = string_new();
+    char* pid = mensaje_split[2];
+    for (int i = 3; mensaje_split[i] != NULL; i += 2)
     {
-    case MENSAJE:
-        int size;
-        char *buffer = recibir_buffer(&size, socket_cliente_memoria);
-        printf("Se recibio desde memoria el mensaje=> %s", buffer);
-        free(buffer);
-        break;
-    default:
-        log_warning(logger, "Operacion desconocida. No quieras meter la pata");
-        break;
+
+    char* direccion_fisica = mensaje_split[i];
+    char* tamanio_a_leer = mensaje_split[i+1];
+    char *mensaje = string_new();
+    string_append(&mensaje, "LEER ");
+    string_append(&mensaje, direccion_fisica);
+    string_append(&mensaje, " ");
+    string_append(&mensaje, tamanio_a_leer);
+    string_append(&mensaje, " ");
+    string_append(&mensaje, pid);
+    enviar_mensaje(mensaje, socket_cliente_memoria);
+
+    char* valor_leido = recibir_desde_memoria(socket_cliente_memoria);
+    string_append(&datos_leidos,valor_leido);
+
     }
-    log_info(logger, "Se termino tarea IO_STDOUT_WRITE");
+
+    printf("Valor leido desde memoria: %s\n", datos_leidos);
+    
 }
 
 void iniciar_dialfs(t_config *config)
@@ -198,11 +229,11 @@ void iniciar_dialfs(t_config *config)
             bitarray_clean_bit(bitmap_bloques_libres, i);
         }
         fwrite(bitmap_bloques_libres->bitarray, bitmap_bloques_libres->size, 1, file_bitmap);
-        
+
         // Inicializo bloques
         void *bloques = calloc(cantidad_bloques, tamanio_bloque);
         fwrite(bloques, tamanio_bloque, cantidad_bloques, file_bloques);
-        sem_post(&sem_fs);      
+        sem_post(&sem_fs);
         fclose(file_bitmap);
         fclose(file_bloques);
     }
@@ -280,15 +311,13 @@ void io_fs_delete(char *nombre_archivo, t_config *config)
     sem_post(&sem_fs);
 }
 
-
-void io_fs_write(char* nombre_archivo, int registro_direccion,  int tamanio, int registro_puntero){
-
+void io_fs_write(char **mensaje_split)
+{
 }
 
-void io_fs_read(char* nombre_archivo, int registro_direccion,  int tamanio, int registro_puntero){
-
+void io_fs_read(char **mensaje_split)
+{
 }
-
 
 void io_fs_truncate(char *nombre_archivo, int tamanio_a_truncar, t_config *config)
 {
@@ -344,7 +373,7 @@ void io_fs_truncate(char *nombre_archivo, int tamanio_a_truncar, t_config *confi
                 config_set_value(archivo_metadata, "TAMANIO_ARCHIVO", string_itoa(tamanio_a_truncar));
             }
             else
-            {   
+            {
                 char *path_bloques = string_new();
                 string_append(&path_bloques, path_dialfs);
                 string_append(&path_bloques, "/bloques.dat");
@@ -359,14 +388,15 @@ void io_fs_truncate(char *nombre_archivo, int tamanio_a_truncar, t_config *confi
                 fread(archivo_data, tamanio_bloque, cant_bloques_actuales, fs_archivos_bloques);
 
                 int i = bloque_inicial;
-                for (i; i <= (bloque_inicial + cant_bloques_actuales - 1); i++){
+                for (i; i <= (bloque_inicial + cant_bloques_actuales - 1); i++)
+                {
                     set_bloque_libre(i, config);
                 }
 
                 compactar(nombre_archivo, config);
 
                 int primer_bloque_free = primer_bloque_libre();
-                
+
                 config_set_value(archivo_metadata, "TAMANIO_ARCHIVO", string_itoa(tamanio_a_truncar));
                 config_set_value(archivo_metadata, "BLOQUE_INICIAL", string_itoa(primer_bloque_free));
 
@@ -374,9 +404,10 @@ void io_fs_truncate(char *nombre_archivo, int tamanio_a_truncar, t_config *confi
                 fseek(fs_archivos_bloques, tamanio_bloque * primer_bloque_free, SEEK_SET);
                 // Escribo a partir del primer bloque libre lo que se leyo en archivo_data
                 fwrite(archivo_data, tamanio_bloque, cant_bloques_actuales, fs_archivos_bloques);
-                
+
                 int j = primer_bloque_free;
-                for (j; j <= (primer_bloque_free + cant_bloques_nuevos - 1); j++){
+                for (j; j <= (primer_bloque_free + cant_bloques_nuevos - 1); j++)
+                {
                     set_bloque_usado(j, config);
                 }
 
@@ -398,7 +429,7 @@ void io_fs_truncate(char *nombre_archivo, int tamanio_a_truncar, t_config *confi
 int cantidad_bloques_contiguos(int bloque_final_archivo)
 {
     int cantidad_libres_contiguos = 0;
-    while ((bloque_final_archivo + cantidad_lisem_waitbres_contiguos + 1) <= (bitmap_bloques_libres->size * 8 - 1) && !bitarray_test_bit(bitmap_bloques_libres, (bloque_final_archivo + cantidad_libres_contiguos + 1)))
+    while ((bloque_final_archivo + cantidad_libres_contiguos + 1) <= (bitmap_bloques_libres->size * 8 - 1) && !bitarray_test_bit(bitmap_bloques_libres, (bloque_final_archivo + cantidad_libres_contiguos + 1)))
     {
         cantidad_libres_contiguos++;
     }
@@ -440,19 +471,20 @@ void set_bloque_usado(int posicion, t_config *config)
     string_append(&path_dialfs_bitmap, path_dialfs);
     string_append(&path_dialfs_bitmap, "/");
     string_append(&path_dialfs_bitmap, "bitmap.dat");
-    FILE* file_bitmap = fopen(path_dialfs_bitmap, "r+");
+    FILE *file_bitmap = fopen(path_dialfs_bitmap, "r+");
     bitarray_set_bit(bitmap_bloques_libres, posicion);
     fwrite(bitmap_bloques_libres->bitarray, bitmap_bloques_libres->size, 1, file_bitmap);
     fclose(file_bitmap);
 }
 
-void set_bloque_libre(int posicion, t_config * config){
-    char* path_dialfs = config_get_string_value(config, "PATH_BASE_DIALFS");
-    char* path_dialfs_bitmap = string_new();
+void set_bloque_libre(int posicion, t_config *config)
+{
+    char *path_dialfs = config_get_string_value(config, "PATH_BASE_DIALFS");
+    char *path_dialfs_bitmap = string_new();
     string_append(&path_dialfs_bitmap, path_dialfs);
     string_append(&path_dialfs_bitmap, "/");
     string_append(&path_dialfs_bitmap, "bitmap.dat");
-    FILE* file_bitmap = fopen(path_dialfs_bitmap, "r+");
+    FILE *file_bitmap = fopen(path_dialfs_bitmap, "r+");
     bitarray_clean_bit(bitmap_bloques_libres, posicion);
     fwrite(bitmap_bloques_libres->bitarray, bitmap_bloques_libres->size, 1, file_bitmap);
     fclose(file_bitmap);
@@ -472,7 +504,7 @@ void limpiar_bitmap(t_config *config)
     }
 }
 
-void compactar(char* no_compactar_arch, t_config *config)
+void compactar(char *no_compactar_arch, t_config *config)
 {
     char *path_dialfs = config_get_string_value(config, "PATH_BASE_DIALFS");
     int retraso_compactacion = config_get_int_value(config, "RETRASO_COMPACTACION");
@@ -481,7 +513,7 @@ void compactar(char* no_compactar_arch, t_config *config)
     char *path_bloques = string_new();
     string_append(&path_bloques, path_dialfs);
     string_append(&path_bloques, "/");
-    string_append(&path_bloques, "bloques.dat");size_t
+    string_append(&path_bloques, "bloques.dat");
     DIR *d;
     struct dirent *dir;
     d = opendir(path_dialfs);
@@ -571,4 +603,34 @@ void escribir_bloques(char *palabra, int posicion)
     fseek(file_bloques, 64 * posicion, SEEK_SET);
     fwrite(palabra, string_length(palabra), 1, file_bloques);
     fclose(file_bloques);
+}
+
+void* recibir_desde_memoria(int socket_cliente){
+	t_list* lista;
+    int cod_op = recibir_operacion(socket_cliente);; 
+    switch (cod_op) {
+    case MENSAJE:
+        int size;
+        char* buffer = recibir_buffer(&size, socket_cliente);
+        log_info(logger, "Me llego el mensaje %s", buffer);
+        void * mensaje;
+        if(string_starts_with(buffer, "LEER")){
+            mensaje = malloc(size-5);
+            mensaje = string_substring_from(buffer, 5);
+            
+        }if(string_starts_with(buffer, "ESCRIBIR")){
+            mensaje = malloc(size-10);
+            mensaje = string_substring_from(buffer, 10);
+        }
+        free(buffer);
+        return mensaje;
+        break;
+    case -1:
+        log_error(logger, "el cliente se desconecto.");
+        return EXIT_FAILURE;
+    default:
+        log_warning(logger,"Operacion desconocida. No quieras meter la pata");
+        break;
+    }
+    
 }

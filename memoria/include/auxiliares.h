@@ -7,6 +7,7 @@
 #include <commons/string.h>
 #include <commons/txt.h>
 #include <commons/collections/list.h>
+#include <commons/memory.h>
 
 #include <../include/memoria_estructuras.h>
 #include <utils/client-server.h>
@@ -22,7 +23,7 @@ extern sem_t *sem_bitmap_marcos_libres;
 
 void iniciar_hilo_server_memoria(char* puerto);
 void atender_cliente_memoria(int socket_cliente);
-void iniciar_proceso(char* process_id, char* path);
+void iniciar_proceso(char* process_id, char* path, int socket_cliente);
 void proxima_instruccion(char* process_id_find, char* program_counter, int socket_cliente);
 void enviar_tamanio_pagina(int socket_cliente);
 void resize (int tamanio, int pid, int socket_cliente);

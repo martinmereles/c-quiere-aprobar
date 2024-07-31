@@ -52,9 +52,15 @@ void ejecutar_round_robin(int socket_cpu_dispatch, int socket_cpu_interrupt, int
         //sacar el primero de READY y pasarlo a RUNNING
         sem_wait(&sem_array_estados[1].mutex);
         sem_wait(&sem_array_estados[2].mutex);
-        pcb_t* pcb_a_enviar = malloc(sizeof(pcb_t));
-        pcb_a_enviar->reg_generales = malloc(sizeof(registros_t));
-        pcb_a_enviar = list_remove(QUEUE_READY, 0);
+        
+        
+        
+        //pcb_t* pcb_a_enviar = malloc(sizeof(pcb_t));
+        //pcb_a_enviar->reg_generales = malloc(sizeof(registros_t));
+        
+       
+        
+        pcb_t* pcb_a_enviar = list_remove(QUEUE_READY, 0);
         list_add(QUEUE_RUNNING, pcb_a_enviar);
         sem_post(&sem_array_estados[1].mutex);
         sem_post(&sem_array_estados[2].mutex);

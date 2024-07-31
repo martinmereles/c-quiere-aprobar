@@ -11,7 +11,8 @@ void atender_cliente_cpu(int socket_cliente){
             char ** mensaje_split = string_split(buffer, " ");
             if (es_intruccion(mensaje_split[0]))
             {
-            realloc(instruccion_exec,&size);
+            
+            instruccion_exec = realloc(instruccion_exec,size);
             strcpy(instruccion_exec,buffer);
             }
             free(buffer);
@@ -229,7 +230,7 @@ char* iterar_lista_mensaje(t_list* lista, int dir_logica, int tamanio){
             string_append(&mensaje, string_itoa(tamanio_pagina));
             string_append(&mensaje, " ");
             bytes_hasta_final = bytes_hasta_final - tamanio_pagina;
-        }if(i= list_size(lista)-1){
+        }if(i == list_size(lista)-1){
             int dir_fisica = marco * tamanio_pagina;
             string_append(&mensaje, string_itoa(dir_fisica));
             string_append(&mensaje, " ");

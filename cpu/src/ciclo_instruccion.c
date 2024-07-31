@@ -97,7 +97,7 @@ void check_interrupt(int socket_cliente_memoria, int socket_kernel_dispatch){
     if(!strcmp(instruccion_exec_split[0],"IO_GEN_SLEEP") ||
         !strcmp(instruccion_exec_split[0],"IO_STDIN_READ") ||
         !strcmp(instruccion_exec_split[0],"IO_STDOUT_WRITE") ||
-         !strcmp(instruccion_exec_split[0],"IO_FS_CREATE") ||
+        !strcmp(instruccion_exec_split[0],"IO_FS_CREATE") ||
         !strcmp(instruccion_exec_split[0],"IO_FS_DELETE") ||
         !strcmp(instruccion_exec_split[0],"IO_FS_TRUNCATE") ||
         !strcmp(instruccion_exec_split[0],"IO_FS_WRITE") ||

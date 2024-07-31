@@ -70,6 +70,9 @@ void atender_cliente_kernel(int socket_cliente)
                 liberar_interfaz(mensaje_split[1], mensaje_split[2]);
             }
 
+            
+
+
             free(buffer);
             break;
         case PAQUETE:
@@ -94,13 +97,13 @@ void atender_cliente_kernel(int socket_cliente)
 
                 liberar_recursos(pcb_deserealizado->pcb->pid);
 
-                pcb_t *aux;
+                
 
                 sem_wait(&sem_array_estados[2].mutex);
                 sem_wait(&sem_array_estados[4].mutex);
                 sem_wait(&sem_array_estados[2].contador);
-                aux = list_remove(QUEUE_RUNNING, 0);
-                list_add(QUEUE_TERMINATED, aux);
+                list_remove(QUEUE_RUNNING, 0);
+                list_add(QUEUE_TERMINATED, pcb_deserealizado->pcb);
                 sem_post(&sem_array_estados[4].contador);
                 sem_post(&sem_array_estados[4].mutex);
                 sem_post(&sem_array_estados[2].mutex);
@@ -118,9 +121,10 @@ void atender_cliente_kernel(int socket_cliente)
                 sem_wait(&sem_array_estados[2].contador);
                 list_remove(QUEUE_RUNNING, 0);
                 list_add(QUEUE_READY, pcb_deserealizado->pcb);
-                sem_post(&sem_array_estados[1].contador);
+                
                 sem_post(&sem_array_estados[1].mutex);
                 sem_post(&sem_array_estados[2].mutex);
+                sem_post(&sem_array_estados[1].contador);
 
                 sem_post(&sem_multiprocesamiento);
             }
@@ -130,10 +134,12 @@ void atender_cliente_kernel(int socket_cliente)
                 sem_wait(&sem_array_estados[2].mutex);
                 sem_wait(&sem_array_estados[2].contador);
                 list_remove(QUEUE_RUNNING, 0);
+                printf("PID DEL PCB DESEREALIZADO %d\n", pcb_deserealizado->pcb->pid);
                 list_add(QUEUE_BLOCKED, pcb_deserealizado->pcb);
-                sem_post(&sem_array_estados[3].contador);
+                
                 sem_post(&sem_array_estados[2].mutex);
                 sem_post(&sem_array_estados[3].mutex);
+                sem_post(&sem_array_estados[3].contador);
                 sem_post(&sem_multiprocesamiento);
             }
             if (string_starts_with(pcb_deserealizado->motivo, "SIGNAL"))
@@ -471,9 +477,10 @@ void liberar_interfaz(char *interfaz, char *pid)
         return es_pcb_buscado(atoi(pid), elemento);
     }
 
-    pcb_t *pcb_encontrado = malloc(sizeof(pcb_t));
+    //pcb_t *pcb_encontrado = malloc(sizeof(pcb_t));
     sem_wait(&sem_array_estados[3].mutex);
-    pcb_encontrado = list_remove_by_condition(QUEUE_BLOCKED, _es_pcb_buscado);
+    pcb_t * pcb_encontrado = list_remove_by_condition(QUEUE_BLOCKED, _es_pcb_buscado);
+
     sem_post(&sem_array_estados[3].mutex);
     sem_wait(&sem_array_estados[3].contador);
 

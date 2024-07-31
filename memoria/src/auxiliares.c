@@ -32,7 +32,7 @@ void atender_cliente_memoria(int socket_cliente)
             char **mensaje_split = string_split(buffer, " ");
             if (strcmp(mensaje_split[0], "INICIAR_PROCESO") == 0)
             {
-                iniciar_proceso(mensaje_split[1], mensaje_split[2]);
+                iniciar_proceso(mensaje_split[1], mensaje_split[2],socket_cliente);
             }
             if (strcmp(mensaje_split[0], "PROXIMA_INSTRUCCION") == 0)
             {
@@ -82,7 +82,7 @@ void atender_cliente_memoria(int socket_cliente)
     }
 }
 
-void iniciar_proceso(char *process_id, char *path)
+void iniciar_proceso(char *process_id, char *path, int socket_cliente)
 {
     int process = atoi(process_id);
     FILE *f = fopen(path, "r");
@@ -119,6 +119,11 @@ void iniciar_proceso(char *process_id, char *path)
 
     list_add(memoria_instrucciones, instruccion);
     fclose(f);
+
+    char* mensaje_validacion = string_new();
+    string_append(&mensaje_validacion, "INICIAR_PROCESO ");
+    string_append(&mensaje_validacion, process_id);
+    enviar_mensaje(mensaje_validacion, socket_cliente);
 }
 
 void proxima_instruccion(char *process_id_find, char *program_counter, int socket_cliente)
@@ -326,9 +331,13 @@ void leer(int direccion_fisica, int tamanio, int pid, int socket_cliente)
     string_append(&mensaje, "LEER ");
     void *lectura = malloc(tamanio);
     memcpy(lectura, memoria + direccion_fisica, tamanio);
-    void* aux = malloc(string_length(mensaje)+tamanio);
+
+    void* aux = malloc(string_length(mensaje)+tamanio+1);
     memcpy(aux,mensaje,string_length(mensaje));
     memcpy(aux+string_length(mensaje),lectura, tamanio);
+    
+    char* fin_string = string_new();
+    memcpy(aux+string_length(mensaje)+tamanio,fin_string,1);
     enviar_mensaje(aux,socket_cliente);
 }
 

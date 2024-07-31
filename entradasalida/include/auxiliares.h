@@ -29,13 +29,13 @@ typedef struct{
 void iniciar_hilo_kernel(t_config* config);
 void entender_mensajes(char* mensaje, int socket_cliente,int tiempo_unidad_trabajo, t_config* config);
 void io_gen_sleep(char* unidades_tiempo, int tiempo_unidad_trabajo);
-void io_stdin_read(char *direccion, char *tamanio);
-void io_stdout_write(char *direccion, char *tamanio);
+void io_stdin_read(char** mensaje_split);
+void io_stdout_write(char** mensaje_split);
 void iniciar_dialfs(t_config * config);
 void io_fs_create(char* nombre_archivo, t_config * config);
 void io_fs_delete(char* nombre_archivo, t_config * config);
-void io_fs_write(char* nombre_archivo, int registro_direccion,  int tamanio, int registro_puntero);
-void io_fs_read(char* nombre_archivo, int registro_direccion,  int tamanio, int registro_puntero);
+void io_fs_write(char** mensaje_split);
+void io_fs_read(char** mensaje_split);
 void io_fs_truncate(char* nombre_archivo, int tamanio_a_truncar, t_config * config);
 int primer_bloque_libre();
 void set_bloque_usado(int posicion, t_config * config);
@@ -48,5 +48,5 @@ bool esta_ordenado (archivo_t* element1, archivo_t* element2);
 void limpiar_bitmap (t_config* config);
 void escribir_bloques(char* palabra, int posicion);
 void aviso_finalizar(char* pid, int socket_cliente);
-
+void* recibir_desde_memoria(int socket_cliente);
 #endif
