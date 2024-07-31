@@ -34,15 +34,15 @@ void io_stdout_write(char** mensaje_split);
 void iniciar_dialfs(t_config * config);
 void io_fs_create(char* nombre_archivo, t_config * config);
 void io_fs_delete(char* nombre_archivo, t_config * config);
-void io_fs_write(char** mensaje_split);
-void io_fs_read(char** mensaje_split);
+void io_fs_write(char** mensaje_split, t_config* config);
+void io_fs_read(char** mensaje_split, t_config* config);
 void io_fs_truncate(char* nombre_archivo, int tamanio_a_truncar, t_config * config);
 int primer_bloque_libre();
 void set_bloque_usado(int posicion, t_config * config);
 void set_bloque_libre(int posicion, t_config * config);
 int cantidad_bloques_contiguos(int bloque_final_archivo);
 int cantidad_bloques_libres();
-
+int calcular_tamanio(char ** mensaje_split, int inicio);
 void compactar (char* no_compactar_arch, t_config* config);
 bool esta_ordenado (archivo_t* element1, archivo_t* element2);
 void limpiar_bitmap (t_config* config);
