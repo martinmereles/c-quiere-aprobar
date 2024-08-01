@@ -154,7 +154,6 @@ void atender_cliente_kernel(int socket_cliente)
                 sem_wait(&sem_array_estados[2].mutex);
                 sem_wait(&sem_array_estados[2].contador);
                 list_remove(QUEUE_RUNNING, 0);
-                printf("PID DEL PCB DESEREALIZADO %d\n", pcb_deserealizado->pcb->pid);//Sacar despues 
                 list_add(QUEUE_BLOCKED, pcb_deserealizado->pcb);
                 log_info(logger, "PID: %d - Estado Anterior: RUNNING - Estado Actual: BLOCKED", pcb_deserealizado->pcb->pid);
                 sem_post(&sem_array_estados[2].mutex);

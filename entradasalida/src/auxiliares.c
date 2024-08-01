@@ -9,26 +9,16 @@ void iniciar_hilo_kernel(t_config *config)
     int tiempo_unidad_trabajo = atoi(tiempo_unidad_trabajo_string);
     log_info(logger, "La IP de Kernel es : %s", ip_kernel);
     log_info(logger, "El PUERTO de Kernel es : %s", puerto_kernel);
-    char *nombre;
-    nombre = readline("Ingrese el nombre de la interfaz > ");
-    while (string_contains(nombre, " "))
-    {
-        log_info(logger, "No puede contener espacios");
-        free(nombre);
-        nombre = readline("Ingrese el nombre de la interfaz > ");
-    }
-    nombre_interfaz = malloc(sizeof(nombre));
-    strcpy(nombre_interfaz, nombre);
-    log_info(logger, "Se ingreso como nombre de la interfaz: %s", nombre_interfaz);
+
 
     int socket_cliente_kernel = crear_conexion(ip_kernel, puerto_kernel);
     char *msj_conexion = string_new();
     string_append(&msj_conexion, "CONECTAR_INTERFAZ ");
     string_append(&msj_conexion, tipo_interfaz);
     string_append(&msj_conexion, " ");
-    string_append(&msj_conexion, nombre);
+    string_append(&msj_conexion, nombre_interfaz);
     enviar_mensaje(msj_conexion, socket_cliente_kernel);
-    free(nombre);
+    
 
     t_list *lista;
     while (1)
