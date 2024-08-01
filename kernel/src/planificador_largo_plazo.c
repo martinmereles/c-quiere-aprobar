@@ -81,8 +81,7 @@ void pasar_new_ready()
     aux = list_remove(QUEUE_NEW, 0);
     list_add(QUEUE_READY, aux);
     log_info(logger, "PID: %d - Estado Anterior: NEW - Estado Actual: READY", aux->pid);
-    char* pids = string_new();
-    generar_lista_pids(&pids, "QUEUE_READY");
+    char* pids = generar_lista_pids("QUEUE_READY");
     log_info(logger, "Cola Ready: %s", pids);
     sem_post(&sem_array_estados[1].mutex);
     sem_post(&sem_array_estados[0].mutex);

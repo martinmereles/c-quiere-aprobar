@@ -144,7 +144,7 @@ void finalizar_proceso(int pid, int socket_cpu_interrupt, int socket_cliente_mem
     encontrado = list_remove_by_condition(QUEUE_TERMINATED, _es_pid_buscado);
     if (encontrado != NULL)
     {
-        //sem_wait(&sem_array_estados[4].contador);
+
     }
     encontrado = NULL;
     encontrado = list_remove_by_condition(QUEUE_READY_PLUS, _es_pid_buscado);

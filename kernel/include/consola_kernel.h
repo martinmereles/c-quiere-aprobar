@@ -4,11 +4,11 @@
 #include <commons/collections/list.h>
 #include <stdlib.h>
 #include <commons/string.h>
-#include "../include/main_kernel.h"
+#include <../include/main_kernel.h>
 #include <utils/estructuras/estructuras.h>
 #include <utils/client-server.h>
 #include <utils/admin.h>
-#include "planificador_largo_plazo.h"
+#include <../include/planificador_largo_plazo.h>
 
 extern int GLOBAL_PID;
 extern t_list* QUEUE_NEW;

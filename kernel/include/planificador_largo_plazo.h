@@ -7,6 +7,8 @@
 #include <utils/estructuras/estructuras.h>
 #include <utils/client-server.h>
 #include <semaphore.h>
+#include <../include/manage_clients.h>
+
 
 extern int GLOBAL_PID;
 extern t_list* QUEUE_NEW;

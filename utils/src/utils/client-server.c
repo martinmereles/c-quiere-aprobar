@@ -383,7 +383,6 @@ void* recibir_buffer_pcb_motivo(int* size, int socket_cliente)
 	char motivo_recibido[tamanio_motivo+1];
 	memcpy(motivo_recibido, buffer+12+sizeof(pcb_t) + sizeof(registros_t), tamanio_motivo);
 	motivo_recibido[tamanio_motivo] = '\0';
-	log_info(logger, "el valor de motivo_recibido es: %s", motivo_recibido);
 
 	string_append(&pcb_deserealizado->motivo, motivo_recibido);
 

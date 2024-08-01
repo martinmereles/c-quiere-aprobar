@@ -36,7 +36,7 @@ bool existe_recurso(char *nombre_recurso)
 }
 
 void wait_instruccion(char *nombre_recurso, pcb_t* pcb_recibido)
-{
+{   char* pids;
     if (existe_recurso(nombre_recurso))
     {
 
@@ -65,8 +65,7 @@ void wait_instruccion(char *nombre_recurso, pcb_t* pcb_recibido)
                 sem_wait(&sem_array_estados[5].mutex);
                 list_add_in_index(QUEUE_READY_PLUS, 0, aux);
                 log_info(logger, "PID: %d - Estado Anterior: RUNNING - Estado Actual: READY_PLUS", aux->pid);
-                char* pids = string_new();
-                generar_lista_pids(&pids, "QUEUE_READY_PLUS");
+                pids = generar_lista_pids("QUEUE_READY_PLUS");
                 log_info(logger, "Cola Ready Prioridad: %s", pids);
                 sem_post(&sem_array_estados[5].contador);
                 sem_post(&sem_array_estados[5].mutex);
@@ -74,8 +73,7 @@ void wait_instruccion(char *nombre_recurso, pcb_t* pcb_recibido)
                 sem_wait(&sem_array_estados[1].mutex);
                 list_add_in_index(QUEUE_READY, 0, aux);
                 log_info(logger, "PID: %d - Estado Anterior: RUNNING - Estado Actual: READY", aux->pid);
-                char* pids = string_new();
-                generar_lista_pids(&pids, "QUEUE_READY");
+                pids = generar_lista_pids("QUEUE_READY");
                 log_info(logger, "Cola Ready: %s", pids);
                 sem_post(&sem_array_estados[1].contador);
                 sem_post(&sem_array_estados[1].mutex);
@@ -93,7 +91,7 @@ void wait_instruccion(char *nombre_recurso, pcb_t* pcb_recibido)
 
 void signal_instruccion(char *nombre_recurso, pcb_t* pcb_recibido)
 {
-
+    char* pids;
     bool _es_entero_buscado_recurso(void *elemento)
     {
         return es_entero_buscado_recurso(pcb_recibido->pid, elemento);
@@ -127,8 +125,7 @@ void signal_instruccion(char *nombre_recurso, pcb_t* pcb_recibido)
             aux = list_remove(QUEUE_RUNNING, 0);
             list_add_in_index(QUEUE_READY_PLUS, 0, pcb_recibido);
             log_info(logger, "PID: %d - Estado Anterior: RUNNING - Estado Actual: READY_PLUS", pcb_recibido->pid);
-            char* pids = string_new();
-            generar_lista_pids(&pids, "QUEUE_READY_PLUS");
+            pids = generar_lista_pids("QUEUE_READY_PLUS");
             log_info(logger, "Cola Ready Prioridad: %s", pids);
             sem_post(&sem_array_estados[5].contador);
             sem_post(&sem_array_estados[5].mutex);
@@ -142,8 +139,7 @@ void signal_instruccion(char *nombre_recurso, pcb_t* pcb_recibido)
             aux = list_remove(QUEUE_RUNNING, 0);
             list_add_in_index(QUEUE_READY, 0, pcb_recibido);
             log_info(logger, "PID: %d - Estado Anterior: RUNNING - Estado Actual: READY", pcb_recibido->pid);
-            char* pids = string_new();
-            generar_lista_pids(&pids, "QUEUE_READY");
+            pids = generar_lista_pids("QUEUE_READY");
             log_info(logger, "Cola Ready: %s", pids);
             sem_post(&sem_array_estados[1].contador);
             sem_post(&sem_array_estados[1].mutex);
@@ -175,7 +171,7 @@ bool es_pid_buscado_recurso(int identificador, void *elemento)
 }
 
 void desbloquear_proceso(int pid)
-{
+{   char* pids;
     //  pcb_t* aux = malloc(sizeof(pcb_t));
     bool _es_pid_buscado(void *elemento)
     {
@@ -191,15 +187,13 @@ void desbloquear_proceso(int pid)
     if (strcmp(algoritmo,"VRR")==0 && aux->quantum > 0){
         list_add(QUEUE_READY_PLUS, aux);
         log_info(logger, "PID: %d - Estado Anterior: BLOCKED - Estado Actual: READY_PLUS", aux->pid);
-        char* pids = string_new();
-        generar_lista_pids(&pids, "QUEUE_READY_PLUS");
+        pids = generar_lista_pids("QUEUE_READY_PLUS");
         log_info(logger, "Cola Ready Prioridad: %s", pids);
         sem_post(&sem_array_estados[5].contador);
     }else{
         list_add(QUEUE_READY, aux);
         log_info(logger, "PID: %d - Estado Anterior: BLOCKED - Estado Actual: READY", aux->pid);
-        char* pids = string_new();
-        generar_lista_pids(&pids, "QUEUE_READY");
+        pids = generar_lista_pids("QUEUE_READY");
         log_info(logger, "Cola Ready: %s", pids);
         sem_post(&sem_array_estados[1].contador);
     }

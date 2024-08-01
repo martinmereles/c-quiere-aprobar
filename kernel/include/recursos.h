@@ -6,6 +6,7 @@
 #include <commons/string.h>
 #include <utils/estructuras/estructuras.h>
 #include <utils/client-server.h>
+#include <../include/manage_clients.h>
 #include <semaphore.h>
 
 extern int GLOBAL_PID;

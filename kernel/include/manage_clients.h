@@ -45,6 +45,6 @@ void desconectar_interfaz(int socket_cliente);
 void liberar_recursos(int pid);
 
 bool admite_instruccion(char *tipo, char *instruccion);
-void generar_lista_pids(char** lista_pids, char* nombre_lista);
+char* generar_lista_pids(char* nombre_lista);
 
 #endif

@@ -17,7 +17,7 @@ void iniciar_hilo_server_kernel(char *puerto)
 }
 
 void atender_cliente_kernel(int socket_cliente)
-{
+{   char* pids;
     t_list *lista;
     while (1)
     {
@@ -140,8 +140,7 @@ void atender_cliente_kernel(int socket_cliente)
                 list_add(QUEUE_READY, pcb_deserealizado->pcb);
                 log_info(logger, "PID: %d - Desalojado por fin de Quantum", pcb_deserealizado->pcb->pid);
                 log_info(logger, "PID: %d - Estado Anterior: RUNNING - Estado Actual: READY", pcb_deserealizado->pcb->pid);
-                char* pids = string_new();
-                generar_lista_pids(&pids, "QUEUE_READY");
+                pids = generar_lista_pids("QUEUE_READY");
                 log_info(logger, "Cola Ready: %s", pids);
                 sem_post(&sem_array_estados[1].mutex);
                 sem_post(&sem_array_estados[2].mutex);
@@ -477,7 +476,7 @@ void io_fs_read(char *interfaz, char *nombre_archivo, char *puntero_archivo, cha
 
 void liberar_interfaz(char *interfaz, char *pid)
 {
-
+    char* pids;
     bool _es_interfaz_buscada(void *elemento)
     {
         return es_interfaz_buscada(interfaz, elemento);
@@ -504,8 +503,7 @@ void liberar_interfaz(char *interfaz, char *pid)
         sem_wait(&sem_array_estados[5].mutex);
         list_add(QUEUE_READY_PLUS, pcb_encontrado);
         log_info(logger, "PID: %d - Estado Anterior: BLOCKED - Estado Actual: READY_PLUS", pcb_encontrado->pid);
-        char* pids = string_new();
-        generar_lista_pids(&pids, "QUEUE_READY_PLUS");
+        pids = generar_lista_pids("QUEUE_READY_PLUS");
         log_info(logger, "Cola Ready Prioridad: %s", pids);
         sem_post(&sem_array_estados[5].mutex);
         sem_post(&sem_array_estados[5].contador);
@@ -515,8 +513,7 @@ void liberar_interfaz(char *interfaz, char *pid)
         sem_wait(&sem_array_estados[1].mutex);
         list_add(QUEUE_READY, pcb_encontrado);
         log_info(logger, "PID: %d - Estado Anterior: BLOCKED - Estado Actual: READY", pcb_encontrado->pid);
-        char* pids = string_new();
-        generar_lista_pids(&pids, "QUEUE_READY");
+        pids = generar_lista_pids("QUEUE_READY");
         log_info(logger, "Cola Ready: %s", pids);
         sem_post(&sem_array_estados[1].mutex);
         sem_post(&sem_array_estados[1].contador);
@@ -704,16 +701,17 @@ void finalizar_proceso_invalido(int pid, int socket_cpu_interrupt, int socket_cl
     sem_post(&llegada_desalojo_io);
 }
 
-void generar_lista_pids(char** lista_pids, char* nombre_lista){
+char* generar_lista_pids(char* nombre_lista){
 
-    string_append(&lista_pids,"[");
+    char * mensaje_a_devolver = string_new();
+    string_append(&mensaje_a_devolver,"[");
     if(strcmp(nombre_lista, "QUEUE_READY") == 0){
         for (int i = 0; i < list_size(QUEUE_READY); i++)
         {   
             pcb_t* aux = list_get(QUEUE_READY, i);
-            string_append(&lista_pids, string_itoa(aux->pid));
+            string_append(&mensaje_a_devolver, string_itoa(aux->pid));
             if(i != (list_size(QUEUE_READY)-1)){
-                string_append(&lista_pids, ", ");
+                string_append(&mensaje_a_devolver, ", ");
             }
         }
         
@@ -721,11 +719,12 @@ void generar_lista_pids(char** lista_pids, char* nombre_lista){
         for (int i = 0; i < list_size(QUEUE_READY_PLUS); i++)
         {   
             pcb_t* aux = list_get(QUEUE_READY, i);
-            string_append(&lista_pids, string_itoa(aux->pid));
+            string_append(&mensaje_a_devolver, string_itoa(aux->pid));
             if(i != (list_size(QUEUE_READY_PLUS)-1)){
-                string_append(&lista_pids, ", ");
+                string_append(&mensaje_a_devolver, ", ");
             }
         }
     }
-    string_append(&lista_pids,"]");
+    string_append(&mensaje_a_devolver,"]");
+    return mensaje_a_devolver;
 }
