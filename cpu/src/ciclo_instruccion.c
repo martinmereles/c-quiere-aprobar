@@ -4,6 +4,7 @@
 void fetch(int socket_cliente_memoria){
     char* pid = string_itoa(contexto->pid);
     char* program_counter = string_itoa(reg->PC);
+    log_info(logger, "PID: %s - FETCH - Program Counter: %s", pid, program_counter);
     char* mensaje = string_new();
     string_append(&mensaje,"PROXIMA_INSTRUCCION ");
     string_append(&mensaje, pid);

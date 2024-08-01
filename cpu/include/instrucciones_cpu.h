@@ -32,8 +32,8 @@ void mov_in(char* registro_dato, char * registro_direccion, int socket_cliente_m
 void mov_out(char *registro_direccion, char *registro_dato, int socket_cliente_memoria);
 void resize(char *tamanio, int socket_cliente_memoria);
 void copy_string(char *tamanio, int socket_cliente_memoria);
-void wait();
-void signal_instruccion();
+void wait(char* recurso);
+void signal_instruccion(char* recurso);
 void io_fs_create(char* interfaz, char* nombre_archivo, int socket_kernel);
 void io_fs_delete(char* interfaz, char* nombre_archivo, int socket_kernel);
 void io_fs_truncate(char* interfaz, char* nombre_archivo, char* registro_tamanio, int socket_kernel);

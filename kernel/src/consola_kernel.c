@@ -105,15 +105,21 @@ void finalizar_proceso(int pid, int socket_cpu_interrupt, int socket_cliente_mem
     sem_wait(&sem_array_estados[5].mutex);
     encontrado = list_remove_by_condition(QUEUE_NEW, _es_pid_buscado);
     if (encontrado != NULL)
-    {
+    {   
+        list_add(QUEUE_TERMINATED, encontrado);
+        sem_post(&sem_array_estados[4].contador);
         sem_wait(&sem_array_estados[0].contador);
+        log_info(logger, "PID: %d - Estado Anterior: NEW - Estado Actual: TERMINATED", pid);
     }
     encontrado = NULL;
     encontrado = list_remove_by_condition(QUEUE_READY, _es_pid_buscado);
     if (encontrado != NULL)
-    {
+    {   
+        list_add(QUEUE_TERMINATED, encontrado);
+        sem_post(&sem_array_estados[4].contador);
         sem_wait(&sem_array_estados[1].contador);
         sem_post(&sem_grado_multiprog);
+        log_info(logger, "PID: %d - Estado Anterior: READY - Estado Actual: TERMINATED", pid);
     }
     encontrado = NULL;
     encontrado = list_remove_by_condition(QUEUE_RUNNING, _es_pid_buscado);
@@ -127,22 +133,28 @@ void finalizar_proceso(int pid, int socket_cpu_interrupt, int socket_cliente_mem
     encontrado = NULL;
     encontrado = list_remove_by_condition(QUEUE_BLOCKED, _es_pid_buscado);
     if (encontrado != NULL)
-    {
+    {   
+        list_add(QUEUE_TERMINATED, encontrado);
+        sem_post(&sem_array_estados[4].contador);
         sem_wait(&sem_array_estados[3].contador);
         sem_post(&sem_grado_multiprog);
+        log_info(logger, "PID: %d - Estado Anterior: BLOCKED - Estado Actual: TERMINATED", pid);
     }
     encontrado = NULL;
     encontrado = list_remove_by_condition(QUEUE_TERMINATED, _es_pid_buscado);
     if (encontrado != NULL)
     {
-        sem_wait(&sem_array_estados[4].contador);
+        //sem_wait(&sem_array_estados[4].contador);
     }
     encontrado = NULL;
     encontrado = list_remove_by_condition(QUEUE_READY_PLUS, _es_pid_buscado);
     if (encontrado != NULL)
-    {
+    {   
+        list_add(QUEUE_TERMINATED, encontrado);
+        sem_post(&sem_array_estados[4].contador);
         sem_wait(&sem_array_estados[5].contador);
         sem_post(&sem_grado_multiprog);
+        log_info(logger, "PID: %d - Estado Anterior: READY_PLUS - Estado Actual: TERMINATED", pid);
     }
     sem_post(&sem_array_estados[0].mutex);
     sem_post(&sem_array_estados[1].mutex);

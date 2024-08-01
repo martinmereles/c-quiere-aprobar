@@ -34,6 +34,7 @@ void ejecutar_fifo(int socket_cpu_dispatch){
         pcb_a_enviar->reg_generales = malloc(sizeof(registros_t));
         pcb_a_enviar = list_remove(QUEUE_READY, 0);
         list_add(QUEUE_RUNNING, pcb_a_enviar);
+        log_info(logger, "PID: %d - Estado Anterior: READY - Estado Actual: RUNNING", pcb_a_enviar->pid);
         sem_post(&sem_array_estados[1].mutex);
         sem_post(&sem_array_estados[2].mutex);
         sem_post(&sem_array_estados[2].contador);
@@ -62,6 +63,8 @@ void ejecutar_round_robin(int socket_cpu_dispatch, int socket_cpu_interrupt, int
         
         pcb_t* pcb_a_enviar = list_remove(QUEUE_READY, 0);
         list_add(QUEUE_RUNNING, pcb_a_enviar);
+        log_info(logger, "PID: %d - Estado Anterior: READY - Estado Actual: RUNNING", pcb_a_enviar->pid);
+        
         sem_post(&sem_array_estados[1].mutex);
         sem_post(&sem_array_estados[2].mutex);
         sem_post(&sem_array_estados[2].contador);
@@ -97,12 +100,14 @@ void ejecutar_virtual_rr(int socket_cpu_dispatch, int socket_cpu_interrupt, int 
             sem_wait(&sem_array_estados[5].contador);
             sem_wait(&sem_array_estados[5].mutex);
             pcb_a_enviar = list_remove(QUEUE_READY_PLUS, 0);
+            log_info(logger, "PID: %d - Estado Anterior: READY_PLUS - Estado Actual: RUNNING", pcb_a_enviar->pid);
             sem_post(&sem_array_estados[5].mutex);
             break;
         }else if(list_size(QUEUE_READY)>0){
             sem_wait(&sem_array_estados[1].contador);
             sem_wait(&sem_array_estados[1].mutex);
             pcb_a_enviar = list_remove(QUEUE_READY, 0);
+            log_info(logger, "PID: %d - Estado Anterior: READY - Estado Actual: RUNNING", pcb_a_enviar->pid);
             pcb_a_enviar->quantum = quantum_int;
             sem_post(&sem_array_estados[1].mutex);
             break;

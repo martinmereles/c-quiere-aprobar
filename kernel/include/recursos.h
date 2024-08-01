@@ -34,11 +34,11 @@ typedef struct
 
 void cargar_recursos(t_config* config);
 bool existe_recurso(char* recurso);
-void wait_instruccion(char* nombre_recurso, int pid);
-void signal_instruccion(char* nombre_recurso, int pid);
+void wait_instruccion(char* nombre_recurso, pcb_t* pcb_recibido);
+void signal_instruccion(char* nombre_recurso, pcb_t* pcb_recibido);
 bool es_recurso_buscado(char* identificador, void* elemento);
 void desbloquear_proceso(int pid);
 bool es_pid_buscado_recurso(int identificador, void *elemento);
-void bloquear_proceso(int pid);
+void bloquear_proceso(pcb_t* pcb_recibido);
 bool es_entero_buscado_recurso(int identificador, void *elemento);
 #endif

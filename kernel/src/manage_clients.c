@@ -30,35 +30,51 @@ void atender_cliente_kernel(int socket_cliente)
             log_info(logger, "Kernel recibio el mensaje %s", buffer);
             char **mensaje_split = string_split(buffer, " ");
             if (strcmp(mensaje_split[0], "IO_GEN_SLEEP") == 0)
-            {
+            {   
+                sem_wait(&llegada_desalojo_io);
+                log_info(logger, "PID: %s - Bloqueado por: %s", mensaje_split[3], mensaje_split[1]);
                 io_gen_sleep(mensaje_split[1], mensaje_split[2], mensaje_split[3]);
             }
             if (strcmp(mensaje_split[0], "IO_STDIN_READ") == 0)
             {   
+                sem_wait(&llegada_desalojo_io);
+                log_info(logger, "PID: %s - Bloqueado por: %s", mensaje_split[2], mensaje_split[1]);
                 io_stdin_read(mensaje_split[1], mensaje_split[2], buffer);
             }
             if (strcmp(mensaje_split[0], "IO_STDOUT_WRITE") == 0)
-            {
+            {   
+                sem_wait(&llegada_desalojo_io);
+                log_info(logger, "PID: %s - Bloqueado por: %s", mensaje_split[2], mensaje_split[1]);
                 io_stdout_write(mensaje_split[1], mensaje_split[2], buffer);
             }
             if (strcmp(mensaje_split[0], "IO_FS_CREATE") == 0)
-            {
+            {   
+                sem_wait(&llegada_desalojo_io);
+                log_info(logger, "PID: %s - Bloqueado por: %s", mensaje_split[3], mensaje_split[1]);
                 io_fs_create(mensaje_split[1], mensaje_split[2], mensaje_split[3]);
             }
             if (strcmp(mensaje_split[0], "IO_FS_DELETE") == 0)
-            {
+            {   
+                sem_wait(&llegada_desalojo_io);
+                log_info(logger, "PID: %s - Bloqueado por: %s", mensaje_split[3], mensaje_split[1]);
                 io_fs_delete(mensaje_split[1], mensaje_split[2], mensaje_split[3]);
             }
             if (strcmp(mensaje_split[0], "IO_FS_TRUNCATE") == 0)
-            {
+            {   
+                sem_wait(&llegada_desalojo_io);
+                log_info(logger, "PID: %s - Bloqueado por: %s", mensaje_split[4], mensaje_split[1]);
                 io_fs_truncate(mensaje_split[1], mensaje_split[2], mensaje_split[3], mensaje_split[4]);
             }
             if (strcmp(mensaje_split[0], "IO_FS_WRITE") == 0)
-            {
+            {   
+                sem_wait(&llegada_desalojo_io);
+                log_info(logger, "PID: %s - Bloqueado por: %s", mensaje_split[4], mensaje_split[1]);
                 io_fs_write(mensaje_split[1], mensaje_split[2], mensaje_split[3], mensaje_split[4], buffer);
             }
             if (strcmp(mensaje_split[0], "IO_FS_READ") == 0)
-            {
+            {   
+                sem_wait(&llegada_desalojo_io);
+                log_info(logger, "PID: %s - Bloqueado por: %s", mensaje_split[4], mensaje_split[1]);
                 io_fs_read(mensaje_split[1], mensaje_split[2], mensaje_split[3], mensaje_split[4], buffer);
             }
             if (strcmp(mensaje_split[0], "CONECTAR_INTERFAZ") == 0)
@@ -104,6 +120,7 @@ void atender_cliente_kernel(int socket_cliente)
                 sem_wait(&sem_array_estados[2].contador);
                 list_remove(QUEUE_RUNNING, 0);
                 list_add(QUEUE_TERMINATED, pcb_deserealizado->pcb);
+                log_info(logger, "PID: %d - Estado Anterior: RUNNING - Estado Actual: TERMINATED", pcb_deserealizado->pcb->pid);
                 sem_post(&sem_array_estados[4].contador);
                 sem_post(&sem_array_estados[4].mutex);
                 sem_post(&sem_array_estados[2].mutex);
@@ -121,7 +138,11 @@ void atender_cliente_kernel(int socket_cliente)
                 sem_wait(&sem_array_estados[2].contador);
                 list_remove(QUEUE_RUNNING, 0);
                 list_add(QUEUE_READY, pcb_deserealizado->pcb);
-                
+                log_info(logger, "PID: %d - Desalojado por fin de Quantum", pcb_deserealizado->pcb->pid);
+                log_info(logger, "PID: %d - Estado Anterior: RUNNING - Estado Actual: READY", pcb_deserealizado->pcb->pid);
+                char* pids = string_new();
+                generar_lista_pids(&pids, "QUEUE_READY");
+                log_info(logger, "Cola Ready: %s", pids);
                 sem_post(&sem_array_estados[1].mutex);
                 sem_post(&sem_array_estados[2].mutex);
                 sem_post(&sem_array_estados[1].contador);
@@ -134,19 +155,20 @@ void atender_cliente_kernel(int socket_cliente)
                 sem_wait(&sem_array_estados[2].mutex);
                 sem_wait(&sem_array_estados[2].contador);
                 list_remove(QUEUE_RUNNING, 0);
-                printf("PID DEL PCB DESEREALIZADO %d\n", pcb_deserealizado->pcb->pid);
+                printf("PID DEL PCB DESEREALIZADO %d\n", pcb_deserealizado->pcb->pid);//Sacar despues 
                 list_add(QUEUE_BLOCKED, pcb_deserealizado->pcb);
-                
+                log_info(logger, "PID: %d - Estado Anterior: RUNNING - Estado Actual: BLOCKED", pcb_deserealizado->pcb->pid);
                 sem_post(&sem_array_estados[2].mutex);
                 sem_post(&sem_array_estados[3].mutex);
                 sem_post(&sem_array_estados[3].contador);
                 sem_post(&sem_multiprocesamiento);
+                sem_post(&llegada_desalojo_io);
             }
             if (string_starts_with(pcb_deserealizado->motivo, "SIGNAL"))
             {
                 char **motivo_signal = string_split(pcb_deserealizado->motivo, " ");
 
-                signal_instruccion(motivo_signal[1], pcb_deserealizado->pcb->pid);
+                signal_instruccion(motivo_signal[1], pcb_deserealizado->pcb);
 
                 sem_post(&sem_multiprocesamiento);
             }
@@ -154,7 +176,7 @@ void atender_cliente_kernel(int socket_cliente)
             {
                 char **motivo_wait = string_split(pcb_deserealizado->motivo, " ");
 
-                wait_instruccion(motivo_wait[1], pcb_deserealizado->pcb->pid);
+                wait_instruccion(motivo_wait[1], pcb_deserealizado->pcb);
 
                 sem_post(&sem_multiprocesamiento);
             }
@@ -252,8 +274,7 @@ void io_gen_sleep(char *interfaz, char *unidad_tiempo, char *pid)
     }
     else
     {
-        // Momentaneamente se usa sin finalizar proceso
-        finalizar_proceso(pid, socket_cpu_interrupt, socket_memoria);
+        finalizar_proceso_invalido(pid, socket_cpu_interrupt, socket_memoria, "INVALID_INTERFACE");
     }
 }
 
@@ -282,8 +303,7 @@ void io_stdin_read(char *interfaz, char *pid, char* buffer)
     }
     else
     {
-        // Momentaneamente se usa sin finalizar proceso
-        finalizar_proceso(pid, socket_cpu_interrupt, socket_memoria);
+        finalizar_proceso_invalido(pid, socket_cpu_interrupt, socket_memoria, "INVALID_INTERFACE");
     }
 }
 
@@ -309,8 +329,7 @@ void io_stdout_write(char *interfaz, char *pid, char* buffer)
     }
     else
     {
-        // Momentaneamente se usa sin finalizar proceso
-        finalizar_proceso(pid, socket_cpu_interrupt, socket_memoria);
+        finalizar_proceso_invalido(pid, socket_cpu_interrupt, socket_memoria, "INVALID_INTERFACE");
     }
 }
 
@@ -340,7 +359,7 @@ void io_fs_create(char *interfaz, char *nombre_archivo, char *pid)
     else
     {
         
-        finalizar_proceso(pid, socket_cpu_interrupt, socket_memoria);
+        finalizar_proceso_invalido(pid, socket_cpu_interrupt, socket_memoria, "INVALID_INTERFACE");
     }
 }
 
@@ -369,8 +388,7 @@ void io_fs_delete(char *interfaz, char *nombre_archivo, char *pid)
     }
     else
     {
-        // Momentaneamente se usa sin finalizar proceso
-        finalizar_proceso(pid, socket_cpu_interrupt, socket_memoria);
+        finalizar_proceso_invalido(pid, socket_cpu_interrupt, socket_memoria, "INVALID_INTERFACE");
     }
 }
 
@@ -401,8 +419,7 @@ void io_fs_truncate(char *interfaz, char *nombre_archivo, char *tamanio_a_trunca
     }
     else
     {
-        // Momentaneamente se usa sin finalizar proceso
-        finalizar_proceso(pid, socket_cpu_interrupt, socket_memoria);
+        finalizar_proceso_invalido(pid, socket_cpu_interrupt, socket_memoria, "INVALID_INTERFACE");
     }
 }
 
@@ -428,8 +445,7 @@ void io_fs_write(char *interfaz, char *nombre_archivo, char *puntero_archivo, ch
     }
     else
     {
-        // Momentaneamente se usa sin finalizar proceso
-        finalizar_proceso(pid, socket_cpu_interrupt, socket_memoria);
+        finalizar_proceso_invalido(pid, socket_cpu_interrupt, socket_memoria, "INVALID_INTERFACE");
     }
 }
 
@@ -455,8 +471,7 @@ void io_fs_read(char *interfaz, char *nombre_archivo, char *puntero_archivo, cha
     }
     else
     {
-        // Momentaneamente se usa sin finalizar proceso
-        finalizar_proceso(pid, socket_cpu_interrupt, socket_memoria);
+        finalizar_proceso_invalido(pid, socket_cpu_interrupt, socket_memoria, "INVALID_INTERFACE");
     }
 }
 
@@ -488,6 +503,10 @@ void liberar_interfaz(char *interfaz, char *pid)
     {
         sem_wait(&sem_array_estados[5].mutex);
         list_add(QUEUE_READY_PLUS, pcb_encontrado);
+        log_info(logger, "PID: %d - Estado Anterior: BLOCKED - Estado Actual: READY_PLUS", pcb_encontrado->pid);
+        char* pids = string_new();
+        generar_lista_pids(&pids, "QUEUE_READY_PLUS");
+        log_info(logger, "Cola Ready Prioridad: %s", pids);
         sem_post(&sem_array_estados[5].mutex);
         sem_post(&sem_array_estados[5].contador);
     }
@@ -495,6 +514,10 @@ void liberar_interfaz(char *interfaz, char *pid)
     {
         sem_wait(&sem_array_estados[1].mutex);
         list_add(QUEUE_READY, pcb_encontrado);
+        log_info(logger, "PID: %d - Estado Anterior: BLOCKED - Estado Actual: READY", pcb_encontrado->pid);
+        char* pids = string_new();
+        generar_lista_pids(&pids, "QUEUE_READY");
+        log_info(logger, "Cola Ready: %s", pids);
         sem_post(&sem_array_estados[1].mutex);
         sem_post(&sem_array_estados[1].contador);
     }
@@ -594,4 +617,115 @@ void liberar_recursos(int pid)
             }
         }
     }
+}
+
+void finalizar_proceso_invalido(int pid, int socket_cpu_interrupt, int socket_cliente_memoria, char* motivo_finalizacion){
+
+    sem_wait(&llegada_desalojo_io);
+    pcb_t *encontrado = malloc(sizeof(pcb_t));
+    encontrado->reg_generales = malloc(sizeof(registros_t));
+    encontrado = NULL;
+
+    bool _es_pid_buscado(void *elemento)
+    {
+        return es_pid_buscado(pid, elemento);
+    }
+    sem_wait(&sem_array_estados[0].mutex);
+    sem_wait(&sem_array_estados[1].mutex);
+    sem_wait(&sem_array_estados[2].mutex);
+    sem_wait(&sem_array_estados[3].mutex);
+    sem_wait(&sem_array_estados[4].mutex);
+    sem_wait(&sem_array_estados[5].mutex);
+    encontrado = list_remove_by_condition(QUEUE_NEW, _es_pid_buscado);
+    if (encontrado != NULL)
+    {   
+        list_add(QUEUE_TERMINATED, encontrado);
+        sem_post(&sem_array_estados[4].contador);
+        sem_wait(&sem_array_estados[0].contador);
+        log_info(logger, "PID: %d - Estado Anterior: NEW - Estado Actual: TERMINATED", pid);
+    }
+    encontrado = NULL;
+    encontrado = list_remove_by_condition(QUEUE_READY, _es_pid_buscado);
+    if (encontrado != NULL)
+    {   
+        list_add(QUEUE_TERMINATED, encontrado);
+        sem_post(&sem_array_estados[4].contador);
+        sem_wait(&sem_array_estados[1].contador);
+        sem_post(&sem_grado_multiprog);
+        log_info(logger, "PID: %d - Estado Anterior: READY - Estado Actual: TERMINATED", pid);
+    }
+    encontrado = NULL;
+    encontrado = list_remove_by_condition(QUEUE_RUNNING, _es_pid_buscado);
+    if (encontrado != NULL)
+    {
+        char *mensaje = string_new();
+        string_append(&mensaje, "EXIT ");
+        string_append(&mensaje, string_itoa(pid));
+        enviar_mensaje(mensaje, socket_cpu_interrupt);
+    }
+    encontrado = NULL;
+    encontrado = list_remove_by_condition(QUEUE_BLOCKED, _es_pid_buscado);
+    if (encontrado != NULL)
+    {   
+        list_add(QUEUE_TERMINATED, encontrado);
+        sem_post(&sem_array_estados[4].contador);
+        sem_wait(&sem_array_estados[3].contador);
+        sem_post(&sem_grado_multiprog);
+        log_info(logger, "PID: %d - Estado Anterior: BLOCKED - Estado Actual: TERMINATED", pid);
+    }
+    encontrado = NULL;
+    encontrado = list_remove_by_condition(QUEUE_TERMINATED, _es_pid_buscado);
+    if (encontrado != NULL)
+    {
+        //sem_wait(&sem_array_estados[4].contador);
+    }
+    encontrado = NULL;
+    encontrado = list_remove_by_condition(QUEUE_READY_PLUS, _es_pid_buscado);
+    if (encontrado != NULL)
+    {   
+        list_add(QUEUE_TERMINATED, encontrado);
+        sem_post(&sem_array_estados[4].contador);
+        sem_wait(&sem_array_estados[5].contador);
+        sem_post(&sem_grado_multiprog);
+        log_info(logger, "PID: %d - Estado Anterior: READY_PLUS - Estado Actual: TERMINATED", pid);
+    }
+    sem_post(&sem_array_estados[0].mutex);
+    sem_post(&sem_array_estados[1].mutex);
+    sem_post(&sem_array_estados[2].mutex);
+    sem_post(&sem_array_estados[3].mutex);
+    sem_post(&sem_array_estados[4].mutex);
+    sem_post(&sem_array_estados[5].mutex);
+    liberar_recursos(pid);
+    char *mensaje = string_new();
+    string_append(&mensaje, "EXIT ");
+    string_append(&mensaje, string_itoa(pid));
+    enviar_mensaje(mensaje, socket_cliente_memoria);
+    log_info(logger, "Finaliza el proceso %d - Motivo: %s", pid, motivo_finalizacion);
+    sem_post(&llegada_desalojo_io);
+}
+
+void generar_lista_pids(char** lista_pids, char* nombre_lista){
+
+    string_append(&lista_pids,"[");
+    if(strcmp(nombre_lista, "QUEUE_READY") == 0){
+        for (int i = 0; i < list_size(QUEUE_READY); i++)
+        {   
+            pcb_t* aux = list_get(QUEUE_READY, i);
+            string_append(&lista_pids, string_itoa(aux->pid));
+            if(i != (list_size(QUEUE_READY)-1)){
+                string_append(&lista_pids, ", ");
+            }
+        }
+        
+    }else if(strcmp(nombre_lista, "QUEUE_READY_PLUS") == 0){
+        for (int i = 0; i < list_size(QUEUE_READY_PLUS); i++)
+        {   
+            pcb_t* aux = list_get(QUEUE_READY, i);
+            string_append(&lista_pids, string_itoa(aux->pid));
+            if(i != (list_size(QUEUE_READY_PLUS)-1)){
+                string_append(&lista_pids, ", ");
+            }
+        }
+    }
+    string_append(&lista_pids,"]");
 }

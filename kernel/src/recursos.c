@@ -35,7 +35,7 @@ bool existe_recurso(char *nombre_recurso)
     return existe;
 }
 
-void wait_instruccion(char *nombre_recurso, int pid)
+void wait_instruccion(char *nombre_recurso, pcb_t* pcb_recibido)
 {
     if (existe_recurso(nombre_recurso))
     {
@@ -48,39 +48,55 @@ void wait_instruccion(char *nombre_recurso, int pid)
         recurso_t *recurso = list_find(lista_recursos, _es_recurso_buscado);
 
         sem_wait(&recurso->mutex_recurso);
-        list_add(recurso->procesos_asignados_al_recurso, pid);
+        list_add(recurso->procesos_asignados_al_recurso, pcb_recibido->pid);
         recurso->instancias--;
         if (recurso->instancias < 0)
         {
-            list_add(recurso->procesos_bloqueados, pid);
-            bloquear_proceso(pid);
+            list_add(recurso->procesos_bloqueados, pcb_recibido->pid);
+            bloquear_proceso(pcb_recibido);
+            log_info(logger, "PID: %s - Bloqueado por: %s", pcb_recibido->pid, nombre_recurso);
         }
         else
         {
             sem_wait(&sem_array_estados[2].contador);
             sem_wait(&sem_array_estados[2].mutex);
-            sem_wait(&sem_array_estados[1].mutex);
             pcb_t *aux = list_remove(QUEUE_RUNNING, 0);
-            list_add_in_index(QUEUE_READY, 0, aux);
-            sem_post(&sem_array_estados[1].mutex);
+            if (strcmp(algoritmo,"VRR")==0){
+                sem_wait(&sem_array_estados[5].mutex);
+                list_add_in_index(QUEUE_READY_PLUS, 0, aux);
+                log_info(logger, "PID: %d - Estado Anterior: RUNNING - Estado Actual: READY_PLUS", aux->pid);
+                char* pids = string_new();
+                generar_lista_pids(&pids, "QUEUE_READY_PLUS");
+                log_info(logger, "Cola Ready Prioridad: %s", pids);
+                sem_post(&sem_array_estados[5].contador);
+                sem_post(&sem_array_estados[5].mutex);
+            }else{
+                sem_wait(&sem_array_estados[1].mutex);
+                list_add_in_index(QUEUE_READY, 0, aux);
+                log_info(logger, "PID: %d - Estado Anterior: RUNNING - Estado Actual: READY", aux->pid);
+                char* pids = string_new();
+                generar_lista_pids(&pids, "QUEUE_READY");
+                log_info(logger, "Cola Ready: %s", pids);
+                sem_post(&sem_array_estados[1].contador);
+                sem_post(&sem_array_estados[1].mutex);
+            }
             sem_post(&sem_array_estados[2].mutex);
-            sem_post(&sem_array_estados[1].contador);
         }
 
         sem_post(&recurso->mutex_recurso);
     }
     else
     {
-        finalizar_proceso(pid, socket_cpu_interrupt, socket_memoria);
+        finalizar_proceso_invalido(pcb_recibido->pid, socket_cpu_interrupt, socket_memoria, "INVALID_RESOURCE");
     }
 }
 
-void signal_instruccion(char *nombre_recurso, int pid)
+void signal_instruccion(char *nombre_recurso, pcb_t* pcb_recibido)
 {
 
     bool _es_entero_buscado_recurso(void *elemento)
     {
-        return es_entero_buscado_recurso(pid, elemento);
+        return es_entero_buscado_recurso(pcb_recibido->pid, elemento);
     }
 
     if (existe_recurso(nombre_recurso))
@@ -109,7 +125,11 @@ void signal_instruccion(char *nombre_recurso, int pid)
             sem_wait(&sem_array_estados[5].mutex);
             sem_wait(&sem_array_estados[2].contador);
             aux = list_remove(QUEUE_RUNNING, 0);
-            list_add_in_index(QUEUE_READY_PLUS, 0, aux);
+            list_add_in_index(QUEUE_READY_PLUS, 0, pcb_recibido);
+            log_info(logger, "PID: %d - Estado Anterior: RUNNING - Estado Actual: READY_PLUS", pcb_recibido->pid);
+            char* pids = string_new();
+            generar_lista_pids(&pids, "QUEUE_READY_PLUS");
+            log_info(logger, "Cola Ready Prioridad: %s", pids);
             sem_post(&sem_array_estados[5].contador);
             sem_post(&sem_array_estados[5].mutex);
             sem_post(&sem_array_estados[2].mutex);
@@ -120,7 +140,11 @@ void signal_instruccion(char *nombre_recurso, int pid)
             sem_wait(&sem_array_estados[1].mutex);
             sem_wait(&sem_array_estados[2].contador);
             aux = list_remove(QUEUE_RUNNING, 0);
-            list_add_in_index(QUEUE_READY, 0, aux);
+            list_add_in_index(QUEUE_READY, 0, pcb_recibido);
+            log_info(logger, "PID: %d - Estado Anterior: RUNNING - Estado Actual: READY", pcb_recibido->pid);
+            char* pids = string_new();
+            generar_lista_pids(&pids, "QUEUE_READY");
+            log_info(logger, "Cola Ready: %s", pids);
             sem_post(&sem_array_estados[1].contador);
             sem_post(&sem_array_estados[1].mutex);
             sem_post(&sem_array_estados[2].mutex);
@@ -130,7 +154,7 @@ void signal_instruccion(char *nombre_recurso, int pid)
     }
     else
     {
-        finalizar_proceso(pid, socket_cpu_interrupt, socket_memoria);
+        finalizar_proceso_invalido(pcb_recibido->pid, socket_cpu_interrupt, socket_memoria, "INVALID_RESOURCE");
     }
 }
 
@@ -158,28 +182,45 @@ void desbloquear_proceso(int pid)
         return es_pid_buscado_recurso(pid, elemento);
     }
 
+    
     sem_wait(&sem_array_estados[3].mutex);
     sem_wait(&sem_array_estados[1].mutex);
+    sem_wait(&sem_array_estados[5].mutex);
     sem_wait(&sem_array_estados[3].contador);
     pcb_t *aux = list_remove_by_condition(QUEUE_BLOCKED, _es_pid_buscado);
-    list_add(QUEUE_READY, aux);
-    sem_post(&sem_array_estados[1].contador);
+    if (strcmp(algoritmo,"VRR")==0 && aux->quantum > 0){
+        list_add(QUEUE_READY_PLUS, aux);
+        log_info(logger, "PID: %d - Estado Anterior: BLOCKED - Estado Actual: READY_PLUS", aux->pid);
+        char* pids = string_new();
+        generar_lista_pids(&pids, "QUEUE_READY_PLUS");
+        log_info(logger, "Cola Ready Prioridad: %s", pids);
+        sem_post(&sem_array_estados[5].contador);
+    }else{
+        list_add(QUEUE_READY, aux);
+        log_info(logger, "PID: %d - Estado Anterior: BLOCKED - Estado Actual: READY", aux->pid);
+        char* pids = string_new();
+        generar_lista_pids(&pids, "QUEUE_READY");
+        log_info(logger, "Cola Ready: %s", pids);
+        sem_post(&sem_array_estados[1].contador);
+    }
+    sem_post(&sem_array_estados[5].mutex);
     sem_post(&sem_array_estados[1].mutex);
     sem_post(&sem_array_estados[3].mutex);
 }
 
-void bloquear_proceso(int pid)
+void bloquear_proceso(pcb_t* pcb_recibido)
 {
     bool _es_pid_buscado(void *elemento)
     {
-        return es_pid_buscado_recurso(pid, elemento);
+        return es_pid_buscado_recurso(pcb_recibido->pid, elemento);
     }
 
     sem_wait(&sem_array_estados[3].mutex);
     sem_wait(&sem_array_estados[2].mutex);
     sem_wait(&sem_array_estados[2].contador);
     pcb_t *aux = list_remove_by_condition(QUEUE_RUNNING, _es_pid_buscado);
-    list_add(QUEUE_BLOCKED, aux);
+    list_add(QUEUE_BLOCKED, pcb_recibido);
+    log_info(logger, "PID: %d - Estado Anterior: RUNNING - Estado Actual: BLOQUED", pcb_recibido->pid);
     sem_post(&sem_array_estados[3].contador);
     sem_post(&sem_array_estados[2].mutex);
     sem_post(&sem_array_estados[3].mutex);

@@ -241,3 +241,12 @@ char* iterar_lista_mensaje(t_list* lista, int dir_logica, int tamanio){
     
     return mensaje;
 }
+
+char* convertir_void_a_char(int tamanio, void* valor_a_convertir){
+
+    char* aux =malloc(tamanio+1);
+    memcpy(aux, valor_a_convertir, tamanio);
+    aux[tamanio + 1] = '\0'; 
+
+    return aux;
+}

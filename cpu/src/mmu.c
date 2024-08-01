@@ -79,8 +79,10 @@ int obtener_marco(int pid, int numero_pagina, int socket_cliente, char * algorit
     entrada = obtener_entrada(pid, numero_pagina);
 
     if(entrada->marco != -1){
+        log_info(logger, "PID: %d - TLB HIT - Pagina: %d", pid, numero_pagina);
         return (entrada->marco);
     }else{
+        log_info(logger, "PID: %d - TLB MISS - Pagina: %d", pid, numero_pagina);
         char* mensaje_memoria = string_new();
         string_append(&mensaje_memoria, "OBTENER_MARCO ");
         string_append(&mensaje_memoria, string_itoa(pid));
@@ -103,6 +105,7 @@ int obtener_marco(int pid, int numero_pagina, int socket_cliente, char * algorit
         entrada->pagina = numero_pagina;
         entrada->marco = numero_marco;
         time(&entrada->timestamp);
+        log_info(logger, "PID: %d - OBTENER MARCO - Pagina: %d - Marco: %d", pid, numero_pagina, numero_marco);
 
         if(strcmp(algoritmo_tlb, "FIFO") == 0){
             remplazar_por_fifo(tamanio_tlb, entrada);

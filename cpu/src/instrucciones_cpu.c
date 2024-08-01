@@ -69,9 +69,9 @@ void ejecutarSentencia(int socket_kernel, int socket_cliente_memoria)
     if (strcmp(sentenciasSplit[0], "COPY_STRING") == 0)
         copy_string(sentenciasSplit[1], socket_cliente_memoria);
     if (strcmp(sentenciasSplit[0], "WAIT") == 0)
-        wait();
+        wait(sentenciasSplit[1]);
     if (strcmp(sentenciasSplit[0], "SIGNAL") == 0)
-        signal_instruccion();
+        signal_instruccion(sentenciasSplit[1]);
     if (strcmp(sentenciasSplit[0], "IO_GEN_SLEEP") == 0)
         io_gen_sleep(sentenciasSplit[1], sentenciasSplit[2], socket_kernel);
     if (strcmp(sentenciasSplit[0], "IO_STDIN_READ") == 0)
@@ -133,7 +133,7 @@ void set(char *registro, char *valor)
     default:
         break;
     }
-    log_info(logger, "Se ejecuto la instrucción SET con los parametros registro %s y valor %s", registro, valor);
+    log_info(logger, "PID: %d - Ejecutando: SET - %s %s", contexto->pid, registro, valor);
 }
 
 void sum(char *registroDestino, char *registroOrigen)
@@ -583,7 +583,7 @@ void sum(char *registroDestino, char *registroOrigen)
     default:
         break;
     }
-    log_info(logger, "Se ejecuto la instrucción SUM con los parametros registro destino %s y registro origen %s", registroDestino, registroOrigen);
+    log_info(logger, "PID: %d - Ejecutando: SUM - %s %s", contexto->pid, registroDestino, registroOrigen);
 }
 
 void sub(char *registroDestino, char *registroOrigen)
@@ -1033,7 +1033,7 @@ void sub(char *registroDestino, char *registroOrigen)
     default:
         break;
     }
-    log_info(logger, "Se ejecuto la instrucción SUB con los parametros registro destino %s y registro origen %s", registroDestino, registroOrigen);
+    log_info(logger, "PID: %d - Ejecutando: SUB - %s %s", contexto->pid,registroDestino, registroOrigen);
 }
 
 void jnz(char *registro, char *instruccion)
@@ -1088,7 +1088,7 @@ void jnz(char *registro, char *instruccion)
     default:
         break;
     }
-    log_info(logger, "Se ejecuto la instrucción JNZ con los parametros registro %s e instrucción %s", registro, instruccion);
+    log_info(logger, "PID: %d - Ejecutando: JNZ - %s %s", contexto->pid, registro, instruccion);
 }
 
 void io_gen_sleep(char *interfaz, char *unidadesDeTrabajo, int socket_kernel)
@@ -1113,7 +1113,7 @@ void io_gen_sleep(char *interfaz, char *unidadesDeTrabajo, int socket_kernel)
     string_append(&mensaje, " ");
     string_append(&mensaje, string_itoa(contexto->pid));
     enviar_mensaje(mensaje, socket_kernel);
-    log_info(logger, "Se ejecuto la instrucción IO_GEN_SLEEP con los parametros interfaz %s y unidades de trabajo %s", interfaz, unidadesDeTrabajo);
+    log_info(logger, "PID: %d - Ejecutando: IO_GEN_SLEEP - %s %s", contexto->pid, interfaz, unidadesDeTrabajo);
 }
 
 void io_stdin_read(char *interfaz, char *registro_direccion, char *registro_tamanio, int socket_kernel)
@@ -1140,7 +1140,7 @@ void io_stdin_read(char *interfaz, char *registro_direccion, char *registro_tama
     char* marcos = iterar_lista_mensaje(lista_marcos,direccion,tamanio);
     string_append(&mensaje, marcos);
     enviar_mensaje(mensaje, socket_kernel);
-    log_info(logger, "Se ejecuto la instrucción IO_STDIN_READ con los parametros interfaz %s , direccion %d , tamanio %d y pid %d", interfaz, direccion, tamanio, contexto->pid);
+    log_info(logger, "PID: %d - Ejecutando: IO_STDIN_READ - %s %s %s", contexto->pid, interfaz, registro_direccion, registro_tamanio);
 }
 
 void io_stdout_write(char *interfaz, char *registro_direccion, char *registro_tamanio, int socket_kernel)
@@ -1167,7 +1167,7 @@ void io_stdout_write(char *interfaz, char *registro_direccion, char *registro_ta
     char* marcos = iterar_lista_mensaje(lista_marcos,direccion,tamanio);
     string_append(&mensaje, marcos);
     enviar_mensaje(mensaje, socket_kernel);
-    log_info(logger, "Se ejecuto la instrucción IO_STDOUT_WRITE con los parametros interfaz %s , direccion %d , tamanio %d y pid %d", interfaz, direccion, tamanio, contexto->pid);
+    log_info(logger, "PID: %d - Ejecutando: IO_STDOUT_WRITE - %s %s %s", contexto->pid, interfaz, registro_direccion, registro_tamanio);
 }
 
 void exit_inst(int socket_kernel)
@@ -1182,6 +1182,7 @@ void exit_inst(int socket_kernel)
     {
         contexto->quantum = contexto->quantum - (int)tiempo_transcurrido;
     }
+    log_info(logger, "PID: %d - Ejecutando: EXIT", contexto->pid);
 }
 
 void mov_in(char *registro_dato, char *registro_direccion, int socket_cliente_memoria)
@@ -1210,6 +1211,8 @@ void mov_in(char *registro_dato, char *registro_direccion, int socket_cliente_me
                 void *resultado = malloc(tamanio_lectura);
                 resultado = recibir_desde_memoria(socket_cliente_memoria);
                 memcpy(valor_leido, resultado, tamanio_lectura);
+                char* valor_mostrar = convertir_void_a_char(tamanio_lectura, resultado);
+                log_info(logger, "PID: %d - Acción: LEER - Dirección Física: %d - Valor: %s", contexto->pid, dir_fisica, valor_mostrar);
             }
             else if (i > 0 && i < (list_size(lista_marcos) - 1))
             {
@@ -1223,6 +1226,8 @@ void mov_in(char *registro_dato, char *registro_direccion, int socket_cliente_me
                 resultado = recibir_desde_memoria(socket_cliente_memoria);
                 int aux = (tamanio_pagina - offset) + (tamanio_pagina * (i - 1));
                 memcpy(valor_leido + aux, resultado, tamanio_lectura);
+                char* valor_mostrar = convertir_void_a_char(tamanio_lectura, resultado);
+                log_info(logger, "PID: %d - Acción: LEER - Dirección Física: %d - Valor: %s", contexto->pid, dir_fisica, valor_mostrar);
             }
             else if (i == (list_size(lista_marcos) - 1))
             {
@@ -1235,6 +1240,8 @@ void mov_in(char *registro_dato, char *registro_direccion, int socket_cliente_me
                 resultado = recibir_desde_memoria(socket_cliente_memoria);
                 int aux = tamanio_registro - tamanio_lectura;
                 memcpy(valor_leido + aux, resultado, tamanio_lectura);
+                char* valor_mostrar = convertir_void_a_char(tamanio_lectura, resultado);
+                log_info(logger, "PID: %d - Acción: LEER - Dirección Física: %d - Valor: %s", contexto->pid, dir_fisica, valor_mostrar);
             }
         }
     }
@@ -1246,62 +1253,70 @@ void mov_in(char *registro_dato, char *registro_direccion, int socket_cliente_me
         mensaje = generar_mensaje_lectura(dir_fisica, tamanio_lectura);
         enviar_mensaje(mensaje, socket_cliente_memoria);
         valor_leido = recibir_desde_memoria(socket_cliente_memoria);
+        char* valor_mostrar = convertir_void_a_char(tamanio_lectura, valor_leido);
+        log_info(logger, "PID: %d - Acción: LEER - Dirección Física: %d - Valor: %s", contexto->pid, dir_fisica, valor_mostrar);
     }
 
     set_valor_registro(registro_dato, valor_leido);
+    log_info(logger, "PID: %d - Ejecutando: MOV_IN - %s %s", contexto->pid, registro_dato, registro_direccion);
 }
 
 void mov_out(char *registro_direccion, char *registro_dato, int socket_cliente_memoria)
 {
     int valor_registro = get_valor_registro(registro_direccion);
+    int valor_registro_dato = get_valor_registro(registro_dato);
     int num_pag = calcular_num_pagina(valor_registro);
     int tamanio_registro = get_tamanio_registro(registro_dato);
     int bytes_hasta_final = tamanio_registro;
     int offset = calcular_desplazamiento(valor_registro, num_pag);
     char *mensaje = string_new();
-    void *valor_leido = malloc(tamanio_registro);
     if (list_size(lista_marcos) > 1)
     {
         for (int i = 0; i < list_size(lista_marcos); i++)
         {
             int dir_fisica;
-            int tamanio_lectura;
+            int tamanio_escritura;
             if (i == 0)
             {
                 int marco = list_get(lista_marcos, i);
                 bytes_hasta_final = bytes_hasta_final - (tamanio_pagina - offset);
                 dir_fisica = (marco * tamanio_pagina) + offset;
-                tamanio_lectura = tamanio_pagina - offset;
-                mensaje = generar_mensaje_lectura(dir_fisica, tamanio_lectura);
+                tamanio_escritura = tamanio_pagina - offset;//escritura
+                void* valor_a_escribir = malloc(tamanio_escritura);
+                memcpy(valor_a_escribir, valor_registro_dato, tamanio_escritura);
+                mensaje = generar_mensaje_escritura(dir_fisica, tamanio_escritura, valor_a_escribir);
                 enviar_mensaje(mensaje, socket_cliente_memoria);
-                void *resultado = malloc(tamanio_lectura);
-                resultado = recibir_desde_memoria(socket_cliente_memoria);
-                memcpy(valor_leido, resultado, tamanio_lectura);
+                char* resultado = recibir_desde_memoria(socket_cliente_memoria);
+                char* valor_mostrar = convertir_void_a_char(tamanio_escritura, valor_a_escribir);
+                log_info(logger, "PID: %d - Acción: ESCRIBIR - Dirección Física: %d - Valor: %s", contexto->pid, dir_fisica, valor_mostrar);
             }
             else if (i > 0 && i < (list_size(lista_marcos) - 1))
             {
                 int marco = list_get(lista_marcos, i);
-                bytes_hasta_final = bytes_hasta_final - tamanio_pagina;
                 dir_fisica = (marco * tamanio_pagina);
-                tamanio_lectura = tamanio_pagina;
-                mensaje = generar_mensaje_lectura(dir_fisica, tamanio_lectura);
+                tamanio_escritura = tamanio_pagina;
+                void* valor_a_escribir = malloc(tamanio_escritura);
+                memcpy(valor_a_escribir, valor_registro_dato+tamanio_registro-bytes_hasta_final, tamanio_escritura);
+                bytes_hasta_final = bytes_hasta_final - tamanio_pagina;
+                mensaje = generar_mensaje_escritura(dir_fisica, tamanio_escritura, valor_a_escribir);
                 enviar_mensaje(mensaje, socket_cliente_memoria);
-                void *resultado = malloc(tamanio_lectura);
-                resultado = recibir_desde_memoria(socket_cliente_memoria);
-                int aux = (tamanio_pagina - offset) + (tamanio_pagina * (i - 1));
-                memcpy(valor_leido + aux, resultado, tamanio_lectura);
+                char* resultado = recibir_desde_memoria(socket_cliente_memoria);
+                char* valor_mostrar = convertir_void_a_char(tamanio_escritura, valor_a_escribir);
+                log_info(logger, "PID: %d - Acción: ESCRIBIR - Dirección Física: %d - Valor: %s", contexto->pid, dir_fisica, valor_mostrar);
             }
             else if (i == (list_size(lista_marcos) - 1))
             {
                 int marco = list_get(lista_marcos, i);
                 dir_fisica = (marco * tamanio_pagina);
-                tamanio_lectura = bytes_hasta_final;
-                mensaje = generar_mensaje_lectura(dir_fisica, tamanio_lectura);
+                tamanio_escritura = bytes_hasta_final;
+                void* valor_a_escribir = malloc(tamanio_escritura);
+                memcpy(valor_a_escribir, valor_registro_dato+tamanio_registro-bytes_hasta_final, tamanio_escritura);
+                bytes_hasta_final = bytes_hasta_final - bytes_hasta_final;
+                mensaje = generar_mensaje_escritura(dir_fisica, tamanio_escritura, valor_a_escribir);
                 enviar_mensaje(mensaje, socket_cliente_memoria);
-                void *resultado = malloc(tamanio_lectura);
-                resultado = recibir_desde_memoria(socket_cliente_memoria);
-                int aux = tamanio_registro - tamanio_lectura;
-                memcpy(valor_leido + aux, resultado, tamanio_lectura);
+                char* resultado = recibir_desde_memoria(socket_cliente_memoria);
+                char* valor_mostrar = convertir_void_a_char(tamanio_escritura, valor_a_escribir);
+                log_info(logger, "PID: %d - Acción: ESCRIBIR - Dirección Física: %d - Valor: %s", contexto->pid, dir_fisica, valor_mostrar);
             }
         }
     }
@@ -1309,11 +1324,16 @@ void mov_out(char *registro_direccion, char *registro_dato, int socket_cliente_m
     {
         int marco = list_get(lista_marcos, 0);
         int dir_fisica = (marco * tamanio_pagina) + offset;
-        int tamanio_lectura = bytes_hasta_final;
-        mensaje = generar_mensaje_lectura(dir_fisica, tamanio_lectura);
+        int tamanio_escritura = bytes_hasta_final;
+        void* valor_a_escribir = malloc(tamanio_escritura);
+        memcpy(valor_a_escribir, valor_registro_dato, tamanio_escritura);
+        mensaje = generar_mensaje_escritura(dir_fisica, tamanio_escritura, valor_a_escribir);
         enviar_mensaje(mensaje, socket_cliente_memoria);
-        valor_leido = recibir_desde_memoria(socket_cliente_memoria);
+        char* resultado = recibir_desde_memoria(socket_cliente_memoria);
+        char* valor_mostrar = convertir_void_a_char(tamanio_escritura, valor_a_escribir);
+        log_info(logger, "PID: %d - Acción: ESCRIBIR - Dirección Física: %d - Valor: %s", contexto->pid, dir_fisica, valor_mostrar);
     }
+    log_info(logger, "PID: %d - Ejecutando: MOV_OUT - %s %s", contexto->pid, registro_direccion, registro_dato);
 }
 
 void resize(char *tamanio, int socket_cliente_memoria)
@@ -1325,7 +1345,7 @@ void resize(char *tamanio, int socket_cliente_memoria)
     string_append(&mensaje, " ");
     string_append(&mensaje, string_itoa(contexto->pid));
     enviar_mensaje(mensaje, socket_cliente_memoria);
-
+    log_info(logger, "PID: %d - Ejecutando: RESIZE - %s", contexto->pid, tamanio);
     int cod_op = recibir_operacion(socket_cliente_memoria);
     switch (cod_op)
     {
@@ -1412,6 +1432,8 @@ void copy_string(char *tamanio, int socket_cliente_memoria)
         enviar_mensaje(mensaje, socket_cliente_memoria);
         void *resultado = malloc(tamanio_lectura);
         resultado = recibir_desde_memoria(socket_cliente_memoria);
+        char* valor_mostrar = convertir_void_a_char(tamanio_lectura, resultado);
+        log_info(logger, "PID: %d - Acción: LEER - Dirección Física: %d - Valor: %s", contexto->pid, df_origen, valor_mostrar);
 
         memcpy(origen_leido + (numero_tamanio - bytes_hasta_final), resultado, tamanio_lectura);
         bytes_hasta_final = bytes_hasta_final - tamanio_lectura;
@@ -1458,19 +1480,22 @@ void copy_string(char *tamanio, int socket_cliente_memoria)
             mensaje = generar_mensaje_escritura(df_destino, tamanio_escritura, valor_a_escribir);
         }
         enviar_mensaje(mensaje, socket_cliente_memoria);
+        char* valor_mostrar = convertir_void_a_char(tamanio_escritura, valor_a_escribir);
+        log_info(logger, "PID: %d - Acción: ESCRIBIR - Dirección Física: %d - Valor: %s", contexto->pid, df_destino, valor_mostrar);
 
         bytes_a_escribir = bytes_a_escribir - tamanio_escritura;
     }
+    log_info(logger, "PID: %d - Ejecutando: COPY_STRING - %s", contexto->pid, tamanio);
 }
 
-void wait()
+void wait(char* recurso)
 {
-    // No hace nada
+    log_info(logger, "PID: %d - Ejecutando: WAIT - %s", contexto->pid, recurso);
 }
 
-void signal_instruccion()
+void signal_instruccion(char* recurso)
 {
-    // No hace nada
+    log_info(logger, "PID: %d - Ejecutando: SIGNAL - %s", contexto->pid, recurso);
 }
 
 void io_fs_create(char *interfaz, char *nombre_archivo, int socket_kernel)
@@ -1495,7 +1520,7 @@ void io_fs_create(char *interfaz, char *nombre_archivo, int socket_kernel)
     string_append(&mensaje, " ");
     string_append(&mensaje, string_itoa(contexto->pid));
     enviar_mensaje(mensaje, socket_kernel);
-    log_info(logger, "Se ejecuto la instrucción IO_FS_CREATE con los parametros interfaz %s y nombre %s", interfaz, nombre_archivo);
+    log_info(logger, "PID: %d - Ejecutando: IO_FS_CREATE - %s %s", contexto->pid, interfaz, nombre_archivo);
 }
 
 void io_fs_delete(char *interfaz, char *nombre_archivo, int socket_kernel)
@@ -1520,7 +1545,7 @@ void io_fs_delete(char *interfaz, char *nombre_archivo, int socket_kernel)
     string_append(&mensaje, " ");
     string_append(&mensaje, string_itoa(contexto->pid));
     enviar_mensaje(mensaje, socket_kernel);
-    log_info(logger, "Se ejecuto la instrucción IO_FS_DELETE con los parametros interfaz %s y nombre %s", interfaz, nombre_archivo);
+    log_info(logger, "PID: %d - Ejecutando: IO_FS_DELETE - %s %s", contexto->pid, interfaz, nombre_archivo);
 }
 
 void io_fs_truncate(char *interfaz, char *nombre_archivo, char *registro_tamanio, int socket_kernel)
@@ -1547,7 +1572,7 @@ void io_fs_truncate(char *interfaz, char *nombre_archivo, char *registro_tamanio
     string_append(&mensaje, " ");
     string_append(&mensaje, string_itoa(contexto->pid));
     enviar_mensaje(mensaje, socket_kernel);
-    log_info(logger, "Se ejecuto la instrucción IO_FS_TRUNCATE con los parametros interfaz %s y tamanio %s", interfaz, registro_tamanio);
+    log_info(logger, "PID: %d - Ejecutando: IO_FS_TRUNCATE - %s %s %s", contexto->pid, interfaz, nombre_archivo, registro_tamanio);
 }
 
 void io_fs_write(char *interfaz, char *nombre_archivo, char *registro_direccion, char *registro_tamanio, char *registro_puntero_archivo, int socket_kernel)
@@ -1579,7 +1604,7 @@ void io_fs_write(char *interfaz, char *nombre_archivo, char *registro_direccion,
     char* marcos = iterar_lista_mensaje(lista_marcos,direccion,tamanio);
     string_append(&mensaje, marcos);
     enviar_mensaje(mensaje, socket_kernel);
-    log_info(logger, "Se ejecuto la instrucción IO_FS_WRITE con los parametros interfaz %s, nombre %s, direccion %s, tamanio %s y puntero %s", interfaz, nombre_archivo, registro_direccion, registro_tamanio, registro_puntero_archivo);
+    log_info(logger, "PID: %d - Ejecutando: IO_FS_WRITE - %s %s %s %s %s", contexto->pid, interfaz, nombre_archivo, registro_direccion, registro_tamanio, registro_puntero_archivo);
 }
 
 void io_fs_read(char *interfaz, char *nombre_archivo, char *registro_direccion, char *registro_tamanio, char *registro_puntero_archivo, int socket_kernel)
@@ -1611,5 +1636,5 @@ void io_fs_read(char *interfaz, char *nombre_archivo, char *registro_direccion, 
     char* marcos = iterar_lista_mensaje(lista_marcos,direccion,tamanio);
     string_append(&mensaje, marcos);
     enviar_mensaje(mensaje, socket_kernel);
-    log_info(logger, "Se ejecuto la instrucción IO_FS_READ con los parametros interfaz %s, nombre %s, direccion %s, tamanio %s y puntero %s", interfaz, nombre_archivo, registro_direccion, registro_tamanio, registro_puntero_archivo);
+    log_info(logger, "PID: %d - Ejecutando: IO_FS_READ - %s %s %s %s %s", contexto->pid, interfaz, nombre_archivo, registro_direccion, registro_tamanio, registro_puntero_archivo);
 }

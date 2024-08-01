@@ -63,43 +63,51 @@ void entender_mensajes(char *mensaje, int socket_cliente, int tiempo_unidad_trab
 {
     char **mensaje_split = string_split(mensaje, " ");
     if (strcmp(tipo_interfaz, "GENERICA") == 0 && strcmp(mensaje_split[0], "IO_GEN_SLEEP") == 0)
-    {
+    {   
+        log_info (logger, "PID: %s - Operacion: %s", mensaje_split[2], mensaje_split[0]);
         io_gen_sleep(mensaje_split[1], tiempo_unidad_trabajo);
         aviso_finalizar(mensaje_split[2], socket_cliente);
     }
     else if (strcmp(tipo_interfaz, "STDIN") == 0 && strcmp(mensaje_split[0], "IO_STDIN_READ") == 0)
-    {
+    {   
+        log_info (logger, "PID: %s - Operacion: %s", mensaje_split[2], mensaje_split[0]);
         io_stdin_read(mensaje_split);
         aviso_finalizar(mensaje_split[2], socket_cliente);
     }
     else if (strcmp(tipo_interfaz, "STDOUT") == 0 && strcmp(mensaje_split[0], "IO_STDOUT_WRITE") == 0)
-    {
+    {   
+        log_info (logger, "PID: %s - Operacion: %s", mensaje_split[2], mensaje_split[0]);
         io_stdout_write(mensaje_split);
         aviso_finalizar(mensaje_split[2], socket_cliente);
     }
     else if (strcmp(tipo_interfaz, "DIALFS") == 0 && strcmp(mensaje_split[0], "IO_FS_CREATE") == 0)
-    {
-        io_fs_create(mensaje_split[1], config);
+    {   
+        log_info (logger, "PID: %s - Operacion: %s", mensaje_split[2], mensaje_split[0]);
+        io_fs_create(mensaje_split[1], mensaje_split[2], config);
         aviso_finalizar(mensaje_split[2], socket_cliente);
     }
     else if (strcmp(tipo_interfaz, "DIALFS") == 0 && strcmp(mensaje_split[0], "IO_FS_DELETE") == 0)
-    {
-        io_fs_delete(mensaje_split[1], config);
+    {   
+        log_info (logger, "PID: %s - Operacion: %s", mensaje_split[2], mensaje_split[0]);
+        io_fs_delete(mensaje_split[1], mensaje_split[2], config);
         aviso_finalizar(mensaje_split[2], socket_cliente);
     }
     else if (strcmp(tipo_interfaz, "DIALFS") == 0 && strcmp(mensaje_split[0], "IO_FS_TRUNCATE") == 0)
-    {
-        io_fs_truncate(mensaje_split[1], atoi(mensaje_split[2]), config);
+    {   
+        log_info (logger, "PID: %s - Operacion: %s", mensaje_split[3], mensaje_split[0]);
+        io_fs_truncate(mensaje_split[1], atoi(mensaje_split[2]), mensaje_split[3], config);
         aviso_finalizar(mensaje_split[3], socket_cliente);
     }
     else if (strcmp(tipo_interfaz, "DIALFS") == 0 && strcmp(mensaje_split[0], "IO_FS_WRITE") == 0)
-    {
-        io_fs_write(mensaje_split,config);
+    {   
+        log_info (logger, "PID: %s - Operacion: %s", mensaje_split[4], mensaje_split[0]);
+        io_fs_write(mensaje_split, config);
         aviso_finalizar(mensaje_split[4], socket_cliente);
     }
     else if (strcmp(tipo_interfaz, "DIALFS") == 0 && strcmp(mensaje_split[0], "IO_FS_READ") == 0)
-    {
-        io_fs_read(mensaje_split,config);
+    {   
+        log_info (logger, "PID: %s - Operacion: %s", mensaje_split[4], mensaje_split[0]);
+        io_fs_read(mensaje_split, config);
         aviso_finalizar(mensaje_split[4], socket_cliente);
     }
     else
@@ -249,7 +257,7 @@ void iniciar_dialfs(t_config *config)
     }
 }
 
-void io_fs_create(char *nombre_archivo, t_config *config)
+void io_fs_create(char *nombre_archivo, char* pid, t_config *config)
 {
     char *path_dialfs = config_get_string_value(config, "PATH_BASE_DIALFS");
     char *path_metadata = string_new();
@@ -272,6 +280,7 @@ void io_fs_create(char *nombre_archivo, t_config *config)
         txt_write_in_file(metadata, text_tamanio);
         set_bloque_usado(posicion, config);
         txt_close_file(metadata);
+        log_info (logger, "PID: %s - Crear Archivo: %s", pid, nombre_archivo);
     }
     else
     {
@@ -280,7 +289,7 @@ void io_fs_create(char *nombre_archivo, t_config *config)
     sem_post(&sem_fs);
 }
 
-void io_fs_delete(char *nombre_archivo, t_config *config)
+void io_fs_delete(char *nombre_archivo, char* pid, t_config *config)
 {
 
     char *path_dialfs = config_get_string_value(config, "PATH_BASE_DIALFS");
@@ -301,7 +310,7 @@ void io_fs_delete(char *nombre_archivo, t_config *config)
     {
         set_bloque_libre(bloque_inicial + i, config);
     }
-
+    log_info (logger, "PID: %s - Eliminar Archivo: %s", pid, nombre_archivo);
     config_destroy(archivo_metadata);
     remove(path_metadata);
     sem_post(&sem_fs);
@@ -356,7 +365,7 @@ void io_fs_write(char **mensaje_split, t_config *config)
     }
 
     fwrite(datos_leidos, string_length(datos_leidos), 1, file_bloques + atoi(mensaje_split[3]));
-
+    log_info (logger, "PID: %s - Escribir Archivo: %s - Tamaño a Escribir: %d - Puntero Archivo: %s", pid, mensaje_split[2], string_length(datos_leidos), mensaje_split[3]);
     config_destroy(archivo_metadata);
     fclose(file_bloques);
 }
@@ -413,7 +422,7 @@ void io_fs_read(char **mensaje_split, t_config *config)
         enviar_mensaje(mensaje_a_memoria, socket_cliente_memoria);
         tamanio_escrito = tamanio_escrito + tamanio_a_escribir;
     }
-
+    log_info (logger, "PID: %s - Leer Archivo: %s - Tamaño a Leer: %d - Puntero Archivo: %s", pid, mensaje_split[2], tamanio, mensaje_split[3]);
     config_destroy(archivo_metadata);
     fclose(file_bloques);
 }
@@ -429,7 +438,7 @@ int calcular_tamanio(char **mensaje_split, int inicio)
     return tamanio;
 }
 
-void io_fs_truncate(char *nombre_archivo, int tamanio_a_truncar, t_config *config)
+void io_fs_truncate(char *nombre_archivo, int tamanio_a_truncar, char* pid, t_config *config)
 {
     char *path_dialfs = config_get_string_value(config, "PATH_BASE_DIALFS");
     char *path_metadata = string_new();
@@ -502,8 +511,9 @@ void io_fs_truncate(char *nombre_archivo, int tamanio_a_truncar, t_config *confi
                 {
                     set_bloque_libre(i, config);
                 }
-
+                log_info (logger, "PID: %s - Inicio Compactación.", pid);
                 compactar(nombre_archivo, config);
+                log_info (logger, "PID: %s - Fin Compactación.", pid);
 
                 int primer_bloque_free = primer_bloque_libre();
 
@@ -524,6 +534,7 @@ void io_fs_truncate(char *nombre_archivo, int tamanio_a_truncar, t_config *confi
                 fclose(fs_archivos_bloques);
                 free(archivo_data);
             }
+            log_info (logger, "PID: %s - Truncar Archivo: %s - Tamaño: %s", pid, nombre_archivo, tamanio_a_truncar);
             config_save(archivo_metadata);
             config_destroy(archivo_metadata);
         }
@@ -615,7 +626,7 @@ void limpiar_bitmap(t_config *config)
 }
 
 void compactar(char *no_compactar_arch, t_config *config)
-{
+{   
     char *path_dialfs = config_get_string_value(config, "PATH_BASE_DIALFS");
     int retraso_compactacion = config_get_int_value(config, "RETRASO_COMPACTACION");
     int tamanio_bloque = config_get_int_value(config, "BLOCK_SIZE");

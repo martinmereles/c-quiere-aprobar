@@ -32,6 +32,7 @@ void iniciar_proceso(char *ruta, char *quantum, int socket_cliente_memoria)
         if (strcmp(mensaje_split[0], "INICIAR_PROCESO") == 0)
         {
             sem_post(&sem_array_estados[0].contador);
+            log_info(logger, "Se crea el proceso %d en NEW", pcb_proceso->pid);
         }
         break;
     case -1:
@@ -79,6 +80,10 @@ void pasar_new_ready()
     sem_wait(&sem_array_estados[1].mutex);
     aux = list_remove(QUEUE_NEW, 0);
     list_add(QUEUE_READY, aux);
+    log_info(logger, "PID: %d - Estado Anterior: NEW - Estado Actual: READY", aux->pid);
+    char* pids = string_new();
+    generar_lista_pids(&pids, "QUEUE_READY");
+    log_info(logger, "Cola Ready: %s", pids);
     sem_post(&sem_array_estados[1].mutex);
     sem_post(&sem_array_estados[0].mutex);
     sem_post(&sem_array_estados[1].contador);

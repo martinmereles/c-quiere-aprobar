@@ -12,6 +12,7 @@ extern t_list* INTERFACES;
 extern int socket_memoria;
 extern int socket_cpu_interrupt;
 extern sem_t mutex_lista_interfaces;
+extern sem_t llegada_desalojo_io;
 
 extern t_list* lista_recursos;
 extern char* algoritmo;
@@ -44,5 +45,6 @@ void desconectar_interfaz(int socket_cliente);
 void liberar_recursos(int pid);
 
 bool admite_instruccion(char *tipo, char *instruccion);
+void generar_lista_pids(char** lista_pids, char* nombre_lista);
 
 #endif

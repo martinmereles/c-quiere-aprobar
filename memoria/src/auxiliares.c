@@ -96,7 +96,7 @@ void iniciar_proceso(char *process_id, char *path, int socket_cliente)
     instruccion->lista_instrucciones = list_create();
     instruccion->lista_paginas = list_create();
     instruccion->memoria_reservada = 0;
-
+    log_info (logger, "PID: %s - Tamaño: 0", process_id);
     instruccion->process_id = process;
 
     fseek(f, 0L, SEEK_END);
@@ -110,6 +110,7 @@ void iniciar_proceso(char *process_id, char *path, int socket_cliente)
 
     int i = 0;
     int length = string_array_size(instrucciones_split);
+    usleep(retardo_respuesta * 1000);
     while (i < length)
     {
         list_add(instruccion->lista_instrucciones, instrucciones_split[i]);
@@ -119,7 +120,6 @@ void iniciar_proceso(char *process_id, char *path, int socket_cliente)
 
     list_add(memoria_instrucciones, instruccion);
     fclose(f);
-
     char* mensaje_validacion = string_new();
     string_append(&mensaje_validacion, "INICIAR_PROCESO ");
     string_append(&mensaje_validacion, process_id);
@@ -203,6 +203,8 @@ void resize(int tamanio, int pid, int socket_cliente)
                     bitarray_set_bit(bitmap_marcos_libres, primer_marco_free);
                     list_add(aux->lista_paginas, primer_marco_free);
                 }
+                log_info (logger, "PID: %d - Tamaño Actual: %d - Tamaño a Ampliar: %d", pid, marcos_asignados, marcos_a_agregar);
+                log_info (logger, "PID: %d - Tamaño: %d", pid, marcos_a_agregar);
                 sem_post(&sem_bitmap_marcos_libres);
                 aux->memoria_reservada = tamanio;
             }
@@ -223,9 +225,13 @@ void resize(int tamanio, int pid, int socket_cliente)
                 int pagina_a_borrar = list_remove(aux->lista_paginas, (tamanio_lista_marcos - 1));
                 bitarray_clean_bit(bitmap_marcos_libres, pagina_a_borrar);
             }
+            int tamanio_lista_paginas = list_size(aux->lista_paginas);
+            log_info (logger, "PID: %d - Tamaño Actual: %d - Tamaño a Reducir: %d", pid, marcos_asignados, abs(marcos_a_agregar));
+            log_info (logger, "PID: %d - Tamaño: %d", pid, tamanio_lista_paginas);
             sem_post(&sem_bitmap_marcos_libres);
             aux->memoria_reservada = tamanio;
         }
+        usleep(retardo_respuesta * 1000);
         char *mensaje = string_new();
         string_append(&mensaje, "RESIZE OK");
         enviar_mensaje(mensaje, socket_cliente);
@@ -295,6 +301,8 @@ void finalizar_proceso(int pid)
     t_instruccion_memoria *aux2 = list_remove_by_condition(memoria_instrucciones, _es_pid_buscado);
     list_destroy(aux2->lista_instrucciones);
     list_destroy(aux2->lista_paginas);
+    usleep(retardo_respuesta * 1000);
+    log_info (logger, "PID: %d - Tamaño: 0", pid);
     free(aux2);
 
     sem_post(&sem_bitmap_marcos_libres);
@@ -307,7 +315,7 @@ void obtener_marco(int pid, int nro_pagina, int socket_cliente)
         return es_pid_buscado(pid, elemento);
     };
     t_instruccion_memoria *aux = list_find(memoria_instrucciones, _es_pid_buscado);
-
+    usleep(retardo_respuesta * 1000);
     if (list_size(aux->lista_paginas) <= nro_pagina)
     {
         char *mensaje = string_new();
@@ -317,6 +325,7 @@ void obtener_marco(int pid, int nro_pagina, int socket_cliente)
     else
     {
         int numero_pagina = list_get(aux->lista_paginas, nro_pagina);
+        log_info (logger, "PID: %d - Pagina: %d - Marco: %d", pid, nro_pagina, numero_pagina);
         char *mensaje = string_new();
         string_append(&mensaje, "OBTENER_MARCO ");
         string_append(&mensaje, string_itoa(numero_pagina));
@@ -338,14 +347,18 @@ void leer(int direccion_fisica, int tamanio, int pid, int socket_cliente)
     
     char* fin_string = string_new();
     memcpy(aux+string_length(mensaje)+tamanio,fin_string,1);
+    usleep(retardo_respuesta * 1000);
     enviar_mensaje(aux,socket_cliente);
+    log_info(logger, "PID: %d - Acción: LEER - Dirección Física: %d - Tamaño: %d", pid, direccion_fisica, tamanio);
 }
 
 void escribir(int direccion_fisica, int tamanio, int pid, void* valor, int socket_cliente)
 {
 
     memcpy(memoria + direccion_fisica, valor, tamanio);
+    usleep(retardo_respuesta * 1000);
     char *mensaje = string_new();
     string_append(&mensaje, "ESCRIBIR OK");
-    //enviar_mensaje(mensaje, socket_cliente);
+    enviar_mensaje(mensaje, socket_cliente);
+    log_info(logger, "PID: %d - Acción: ESCRIBIR - Dirección Física: %d - Tamaño: %d", pid, direccion_fisica, tamanio);
 }

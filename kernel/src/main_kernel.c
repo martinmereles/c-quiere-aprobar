@@ -25,6 +25,7 @@ sem_t mutex_lista_interfaces;
 sem_t mutex_lista_recursos;
 sem_t detencion_planificador_corto;
 sem_t detencion_planificador_largo;
+sem_t llegada_desalojo_io;
 bool detuvo_planificacion;
 char* algoritmo;
 
@@ -50,6 +51,7 @@ int main(int argc, char* argv[]) {
     sem_init(&mutex_lista_interfaces, 0, 1);
     sem_init(&detencion_planificador_corto, 0, 1);
     sem_init(&detencion_planificador_largo, 0, 1);
+    sem_init(&llegada_desalojo_io, 0, 1);
     detuvo_planificacion = 0;
     sem_init(&mutex_lista_recursos, 0, 1);
     for(int i = 0; i < 6; i++){
