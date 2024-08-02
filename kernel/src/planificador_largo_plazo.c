@@ -9,7 +9,10 @@ void planificador_largo_plazo()
 }
 
 void iniciar_proceso(char *ruta, char *quantum, int socket_cliente_memoria)
-{
+{   
+    char* path = string_new();
+    string_append(&path, ".");
+    string_append(&path, ruta);
     int valor_quantum = atoi(quantum);
     pcb_t *pcb_proceso = crear_pcb(valor_quantum);
     sem_wait(&sem_array_estados[0].mutex);
@@ -18,7 +21,7 @@ void iniciar_proceso(char *ruta, char *quantum, int socket_cliente_memoria)
     string_append(&mensaje, "INICIAR_PROCESO ");
     string_append(&mensaje, string_itoa(pcb_proceso->pid));
     string_append(&mensaje, " ");
-    string_append(&mensaje, ruta);
+    string_append(&mensaje, path);
     enviar_mensaje(mensaje, socket_cliente_memoria);
     sem_post(&sem_array_estados[0].mutex);
 

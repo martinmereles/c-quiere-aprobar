@@ -59,8 +59,11 @@ void entender_comando(char *command, char *quantum, int socket_cliente_memoria, 
 }
 
 void ejecutar_script(char *path, char *quantum, int socket_cliente_memoria, int socket_cpu_interrupt, t_config *config)
-{
-    FILE *f = fopen(path, "r");
+{   
+    char* path_nuevo = string_new();
+    string_append(&path_nuevo, ".");
+    string_append(&path_nuevo, path);
+    FILE *f = fopen(path_nuevo, "r");
     if (f == NULL)
     {
         perror("Error al abrir el archivo");
