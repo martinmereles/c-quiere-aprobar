@@ -5,7 +5,7 @@ void planificador_corto_plazo(socket_info_t* params){
     int socket_cpu_dispatch = params->socket_dispatch; 
     int socket_cpu_interrupt = params->socket_interrupt;
 
-    t_config* config = iniciar_config(logger, "./cfg/kernel.config");
+    t_config* config = iniciar_config(logger, "./kernel.config");
     char* quantum = config_get_string_value(config, "QUANTUM");
     int quantum_int = atoi(quantum);
 
@@ -140,7 +140,7 @@ void dispatcher(pcb_t* pcb_a_enviar, int socket_cpu_dispatch){
 }
 
 void aviso_quantum(char* mensaje){
-        t_config* config = iniciar_config(logger, "./cfg/kernel.config");
+        t_config* config = iniciar_config(logger, "./kernel.config");
         char* quantum = config_get_string_value(config, "QUANTUM");
         int quantum_int = atoi(quantum);
         int quantum_milisecons = quantum_int * 1000;

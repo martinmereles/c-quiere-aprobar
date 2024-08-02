@@ -17,8 +17,8 @@ t_list *lista_marcos_destino;
 int main(int argc, char* argv[]) {
 	INTERRUPCIONES = list_create();
 	socket_kernel_dispatch = -1;
-	logger = iniciar_logger("./cfg/cpu-log.log", "cpu");
-    t_config* config = iniciar_config(logger, "./cfg/cpu.config");
+	logger = iniciar_logger("./cpu-log.log", "cpu");
+    t_config* config = iniciar_config(logger, "./cpu.config");
 	char* algoritmo_tlb = config_get_string_value(config, "ALGORITMO_TLB");
 	int cantidad_entradas_tlb = config_get_int_value(config, "CANTIDAD_ENTRADAS_TLB");
 	iniciar_tlb();

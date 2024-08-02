@@ -11,8 +11,8 @@ sem_t *sem_bitmap_marcos_libres;
 
 int main(int argc, char* argv[]) {
 	memoria_instrucciones = list_create();
-	logger = iniciar_logger("./cfg/memoria-log.log", "memoria");
-	t_config* config = iniciar_config(logger, "./cfg/memoria.config");
+	logger = iniciar_logger("./memoria-log.log", "memoria");
+	t_config* config = iniciar_config(logger, "./memoria.config");
 	sem_init(&sem_bitmap_marcos_libres, 0, 1);
 
 	//Inicio de hilo server

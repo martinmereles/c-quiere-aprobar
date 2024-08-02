@@ -25,10 +25,10 @@ int main(int argc, char *argv[])
 
     char *path_log = string_new();
     char *path_config = string_new();
-    string_append(&path_log, "./cfg/");
+    string_append(&path_log, "./");
     string_append(&path_log, nombre_interfaz);
     string_append(&path_log, ".log");
-    string_append(&path_config, "./cfg/");
+    string_append(&path_config, "./");
     string_append(&path_config, nombre_interfaz);
     string_append(&path_config, ".config");
 

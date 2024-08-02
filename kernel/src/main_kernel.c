@@ -40,8 +40,8 @@ int main(int argc, char* argv[]) {
     QUEUE_READY_PLUS = list_create();
     INTERFACES = list_create();
     lista_recursos = list_create();
-    logger = iniciar_logger("./cfg/kernel-log.log", "kernel");
-    t_config* config = iniciar_config(logger, "./cfg/kernel.config");
+    logger = iniciar_logger("./kernel-log.log", "kernel");
+    t_config* config = iniciar_config(logger, "./kernel.config");
     char* quantum = config_get_string_value(config, "QUANTUM");
     int grado_multiprog = config_get_int_value(config, "GRADO_MULTIPROGRAMACION");
     algoritmo = config_get_string_value(config, "ALGORITMO_PLANIFICACION");
