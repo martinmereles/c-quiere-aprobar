@@ -292,7 +292,7 @@ void finalizar_proceso(int pid)
     };
     t_instruccion_memoria *aux = list_find(memoria_instrucciones, _es_pid_buscado);
     sem_wait(&sem_bitmap_marcos_libres);
-    for (int i = 0; list_size(aux->lista_paginas) > i; i++)
+    for (int i = 0; i < list_size(aux->lista_paginas); i++)
     {
         int pagina_a_liberar = list_get(aux->lista_paginas, i);
         bitarray_clean_bit(bitmap_marcos_libres, pagina_a_liberar);

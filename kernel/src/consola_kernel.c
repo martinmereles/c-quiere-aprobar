@@ -91,10 +91,15 @@ bool es_pid_buscado(int pid, void *elemento)
 }
 
 void finalizar_proceso(int pid, int socket_cpu_interrupt, int socket_cliente_memoria)
-{
+{   
+    sem_wait(&detencion_planificador_corto);
+    sem_wait(&detencion_planificador_largo);
     pcb_t *encontrado = malloc(sizeof(pcb_t));
     encontrado->reg_generales = malloc(sizeof(registros_t));
     encontrado = NULL;
+    char *mensaje = string_new();
+    string_append(&mensaje, "EXIT ");
+    string_append(&mensaje, string_itoa(pid));
 
     bool _es_pid_buscado(void *elemento)
     {
@@ -113,6 +118,8 @@ void finalizar_proceso(int pid, int socket_cpu_interrupt, int socket_cliente_mem
         sem_post(&sem_array_estados[4].contador);
         sem_wait(&sem_array_estados[0].contador);
         log_info(logger, "PID: %d - Estado Anterior: NEW - Estado Actual: TERMINATED", pid);
+        liberar_recursos(pid);
+        enviar_mensaje(mensaje, socket_cliente_memoria);
     }
     encontrado = NULL;
     encontrado = list_remove_by_condition(QUEUE_READY, _es_pid_buscado);
@@ -123,10 +130,12 @@ void finalizar_proceso(int pid, int socket_cpu_interrupt, int socket_cliente_mem
         sem_wait(&sem_array_estados[1].contador);
         sem_post(&sem_grado_multiprog);
         log_info(logger, "PID: %d - Estado Anterior: READY - Estado Actual: TERMINATED", pid);
+        liberar_recursos(pid);
+        enviar_mensaje(mensaje, socket_cliente_memoria);
     }
     encontrado = NULL;
-    encontrado = list_remove_by_condition(QUEUE_RUNNING, _es_pid_buscado);
-    if (encontrado != NULL)
+    encontrado = list_get(QUEUE_RUNNING, 0);
+    if (encontrado != NULL && encontrado->pid == pid)
     {
         char *mensaje = string_new();
         string_append(&mensaje, "EXIT ");
@@ -142,6 +151,8 @@ void finalizar_proceso(int pid, int socket_cpu_interrupt, int socket_cliente_mem
         sem_wait(&sem_array_estados[3].contador);
         sem_post(&sem_grado_multiprog);
         log_info(logger, "PID: %d - Estado Anterior: BLOCKED - Estado Actual: TERMINATED", pid);
+        liberar_recursos(pid);
+        enviar_mensaje(mensaje, socket_cliente_memoria);
     }
     encontrado = NULL;
     encontrado = list_remove_by_condition(QUEUE_TERMINATED, _es_pid_buscado);
@@ -158,6 +169,8 @@ void finalizar_proceso(int pid, int socket_cpu_interrupt, int socket_cliente_mem
         sem_wait(&sem_array_estados[5].contador);
         sem_post(&sem_grado_multiprog);
         log_info(logger, "PID: %d - Estado Anterior: READY_PLUS - Estado Actual: TERMINATED", pid);
+        liberar_recursos(pid);
+        enviar_mensaje(mensaje, socket_cliente_memoria);
     }
     sem_post(&sem_array_estados[0].mutex);
     sem_post(&sem_array_estados[1].mutex);
@@ -165,13 +178,10 @@ void finalizar_proceso(int pid, int socket_cpu_interrupt, int socket_cliente_mem
     sem_post(&sem_array_estados[3].mutex);
     sem_post(&sem_array_estados[4].mutex);
     sem_post(&sem_array_estados[5].mutex);
-    liberar_recursos(pid);
-    char *mensaje = string_new();
-    string_append(&mensaje, "EXIT ");
-    string_append(&mensaje, string_itoa(pid));
-    enviar_mensaje(mensaje, socket_cliente_memoria);
     // free(encontrado->reg_generales);
     // free(encontrado);
+    sem_post(&detencion_planificador_corto);
+    sem_post(&detencion_planificador_largo);
 }
 
 void iniciar_planificacion()

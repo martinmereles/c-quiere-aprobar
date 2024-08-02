@@ -717,7 +717,7 @@ char* generar_lista_pids(char* nombre_lista){
     }else if(strcmp(nombre_lista, "QUEUE_READY_PLUS") == 0){
         for (int i = 0; i < list_size(QUEUE_READY_PLUS); i++)
         {   
-            pcb_t* aux = list_get(QUEUE_READY, i);
+            pcb_t* aux = list_get(QUEUE_READY_PLUS, i);
             string_append(&mensaje_a_devolver, string_itoa(aux->pid));
             if(i != (list_size(QUEUE_READY_PLUS)-1)){
                 string_append(&mensaje_a_devolver, ", ");
