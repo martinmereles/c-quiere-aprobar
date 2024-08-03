@@ -116,6 +116,10 @@ void check_interrupt(int socket_cliente_memoria, int socket_kernel_dispatch){
         enviar_pcb_contexto_motivo(socket_kernel_dispatch, contexto, "INTERRUPTED_BY_USER");
         log_info (logger, "Finaliza el proceso %s - Motivo: INTERRUPTED_BY_USER", string_itoa(contexto->pid));
         sem_wait(&sem_execute);
+    }else if(strcmp(instruccion_exec_split[0],"EXIT") == 0){
+        enviar_pcb_contexto_motivo(socket_kernel_dispatch, contexto, "SUCCESS");
+        log_info (logger, "PID: %s - Desalojado por instruccion EXIT", string_itoa(contexto->pid));
+        sem_wait(&sem_execute);
     }else if(existe_io){
         enviar_pcb_contexto_motivo(socket_kernel_dispatch, contexto, "IO");
         log_info (logger, "PID: %s - Desalojado por IO", string_itoa(contexto->pid));
@@ -139,10 +143,6 @@ void check_interrupt(int socket_cliente_memoria, int socket_kernel_dispatch){
         string_append(&nuevo_mensaje, instruccion_exec_split[1]);
         enviar_pcb_contexto_motivo(socket_kernel_dispatch, contexto, nuevo_mensaje);
         log_info (logger, "PID: %s - Desalojado por syscall a recurso", string_itoa(contexto->pid));
-        sem_wait(&sem_execute);
-    }else if(strcmp(instruccion_exec_split[0],"EXIT") == 0){
-        enviar_pcb_contexto_motivo(socket_kernel_dispatch, contexto, "SUCCESS");
-        log_info (logger, "PID: %s - Desalojado por instruccion EXIT", string_itoa(contexto->pid));
         sem_wait(&sem_execute);
     }
     

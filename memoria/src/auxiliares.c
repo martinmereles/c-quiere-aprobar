@@ -356,7 +356,6 @@ void leer(int direccion_fisica, int tamanio, int pid, int socket_cliente)
 
 void escribir(int direccion_fisica, int tamanio, int pid, void* valor, int socket_cliente)
 {
-
     memcpy(memoria + direccion_fisica, valor, tamanio);
     usleep(retardo_respuesta * 1000);
     char *mensaje = string_new();

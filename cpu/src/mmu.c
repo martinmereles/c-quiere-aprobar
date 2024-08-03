@@ -106,12 +106,14 @@ int obtener_marco(int pid, int numero_pagina, int socket_cliente, char * algorit
         entrada->marco = numero_marco;
         time(&entrada->timestamp);
         log_info(logger, "PID: %d - OBTENER MARCO - Pagina: %d - Marco: %d", pid, numero_pagina, numero_marco);
-
-        if(strcmp(algoritmo_tlb, "FIFO") == 0){
-            remplazar_por_fifo(tamanio_tlb, entrada);
-        }else{
-            remplazar_por_lru(tamanio_tlb, entrada);
+        if(tamanio_tlb > 0){
+            if(strcmp(algoritmo_tlb, "FIFO") == 0){
+                remplazar_por_fifo(tamanio_tlb, entrada);
+            }else{
+                remplazar_por_lru(tamanio_tlb, entrada);
+            }
         }
+        
         return (numero_marco);
     }
     

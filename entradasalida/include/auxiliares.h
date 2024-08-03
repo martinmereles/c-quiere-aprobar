@@ -48,5 +48,5 @@ bool esta_ordenado (archivo_t* element1, archivo_t* element2);
 void limpiar_bitmap (t_config* config);
 void escribir_bloques(char* palabra, int posicion);
 void aviso_finalizar(char* pid, int socket_cliente);
-void* recibir_desde_memoria(int socket_cliente);
+char* recibir_desde_memoria(int socket_cliente);
 #endif

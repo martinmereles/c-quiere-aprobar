@@ -1407,7 +1407,9 @@ void copy_string(char *tamanio, int socket_cliente_memoria)
     int bytes_hasta_final = numero_tamanio;
 
     // Almacena lo que tiene origen
-    void *origen_leido = malloc(numero_tamanio);
+    //void *origen_leido = malloc(numero_tamanio);
+    char* origen_leido;
+    char* valor_a_grabar = string_new();
     for (int i = 0; i < list_size(lista_marcos); i++)
     {
 
@@ -1441,13 +1443,14 @@ void copy_string(char *tamanio, int socket_cliente_memoria)
             mensaje = generar_mensaje_lectura(df_origen, tamanio_lectura);
         }
         enviar_mensaje(mensaje, socket_cliente_memoria);
-        void *resultado = malloc(tamanio_lectura);
-        resultado = recibir_desde_memoria(socket_cliente_memoria);
-        char* valor_mostrar = convertir_void_a_char(tamanio_lectura, resultado);
-        log_info(logger, "PID: %d - Acción: LEER - Dirección Física: %d - Valor: %s", contexto->pid, df_origen, valor_mostrar);
+        //void *resultado = malloc(tamanio_lectura);
+        origen_leido = recibir_desde_memoria(socket_cliente_memoria);
+        //char* valor_mostrar = convertir_void_a_char(tamanio_lectura, resultado);
+        log_info(logger, "PID: %d - Acción: LEER - Dirección Física: %d - Valor: %s", contexto->pid, df_origen, origen_leido);
 
-        memcpy(origen_leido + (numero_tamanio - bytes_hasta_final), resultado, tamanio_lectura);
+        //memcpy(origen_leido + (numero_tamanio - bytes_hasta_final), resultado, tamanio_lectura);
         bytes_hasta_final = bytes_hasta_final - tamanio_lectura;
+        string_append(&valor_a_grabar, origen_leido);
     }
     void *valor_a_escribir;
     int bytes_a_escribir = numero_tamanio;
@@ -1471,7 +1474,7 @@ void copy_string(char *tamanio, int socket_cliente_memoria)
                 tamanio_escritura = tamanio_pagina - desplazamiento_di;
             }
             valor_a_escribir = malloc(tamanio_escritura);
-            memcpy(valor_a_escribir, origen_leido + (numero_tamanio - bytes_a_escribir), tamanio_escritura);
+            memcpy(valor_a_escribir, valor_a_grabar + (numero_tamanio - bytes_a_escribir), tamanio_escritura);
             mensaje = generar_mensaje_escritura(df_destino, tamanio_escritura, valor_a_escribir);
         }
         else if (i > 0 && i < (list_size(lista_marcos_destino) - 1))
@@ -1479,7 +1482,7 @@ void copy_string(char *tamanio, int socket_cliente_memoria)
             df_destino = aux_destino * tamanio_pagina;
             tamanio_escritura = tamanio_pagina;
             valor_a_escribir = realloc(valor_a_escribir, tamanio_escritura);
-            memcpy(valor_a_escribir, origen_leido + (numero_tamanio - bytes_a_escribir), tamanio_escritura);
+            memcpy(valor_a_escribir, valor_a_grabar + (numero_tamanio - bytes_a_escribir), tamanio_escritura);
             mensaje = generar_mensaje_escritura(df_destino, tamanio_escritura, valor_a_escribir);
         }
         else if (i == (list_size(lista_marcos_destino) - 1))
@@ -1487,7 +1490,7 @@ void copy_string(char *tamanio, int socket_cliente_memoria)
             tamanio_escritura = bytes_a_escribir;
             df_destino = aux_destino * tamanio_pagina;
             valor_a_escribir = realloc(valor_a_escribir, tamanio_escritura);
-            memcpy(valor_a_escribir, origen_leido + (numero_tamanio - bytes_a_escribir), tamanio_escritura);
+            memcpy(valor_a_escribir, valor_a_grabar + (numero_tamanio - bytes_a_escribir), tamanio_escritura);
             mensaje = generar_mensaje_escritura(df_destino, tamanio_escritura, valor_a_escribir);
         }
         enviar_mensaje(mensaje, socket_cliente_memoria);
@@ -1597,7 +1600,7 @@ void io_fs_truncate(char *interfaz, char *nombre_archivo, char *registro_tamanio
     string_append(&mensaje, " ");
     string_append(&mensaje, nombre_archivo);
     string_append(&mensaje, " ");
-    string_append(&mensaje, tamanio);
+    string_append(&mensaje, string_itoa(tamanio));
     string_append(&mensaje, " ");
     string_append(&mensaje, string_itoa(contexto->pid));
     enviar_mensaje(mensaje, socket_kernel);

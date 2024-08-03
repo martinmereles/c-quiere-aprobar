@@ -716,28 +716,27 @@ void escribir_bloques(char *palabra, int posicion)
     fclose(file_bloques);
 }
 
-void *recibir_desde_memoria(int socket_cliente)
+char *recibir_desde_memoria(int socket_cliente)
 {
     t_list *lista;
     int cod_op = recibir_operacion(socket_cliente);
-    ;
     switch (cod_op)
     {
     case MENSAJE:
         int size;
-        char *buffer = recibir_buffer(&size, socket_cliente);
+        char* buffer = recibir_buffer(&size, socket_cliente);
         log_info(logger, "Me llego el mensaje %s", buffer);
-        void *mensaje;
-        if (string_starts_with(buffer, "LEER"))
-        {
-            mensaje = malloc(size - 5);
+        //void * mensaje;
+        char* mensaje;
+        if(string_starts_with(buffer, "LEER")){
+            mensaje = malloc(size-5);
             mensaje = string_substring_from(buffer, 5);
-        }
-        if (string_starts_with(buffer, "ESCRIBIR"))
-        {
-            mensaje = malloc(size - 10);
+            
+        }if(string_starts_with(buffer, "ESCRIBIR")){
+            mensaje = malloc(size-10);
             mensaje = string_substring_from(buffer, 10);
         }
+
         free(buffer);
         return mensaje;
         break;

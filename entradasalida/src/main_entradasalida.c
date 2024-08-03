@@ -39,9 +39,10 @@ int main(int argc, char *argv[])
     char *tiempo_unidad_trabajo = config_get_string_value(config, "TIEMPO_UNIDAD_TRABAJO");
     log_info(logger, "Se ingreso como nombre de la interfaz: %s", nombre_interfaz);
     if (strcmp(tipo_interfaz, "DIALFS") == 0)
-    {
-        iniciar_dialfs(config);
+    {   
         sem_init(&sem_fs, 0, 1);
+        iniciar_dialfs(config);
+        
     }
 
     // Inicia conexion con kernel

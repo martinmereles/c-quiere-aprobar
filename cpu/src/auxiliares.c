@@ -134,7 +134,7 @@ void atender_cliente_interrupt(int socket_servidor_interrupt){
 
 char* recibir_desde_memoria(int socket_cliente){
 	t_list* lista;
-    int cod_op = recibir_operacion(socket_cliente);; 
+    int cod_op = recibir_operacion(socket_cliente);
     switch (cod_op) {
     case MENSAJE:
         int size;
