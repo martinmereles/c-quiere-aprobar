@@ -27,7 +27,6 @@ void atender_cliente_kernel(int socket_cliente)
         case MENSAJE:
             int size;
             char *buffer = recibir_buffer(&size, socket_cliente);
-            instruccion = string_duplicate(buffer);
             log_info(logger, "Kernel recibio el mensaje %s", buffer);
             char **mensaje_split = string_split(buffer, " ");
             if (strcmp(mensaje_split[0], "IO_GEN_SLEEP") == 0)
@@ -50,33 +49,33 @@ void atender_cliente_kernel(int socket_cliente)
             }
             if (strcmp(mensaje_split[0], "IO_FS_CREATE") == 0)
             {   
-                
+                sem_wait(&llegada_desalojo_io);
                 log_info(logger, "PID: %s - Bloqueado por: %s", mensaje_split[3], mensaje_split[1]);
-                
+                io_fs_create(mensaje_split[1], mensaje_split[2], mensaje_split[3]);
             }
             if (strcmp(mensaje_split[0], "IO_FS_DELETE") == 0)
             {   
-                
+                sem_wait(&llegada_desalojo_io);
                 log_info(logger, "PID: %s - Bloqueado por: %s", mensaje_split[3], mensaje_split[1]);
-               // io_fs_delete(mensaje_split[1], mensaje_split[2], mensaje_split[3]);
+                io_fs_delete(mensaje_split[1], mensaje_split[2], mensaje_split[3]);
             }
             if (strcmp(mensaje_split[0], "IO_FS_TRUNCATE") == 0)
             {   
-                
+                sem_wait(&llegada_desalojo_io);
                 log_info(logger, "PID: %s - Bloqueado por: %s", mensaje_split[4], mensaje_split[1]);
-                //io_fs_truncate(mensaje_split[1], mensaje_split[2], mensaje_split[3], mensaje_split[4]);
+                io_fs_truncate(mensaje_split[1], mensaje_split[2], mensaje_split[3], mensaje_split[4]);
             }
             if (strcmp(mensaje_split[0], "IO_FS_WRITE") == 0)
             {   
-               
+                sem_wait(&llegada_desalojo_io);
                 log_info(logger, "PID: %s - Bloqueado por: %s", mensaje_split[4], mensaje_split[1]);
-                //io_fs_write(mensaje_split[1], mensaje_split[2], mensaje_split[3], mensaje_split[4], buffer);
+                io_fs_write(mensaje_split[1], mensaje_split[2], mensaje_split[3], mensaje_split[4], buffer);
             }
             if (strcmp(mensaje_split[0], "IO_FS_READ") == 0)
             {   
-                
+                sem_wait(&llegada_desalojo_io);
                 log_info(logger, "PID: %s - Bloqueado por: %s", mensaje_split[4], mensaje_split[1]);
-               // io_fs_read(mensaje_split[1], mensaje_split[2], mensaje_split[3], mensaje_split[4], buffer);
+                io_fs_read(mensaje_split[1], mensaje_split[2], mensaje_split[3], mensaje_split[4], buffer);
             }
             if (strcmp(mensaje_split[0], "CONECTAR_INTERFAZ") == 0)
             {
@@ -177,45 +176,7 @@ void atender_cliente_kernel(int socket_cliente)
                 sem_post(&sem_array_estados[3].mutex);
                 sem_post(&sem_array_estados[3].contador);
                 sem_post(&sem_multiprocesamiento);
-
-
-            char** mensaje_split_prueba = string_split(instruccion, " ");
-
-
-                //PRUEBA
-                 if (strcmp(mensaje_split_prueba[0], "IO_FS_CREATE") == 0)
-            {   
-                
-                
-                log_info(logger, "PID: %s - Bloqueado por: %s", mensaje_split_prueba[3], mensaje_split_prueba[1]);
-                io_fs_create(mensaje_split_prueba[1], mensaje_split_prueba[2], mensaje_split_prueba[3]);
-            }
-            if (strcmp(mensaje_split_prueba[0], "IO_FS_DELETE") == 0)
-            {   
-                
-                log_info(logger, "PID: %s - Bloqueado por: %s", mensaje_split_prueba[3], mensaje_split_prueba[1]);
-                io_fs_delete(mensaje_split_prueba[1], mensaje_split_prueba[2], mensaje_split_prueba[3]);
-            }
-            if (strcmp(mensaje_split_prueba[0], "IO_FS_TRUNCATE") == 0)
-            {   
-                
-                log_info(logger, "PID: %s - Bloqueado por: %s", mensaje_split_prueba[4], mensaje_split_prueba[1]);
-                io_fs_truncate(mensaje_split_prueba[1], mensaje_split_prueba[2], mensaje_split_prueba[3], mensaje_split_prueba[4]);
-            }
-            if (strcmp(mensaje_split[0], "IO_FS_WRITE") == 0)
-            {   
-               
-                log_info(logger, "PID: %s - Bloqueado por: %s", mensaje_split_prueba[4], mensaje_split_prueba[1]);
-                io_fs_write(mensaje_split_prueba[1], mensaje_split_prueba[2], mensaje_split_prueba[3], mensaje_split_prueba[4], buffer);
-            }
-            if (strcmp(mensaje_split_prueba[0], "IO_FS_READ") == 0)
-            {   
-                
-                log_info(logger, "PID: %s - Bloqueado por: %s", mensaje_split_prueba[4], mensaje_split_prueba[1]);
-                io_fs_read(mensaje_split_prueba[1], mensaje_split_prueba[2], mensaje_split_prueba[3], mensaje_split_prueba[4], buffer);
-            }
-                
-                
+                sem_post(&llegada_desalojo_io);
             }
             if (string_starts_with(pcb_deserealizado->motivo, "SIGNAL"))
             {
