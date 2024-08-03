@@ -31,9 +31,12 @@ void decode(int socket_cliente_memoria, char* algoritmo_tlb, int cantidad_entrad
     }
     if(strcmp(instruccion_exec_split[0],"MOV_OUT") == 0){
         //MOV_OUT
-        unsigned int valor_registro = get_valor_registro(instruccion_exec_split[2]);
-        int tamanio_registro = get_tamanio_registro(instruccion_exec_split[1]);
-        marcos_a_leer(contexto->pid, valor_registro, tamanio_registro, socket_cliente_memoria, algoritmo_tlb, cantidad_entradas_tlb);
+        //unsigned int valor_registro = get_valor_registro(instruccion_exec_split[2]);
+        //int tamanio_registro = get_tamanio_registro(instruccion_exec_split[1]);
+
+        unsigned int valor_registro_direccion = get_valor_registro(instruccion_exec_split[1]);
+        int tamanio_registro_datos = get_tamanio_registro(instruccion_exec_split[2]);
+        marcos_a_leer(contexto->pid, valor_registro_direccion, tamanio_registro_datos, socket_cliente_memoria, algoritmo_tlb, cantidad_entradas_tlb);
         
     }
     if(strcmp(instruccion_exec_split[0],"COPY_STRING") == 0){
@@ -161,18 +164,18 @@ unsigned int get_valor_registro(char * registro){
     if(strcmp(registro,"DI") == 0){return contexto->reg_generales->DI;}
 }
 
-void set_valor_registro(char * registro, void* dato){
-    if(strcmp(registro,"PC") == 0){memcpy(contexto->reg_generales->PC, dato, 4);}
-    if(strcmp(registro,"AX") == 0){memcpy(contexto->reg_generales->AX, dato, 1);}
-    if(strcmp(registro,"BX") == 0){memcpy(contexto->reg_generales->BX, dato, 1);}
-    if(strcmp(registro,"CX") == 0){memcpy(contexto->reg_generales->CX, dato, 1);}
-    if(strcmp(registro,"DX") == 0){memcpy(contexto->reg_generales->DX, dato, 1);}
-    if(strcmp(registro,"EAX") == 0){memcpy(contexto->reg_generales->EAX, dato, 4);}
-    if(strcmp(registro,"EBX") == 0){memcpy(contexto->reg_generales->EBX, dato, 4);}
-    if(strcmp(registro,"ECX") == 0){memcpy(contexto->reg_generales->ECX, dato, 4);}
-    if(strcmp(registro,"EDX") == 0){memcpy(contexto->reg_generales->EDX, dato, 4);}
-    if(strcmp(registro,"SI") == 0){memcpy(contexto->reg_generales->SI, dato, 4);}
-    if(strcmp(registro,"DI") == 0){memcpy(contexto->reg_generales->DI, dato, 4);}
+void set_valor_registro(char * registro, int dato){
+    if(strcmp(registro,"PC") == 0){contexto->reg_generales->PC = dato;}
+    if(strcmp(registro,"AX") == 0){contexto->reg_generales->AX = dato;}
+    if(strcmp(registro,"BX") == 0){contexto->reg_generales->BX = dato;}
+    if(strcmp(registro,"CX") == 0){contexto->reg_generales->CX = dato;}
+    if(strcmp(registro,"DX") == 0){contexto->reg_generales->DX = dato;}
+    if(strcmp(registro,"EAX") == 0){contexto->reg_generales->EAX = dato;}
+    if(strcmp(registro,"EBX") == 0){contexto->reg_generales->EBX = dato;}
+    if(strcmp(registro,"ECX") == 0){contexto->reg_generales->ECX = dato;}
+    if(strcmp(registro,"EDX") == 0){contexto->reg_generales->EDX = dato;}
+    if(strcmp(registro,"SI") == 0){contexto->reg_generales->SI = dato;}
+    if(strcmp(registro,"DI") == 0){contexto->reg_generales->DI = dato;}
 }
 
 int get_tamanio_registro(char * registro){

@@ -48,7 +48,7 @@ void remplazar_por_lru(int tamanio_tlb, entrada_tlb_t * entrada){
                 posicion = i;
             }
         }
-        list_replace(tlb, i, entrada);
+        list_replace(tlb, posicion, entrada);
     }
 }
 

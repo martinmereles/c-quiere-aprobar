@@ -1,6 +1,7 @@
 #ifndef MMU_H_
 #define MMU_H_
 
+#include <math.h>
 #include <utils/client-server.h>
 #include <commons/collections/list.h>
 #include <time.h>

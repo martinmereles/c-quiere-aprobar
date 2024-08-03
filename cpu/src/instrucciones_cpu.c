@@ -1194,6 +1194,7 @@ void mov_in(char *registro_dato, char *registro_direccion, int socket_cliente_me
     int offset = calcular_desplazamiento(valor_registro, num_pag);
     char *mensaje = string_new();
     void *valor_leido = malloc(tamanio_registro);
+    char* valor_leido_prueba;
     if (list_size(lista_marcos) > 1)
     {
         for (int i = 0; i < list_size(lista_marcos); i++)
@@ -1208,11 +1209,12 @@ void mov_in(char *registro_dato, char *registro_direccion, int socket_cliente_me
                 tamanio_lectura = tamanio_pagina - offset;
                 mensaje = generar_mensaje_lectura(dir_fisica, tamanio_lectura);
                 enviar_mensaje(mensaje, socket_cliente_memoria);
-                void *resultado = malloc(tamanio_lectura);
-                resultado = recibir_desde_memoria(socket_cliente_memoria);
-                memcpy(valor_leido, resultado, tamanio_lectura);
-                char* valor_mostrar = convertir_void_a_char(tamanio_lectura, resultado);
-                log_info(logger, "PID: %d - Acción: LEER - Dirección Física: %d - Valor: %s", contexto->pid, dir_fisica, valor_mostrar);
+                //void *resultado = malloc(tamanio_lectura);
+                //resultado = recibir_desde_memoria(socket_cliente_memoria);
+                valor_leido_prueba = recibir_desde_memoria(socket_cliente_memoria);
+                //memcpy(valor_leido, resultado, tamanio_lectura);
+                //char* valor_mostrar = convertir_void_a_char(tamanio_lectura, resultado);
+                log_info(logger, "PID: %d - Acción: LEER - Dirección Física: %d - Valor: %s", contexto->pid, dir_fisica, valor_leido_prueba);
             }
             else if (i > 0 && i < (list_size(lista_marcos) - 1))
             {
@@ -1222,12 +1224,13 @@ void mov_in(char *registro_dato, char *registro_direccion, int socket_cliente_me
                 tamanio_lectura = tamanio_pagina;
                 mensaje = generar_mensaje_lectura(dir_fisica, tamanio_lectura);
                 enviar_mensaje(mensaje, socket_cliente_memoria);
-                void *resultado = malloc(tamanio_lectura);
-                resultado = recibir_desde_memoria(socket_cliente_memoria);
-                int aux = (tamanio_pagina - offset) + (tamanio_pagina * (i - 1));
-                memcpy(valor_leido + aux, resultado, tamanio_lectura);
-                char* valor_mostrar = convertir_void_a_char(tamanio_lectura, resultado);
-                log_info(logger, "PID: %d - Acción: LEER - Dirección Física: %d - Valor: %s", contexto->pid, dir_fisica, valor_mostrar);
+                //void *resultado = malloc(tamanio_lectura);
+                //resultado = recibir_desde_memoria(socket_cliente_memoria);
+                valor_leido_prueba = recibir_desde_memoria(socket_cliente_memoria);
+                //int aux = (tamanio_pagina - offset) + (tamanio_pagina * (i - 1));
+                //memcpy(valor_leido + aux, resultado, tamanio_lectura);
+                //char* valor_mostrar = convertir_void_a_char(tamanio_lectura, resultado);
+                log_info(logger, "PID: %d - Acción: LEER - Dirección Física: %d - Valor: %s", contexto->pid, dir_fisica, valor_leido_prueba);
             }
             else if (i == (list_size(lista_marcos) - 1))
             {
@@ -1236,12 +1239,13 @@ void mov_in(char *registro_dato, char *registro_direccion, int socket_cliente_me
                 tamanio_lectura = bytes_hasta_final;
                 mensaje = generar_mensaje_lectura(dir_fisica, tamanio_lectura);
                 enviar_mensaje(mensaje, socket_cliente_memoria);
-                void *resultado = malloc(tamanio_lectura);
-                resultado = recibir_desde_memoria(socket_cliente_memoria);
-                int aux = tamanio_registro - tamanio_lectura;
-                memcpy(valor_leido + aux, resultado, tamanio_lectura);
-                char* valor_mostrar = convertir_void_a_char(tamanio_lectura, resultado);
-                log_info(logger, "PID: %d - Acción: LEER - Dirección Física: %d - Valor: %s", contexto->pid, dir_fisica, valor_mostrar);
+                //void *resultado = malloc(tamanio_lectura);
+                //resultado = recibir_desde_memoria(socket_cliente_memoria);
+                valor_leido_prueba = recibir_desde_memoria(socket_cliente_memoria);
+                //int aux = tamanio_registro - tamanio_lectura;
+                //memcpy(valor_leido + aux, resultado, tamanio_lectura);
+                //char* valor_mostrar = convertir_void_a_char(tamanio_lectura, resultado);
+                log_info(logger, "PID: %d - Acción: LEER - Dirección Física: %d - Valor: %s", contexto->pid, dir_fisica, valor_leido_prueba);
             }
         }
     }
@@ -1252,12 +1256,13 @@ void mov_in(char *registro_dato, char *registro_direccion, int socket_cliente_me
         int tamanio_lectura = bytes_hasta_final;
         mensaje = generar_mensaje_lectura(dir_fisica, tamanio_lectura);
         enviar_mensaje(mensaje, socket_cliente_memoria);
-        valor_leido = recibir_desde_memoria(socket_cliente_memoria);
-        char* valor_mostrar = convertir_void_a_char(tamanio_lectura, valor_leido);
-        log_info(logger, "PID: %d - Acción: LEER - Dirección Física: %d - Valor: %s", contexto->pid, dir_fisica, valor_mostrar);
+        //valor_leido = recibir_desde_memoria(socket_cliente_memoria);
+        valor_leido_prueba = recibir_desde_memoria(socket_cliente_memoria);
+        //char* valor_mostrar = convertir_void_a_char(tamanio_lectura, valor_leido);
+        log_info(logger, "PID: %d - Acción: LEER - Dirección Física: %d - Valor: %s", contexto->pid, dir_fisica, valor_leido_prueba);
     }
 
-    set_valor_registro(registro_dato, valor_leido);
+    set_valor_registro(registro_dato, atoi(valor_leido_prueba));
     log_info(logger, "PID: %d - Ejecutando: MOV_IN - %s %s", contexto->pid, registro_dato, registro_direccion);
 }
 
@@ -1283,12 +1288,13 @@ void mov_out(char *registro_direccion, char *registro_dato, int socket_cliente_m
                 dir_fisica = (marco * tamanio_pagina) + offset;
                 tamanio_escritura = tamanio_pagina - offset;//escritura
                 void* valor_a_escribir = malloc(tamanio_escritura);
-                memcpy(valor_a_escribir, valor_registro_dato, tamanio_escritura);
-                mensaje = generar_mensaje_escritura(dir_fisica, tamanio_escritura, valor_a_escribir);
+                //memcpy(valor_a_escribir, valor_registro_dato, tamanio_escritura);
+                //mensaje = generar_mensaje_escritura(dir_fisica, tamanio_escritura, valor_a_escribir);
+                mensaje = generar_mensaje_escritura_prueba(dir_fisica, tamanio_escritura, string_itoa(valor_registro_dato));
                 enviar_mensaje(mensaje, socket_cliente_memoria);
                 char* resultado = recibir_desde_memoria(socket_cliente_memoria);
-                char* valor_mostrar = convertir_void_a_char(tamanio_escritura, valor_a_escribir);
-                log_info(logger, "PID: %d - Acción: ESCRIBIR - Dirección Física: %d - Valor: %s", contexto->pid, dir_fisica, valor_mostrar);
+                //char* valor_mostrar = convertir_void_a_char(tamanio_escritura, valor_a_escribir);
+                log_info(logger, "PID: %d - Acción: ESCRIBIR - Dirección Física: %d - Valor: %s", contexto->pid, dir_fisica, string_itoa(valor_registro_dato));
             }
             else if (i > 0 && i < (list_size(lista_marcos) - 1))
             {
@@ -1296,13 +1302,14 @@ void mov_out(char *registro_direccion, char *registro_dato, int socket_cliente_m
                 dir_fisica = (marco * tamanio_pagina);
                 tamanio_escritura = tamanio_pagina;
                 void* valor_a_escribir = malloc(tamanio_escritura);
-                memcpy(valor_a_escribir, valor_registro_dato+tamanio_registro-bytes_hasta_final, tamanio_escritura);
+                //memcpy(valor_a_escribir, valor_registro_dato+tamanio_registro-bytes_hasta_final, tamanio_escritura);
                 bytes_hasta_final = bytes_hasta_final - tamanio_pagina;
-                mensaje = generar_mensaje_escritura(dir_fisica, tamanio_escritura, valor_a_escribir);
+                //mensaje = generar_mensaje_escritura(dir_fisica, tamanio_escritura, valor_a_escribir);
+                mensaje = generar_mensaje_escritura_prueba(dir_fisica, tamanio_escritura, string_itoa(valor_registro_dato));
                 enviar_mensaje(mensaje, socket_cliente_memoria);
                 char* resultado = recibir_desde_memoria(socket_cliente_memoria);
-                char* valor_mostrar = convertir_void_a_char(tamanio_escritura, valor_a_escribir);
-                log_info(logger, "PID: %d - Acción: ESCRIBIR - Dirección Física: %d - Valor: %s", contexto->pid, dir_fisica, valor_mostrar);
+                //char* valor_mostrar = convertir_void_a_char(tamanio_escritura, valor_a_escribir);
+                log_info(logger, "PID: %d - Acción: ESCRIBIR - Dirección Física: %d - Valor: %s", contexto->pid, dir_fisica, string_itoa(valor_registro_dato));
             }
             else if (i == (list_size(lista_marcos) - 1))
             {
@@ -1310,13 +1317,14 @@ void mov_out(char *registro_direccion, char *registro_dato, int socket_cliente_m
                 dir_fisica = (marco * tamanio_pagina);
                 tamanio_escritura = bytes_hasta_final;
                 void* valor_a_escribir = malloc(tamanio_escritura);
-                memcpy(valor_a_escribir, valor_registro_dato+tamanio_registro-bytes_hasta_final, tamanio_escritura);
+                //memcpy(valor_a_escribir, valor_registro_dato+tamanio_registro-bytes_hasta_final, tamanio_escritura);
                 bytes_hasta_final = bytes_hasta_final - bytes_hasta_final;
-                mensaje = generar_mensaje_escritura(dir_fisica, tamanio_escritura, valor_a_escribir);
+                //mensaje = generar_mensaje_escritura(dir_fisica, tamanio_escritura, valor_a_escribir);
+                mensaje = generar_mensaje_escritura_prueba(dir_fisica, tamanio_escritura, string_itoa(valor_registro_dato));
                 enviar_mensaje(mensaje, socket_cliente_memoria);
                 char* resultado = recibir_desde_memoria(socket_cliente_memoria);
-                char* valor_mostrar = convertir_void_a_char(tamanio_escritura, valor_a_escribir);
-                log_info(logger, "PID: %d - Acción: ESCRIBIR - Dirección Física: %d - Valor: %s", contexto->pid, dir_fisica, valor_mostrar);
+                //char* valor_mostrar = convertir_void_a_char(tamanio_escritura, valor_a_escribir);
+                log_info(logger, "PID: %d - Acción: ESCRIBIR - Dirección Física: %d - Valor: %s", contexto->pid, dir_fisica, string_itoa(valor_registro_dato));
             }
         }
     }
@@ -1326,12 +1334,15 @@ void mov_out(char *registro_direccion, char *registro_dato, int socket_cliente_m
         int dir_fisica = (marco * tamanio_pagina) + offset;
         int tamanio_escritura = bytes_hasta_final;
         void* valor_a_escribir = malloc(tamanio_escritura);
-        memcpy(valor_a_escribir, valor_registro_dato, tamanio_escritura);
-        mensaje = generar_mensaje_escritura(dir_fisica, tamanio_escritura, valor_a_escribir);
+        //memcpy(valor_a_escribir, valor_registro_dato, tamanio_escritura);
+        valor_a_escribir = valor_registro_dato;
+        //mensaje = generar_mensaje_escritura(dir_fisica, tamanio_escritura, valor_a_escribir);
+        mensaje = generar_mensaje_escritura_prueba(dir_fisica, tamanio_escritura, string_itoa(valor_registro_dato));
         enviar_mensaje(mensaje, socket_cliente_memoria);
         char* resultado = recibir_desde_memoria(socket_cliente_memoria);
-        char* valor_mostrar = convertir_void_a_char(tamanio_escritura, valor_a_escribir);
-        log_info(logger, "PID: %d - Acción: ESCRIBIR - Dirección Física: %d - Valor: %s", contexto->pid, dir_fisica, valor_mostrar);
+        //char* valor_mostrar = convertir_void_a_char(tamanio_escritura, valor_a_escribir);
+        //log_info(logger, "PID: %d - Acción: ESCRIBIR - Dirección Física: %d - Valor: %s", contexto->pid, dir_fisica, valor_mostrar);
+        log_info(logger, "PID: %d - Acción: ESCRIBIR - Dirección Física: %d - Valor: %s", contexto->pid, dir_fisica, string_itoa(valor_registro_dato));
     }
     log_info(logger, "PID: %d - Ejecutando: MOV_OUT - %s %s", contexto->pid, registro_direccion, registro_dato);
 }

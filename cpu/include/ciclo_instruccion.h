@@ -21,4 +21,5 @@ void execute(int socket_cliente_kernel, int socket_cliente_memoria);
 void check_interrupt(int socket_cliente_memoria, int socket_kernel_dispatch);
 unsigned int get_valor_registro(char * registro);
 int get_tamanio_registro(char * registro);
+void set_valor_registro(char * registro, int dato);
 #endif

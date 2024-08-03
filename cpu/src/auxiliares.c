@@ -132,7 +132,7 @@ void atender_cliente_interrupt(int socket_servidor_interrupt){
     liberar_conexion(socket_kernel_interrupt);
 }
 
-void* recibir_desde_memoria(int socket_cliente){
+char* recibir_desde_memoria(int socket_cliente){
 	t_list* lista;
     int cod_op = recibir_operacion(socket_cliente);; 
     switch (cod_op) {
@@ -140,7 +140,8 @@ void* recibir_desde_memoria(int socket_cliente){
         int size;
         char* buffer = recibir_buffer(&size, socket_cliente);
         log_info(logger, "Me llego el mensaje %s", buffer);
-        void * mensaje;
+        //void * mensaje;
+        char* mensaje;
         if(string_starts_with(buffer, "LEER")){
             mensaje = malloc(size-5);
             mensaje = string_substring_from(buffer, 5);
@@ -203,6 +204,20 @@ void* generar_mensaje_escritura(int dir_fisica, int tamanio, void* valor){
 
 
     string_append(&mensaje, aux);
+    return mensaje;
+}
+
+void* generar_mensaje_escritura_prueba(int dir_fisica, int tamanio, char* valor){
+    
+    char *mensaje = string_new();
+    string_append(&mensaje, "ESCRIBIR ");
+    string_append(&mensaje, string_itoa(dir_fisica));
+    string_append(&mensaje, " ");
+    string_append(&mensaje, string_itoa(tamanio));
+    string_append(&mensaje, " ");
+    string_append(&mensaje, string_itoa(contexto->pid));
+    string_append(&mensaje, " ");
+    string_append(&mensaje, valor);
     return mensaje;
 }
 
