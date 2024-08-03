@@ -46,5 +46,6 @@ void liberar_recursos(int pid);
 
 bool admite_instruccion(char *tipo, char *instruccion);
 char* generar_lista_pids(char* nombre_lista);
+void finalizar_proceso_invalido(int pid, int socket_cpu_interrupt, int socket_memoria, char* motivo);
 
 #endif

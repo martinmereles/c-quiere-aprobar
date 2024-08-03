@@ -128,6 +128,9 @@ void check_interrupt(int socket_cliente_memoria, int socket_kernel_dispatch){
         log_info (logger, "PID: %s - Desalojado por fin de Quantum", string_itoa(contexto->pid));
         sem_wait(&sem_execute);
     }else if(existe_recurso){
+
+        
+
         enviar_pcb_contexto_motivo(socket_kernel_dispatch, contexto, instruccion_exec_split[0]);
         log_info (logger, "PID: %s - Desalojado por syscall a recurso", string_itoa(contexto->pid));
         sem_wait(&sem_execute);

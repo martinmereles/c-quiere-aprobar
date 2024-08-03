@@ -149,7 +149,23 @@ void atender_cliente_kernel(int socket_cliente)
                 sem_post(&sem_multiprocesamiento);
             }
             if (strcmp(pcb_deserealizado->motivo, "IO") == 0)
-            {
+            {   
+                if(list_size(QUEUE_RUNNING) == 0 ){
+
+                    
+                    sem_wait(&sem_array_estados[4].mutex);
+
+                    list_add(QUEUE_TERMINATED, pcb_deserealizado->pcb);
+                    log_info(logger, "PID: %d - Estado Anterior: RUNNING - Estado Actual: TERMINATED", pcb_deserealizado->pcb->pid);
+
+                    sem_post(&sem_array_estados[4].mutex);
+                    sem_post(&sem_array_estados[4].contador);
+                    sem_post(&sem_multiprocesamiento);
+                    sem_post(&sem_grado_multiprog);
+                    sem_post(&llegada_desalojo_io);
+                    break;
+
+                }
                 sem_wait(&sem_array_estados[3].mutex);
                 sem_wait(&sem_array_estados[2].mutex);
                 sem_wait(&sem_array_estados[2].contador);
@@ -272,7 +288,7 @@ void io_gen_sleep(char *interfaz, char *unidad_tiempo, char *pid)
     }
     else
     {
-        finalizar_proceso_invalido(pid, socket_cpu_interrupt, socket_memoria, "INVALID_INTERFACE");
+        finalizar_proceso_invalido(atoi(pid), socket_cpu_interrupt, socket_memoria, "INVALID_INTERFACE");
     }
 }
 
@@ -301,7 +317,7 @@ void io_stdin_read(char *interfaz, char *pid, char* buffer)
     }
     else
     {
-        finalizar_proceso_invalido(pid, socket_cpu_interrupt, socket_memoria, "INVALID_INTERFACE");
+        finalizar_proceso_invalido(atoi(pid), socket_cpu_interrupt, socket_memoria, "INVALID_INTERFACE");
     }
 }
 
@@ -327,7 +343,7 @@ void io_stdout_write(char *interfaz, char *pid, char* buffer)
     }
     else
     {
-        finalizar_proceso_invalido(pid, socket_cpu_interrupt, socket_memoria, "INVALID_INTERFACE");
+        finalizar_proceso_invalido(atoi(pid), socket_cpu_interrupt, socket_memoria, "INVALID_INTERFACE");
     }
 }
 
@@ -357,7 +373,7 @@ void io_fs_create(char *interfaz, char *nombre_archivo, char *pid)
     else
     {
         
-        finalizar_proceso_invalido(pid, socket_cpu_interrupt, socket_memoria, "INVALID_INTERFACE");
+        finalizar_proceso_invalido(atoi(pid), socket_cpu_interrupt, socket_memoria, "INVALID_INTERFACE");
     }
 }
 
@@ -386,7 +402,7 @@ void io_fs_delete(char *interfaz, char *nombre_archivo, char *pid)
     }
     else
     {
-        finalizar_proceso_invalido(pid, socket_cpu_interrupt, socket_memoria, "INVALID_INTERFACE");
+        finalizar_proceso_invalido(atoi(pid), socket_cpu_interrupt, socket_memoria, "INVALID_INTERFACE");
     }
 }
 
@@ -417,7 +433,7 @@ void io_fs_truncate(char *interfaz, char *nombre_archivo, char *tamanio_a_trunca
     }
     else
     {
-        finalizar_proceso_invalido(pid, socket_cpu_interrupt, socket_memoria, "INVALID_INTERFACE");
+        finalizar_proceso_invalido(atoi(pid), socket_cpu_interrupt, socket_memoria, "INVALID_INTERFACE");
     }
 }
 
@@ -443,7 +459,7 @@ void io_fs_write(char *interfaz, char *nombre_archivo, char *puntero_archivo, ch
     }
     else
     {
-        finalizar_proceso_invalido(pid, socket_cpu_interrupt, socket_memoria, "INVALID_INTERFACE");
+        finalizar_proceso_invalido(atoi(pid), socket_cpu_interrupt, socket_memoria, "INVALID_INTERFACE");
     }
 }
 
@@ -469,7 +485,7 @@ void io_fs_read(char *interfaz, char *nombre_archivo, char *puntero_archivo, cha
     }
     else
     {
-        finalizar_proceso_invalido(pid, socket_cpu_interrupt, socket_memoria, "INVALID_INTERFACE");
+        finalizar_proceso_invalido(atoi(pid), socket_cpu_interrupt, socket_memoria, "INVALID_INTERFACE");
     }
 }
 
@@ -617,7 +633,7 @@ void liberar_recursos(int pid)
 
 void finalizar_proceso_invalido(int pid, int socket_cpu_interrupt, int socket_cliente_memoria, char* motivo_finalizacion){
 
-    sem_wait(&llegada_desalojo_io);
+    
     pcb_t *encontrado = malloc(sizeof(pcb_t));
     encontrado->reg_generales = malloc(sizeof(registros_t));
     encontrado = NULL;
@@ -654,10 +670,14 @@ void finalizar_proceso_invalido(int pid, int socket_cpu_interrupt, int socket_cl
     encontrado = list_remove_by_condition(QUEUE_RUNNING, _es_pid_buscado);
     if (encontrado != NULL)
     {
+
+        sem_wait(&sem_array_estados[2].contador);
+        /*
         char *mensaje = string_new();
         string_append(&mensaje, "EXIT ");
         string_append(&mensaje, string_itoa(pid));
         enviar_mensaje(mensaje, socket_cpu_interrupt);
+        */
     }
     encontrado = NULL;
     encontrado = list_remove_by_condition(QUEUE_BLOCKED, _es_pid_buscado);
@@ -697,7 +717,7 @@ void finalizar_proceso_invalido(int pid, int socket_cpu_interrupt, int socket_cl
     string_append(&mensaje, string_itoa(pid));
     enviar_mensaje(mensaje, socket_cliente_memoria);
     log_info(logger, "Finaliza el proceso %d - Motivo: %s", pid, motivo_finalizacion);
-    sem_post(&llegada_desalojo_io);
+    
 }
 
 char* generar_lista_pids(char* nombre_lista){

@@ -1489,12 +1489,30 @@ void copy_string(char *tamanio, int socket_cliente_memoria)
 }
 
 void wait(char* recurso)
-{
+{       temporal_stop(temporizador);
+    int64_t tiempo_transcurrido = temporal_gettime(temporizador);
+    if ((contexto->quantum - (int)tiempo_transcurrido) <= 0)
+    {
+        contexto->quantum = 0;
+    }
+    else
+    {
+        contexto->quantum = contexto->quantum - (int)tiempo_transcurrido;
+    }
     log_info(logger, "PID: %d - Ejecutando: WAIT - %s", contexto->pid, recurso);
 }
 
 void signal_instruccion(char* recurso)
-{
+{       temporal_stop(temporizador);
+    int64_t tiempo_transcurrido = temporal_gettime(temporizador);
+    if ((contexto->quantum - (int)tiempo_transcurrido) <= 0)
+    {
+        contexto->quantum = 0;
+    }
+    else
+    {
+        contexto->quantum = contexto->quantum - (int)tiempo_transcurrido;
+    }
     log_info(logger, "PID: %d - Ejecutando: SIGNAL - %s", contexto->pid, recurso);
 }
 

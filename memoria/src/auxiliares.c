@@ -292,12 +292,14 @@ void finalizar_proceso(int pid)
     };
     t_instruccion_memoria *aux = list_find(memoria_instrucciones, _es_pid_buscado);
     sem_wait(&sem_bitmap_marcos_libres);
+
+    if(!list_is_empty(aux->lista_paginas)){
     for (int i = 0; i < list_size(aux->lista_paginas); i++)
     {
         int pagina_a_liberar = list_get(aux->lista_paginas, i);
         bitarray_clean_bit(bitmap_marcos_libres, pagina_a_liberar);
     }
-
+    }
     t_instruccion_memoria *aux2 = list_remove_by_condition(memoria_instrucciones, _es_pid_buscado);
     list_destroy(aux2->lista_instrucciones);
     list_destroy(aux2->lista_paginas);
