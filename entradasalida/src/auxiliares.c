@@ -524,7 +524,7 @@ void io_fs_truncate(char *nombre_archivo, int tamanio_a_truncar, char* pid, t_co
                 fclose(fs_archivos_bloques);
                 free(archivo_data);
             }
-            log_info (logger, "PID: %s - Truncar Archivo: %s - Tamaño: %s", pid, nombre_archivo, tamanio_a_truncar);
+            log_info (logger, "PID: %s - Truncar Archivo: %s - Tamaño: %d", pid, nombre_archivo, tamanio_a_truncar);
             config_save(archivo_metadata);
             config_destroy(archivo_metadata);
         }

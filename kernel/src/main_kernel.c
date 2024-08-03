@@ -28,6 +28,7 @@ sem_t detencion_planificador_largo;
 sem_t llegada_desalojo_io;
 bool detuvo_planificacion;
 char* algoritmo;
+char* instruccion;
 
 t_list* lista_recursos;
 

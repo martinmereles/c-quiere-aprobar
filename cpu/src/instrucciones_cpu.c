@@ -1629,7 +1629,7 @@ void io_fs_write(char *interfaz, char *nombre_archivo, char *registro_direccion,
     string_append(&mensaje, " ");
     string_append(&mensaje, nombre_archivo);
     string_append(&mensaje, " ");
-    string_append(&mensaje, puntero_archivo);
+    string_append(&mensaje, string_itoa(puntero_archivo));
     string_append(&mensaje, " ");
     string_append(&mensaje, string_itoa(contexto->pid));
     string_append(&mensaje, " ");

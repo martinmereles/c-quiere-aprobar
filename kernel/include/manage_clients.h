@@ -22,6 +22,7 @@ extern t_list* QUEUE_READY_PLUS;
 extern t_list* QUEUE_RUNNING;
 extern t_list* QUEUE_BLOCKED;
 extern t_list* QUEUE_TERMINATED;
+extern char* instruccion;
 
 void atender_cliente_kernel(int socket_cliente);
 void iniciar_hilo_server_kernel(char* socket_cliente);
