@@ -134,7 +134,7 @@ void finalizar_proceso(int pid, int socket_cpu_interrupt, int socket_cliente_mem
         enviar_mensaje(mensaje, socket_cliente_memoria);
     }
     encontrado = NULL;
-    encontrado = list_get(QUEUE_RUNNING, 0);
+    encontrado = list_remove_by_condition(QUEUE_RUNNING, _es_pid_buscado);
     if (encontrado != NULL && encontrado->pid == pid)
     {
         char *mensaje = string_new();

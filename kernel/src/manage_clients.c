@@ -181,7 +181,10 @@ void atender_cliente_kernel(int socket_cliente)
             if (string_starts_with(pcb_deserealizado->motivo, "SIGNAL"))
             {
                 char **motivo_signal = string_split(pcb_deserealizado->motivo, " ");
-
+                sem_wait(&sem_array_estados[2].mutex);
+                list_remove(QUEUE_RUNNING, 0);
+                list_add(QUEUE_RUNNING, pcb_deserealizado->pcb);
+                sem_post(&sem_array_estados[2].mutex);
                 signal_instruccion(motivo_signal[1], pcb_deserealizado->pcb);
 
                 sem_post(&sem_multiprocesamiento);
@@ -189,9 +192,12 @@ void atender_cliente_kernel(int socket_cliente)
             if (string_starts_with(pcb_deserealizado->motivo, "WAIT"))
             {
                 char **motivo_wait = string_split(pcb_deserealizado->motivo, " ");
-
+                sem_wait(&sem_array_estados[2].mutex);
+                list_remove(QUEUE_RUNNING, 0);
+                list_add(QUEUE_RUNNING, pcb_deserealizado->pcb);
+                sem_post(&sem_array_estados[2].mutex);
                 wait_instruccion(motivo_wait[1], pcb_deserealizado->pcb);
-
+                
                 sem_post(&sem_multiprocesamiento);
             }
 
@@ -508,32 +514,35 @@ void liberar_interfaz(char *interfaz, char *pid)
 
     //pcb_t *pcb_encontrado = malloc(sizeof(pcb_t));
     sem_wait(&sem_array_estados[3].mutex);
-    pcb_t * pcb_encontrado = list_remove_by_condition(QUEUE_BLOCKED, _es_pcb_buscado);
-
+    pcb_t * pcb_encontrado = NULL;
+    pcb_encontrado = list_remove_by_condition(QUEUE_BLOCKED, _es_pcb_buscado);
     sem_post(&sem_array_estados[3].mutex);
-    sem_wait(&sem_array_estados[3].contador);
+    
+    if(pcb_encontrado != NULL){
+    
+        sem_wait(&sem_array_estados[3].contador);
 
-    if ((strcmp(algoritmo, "VRR") == 0) && pcb_encontrado->quantum > 0)
-    {
-        sem_wait(&sem_array_estados[5].mutex);
-        list_add(QUEUE_READY_PLUS, pcb_encontrado);
-        log_info(logger, "PID: %d - Estado Anterior: BLOCKED - Estado Actual: READY_PLUS", pcb_encontrado->pid);
-        pids = generar_lista_pids("QUEUE_READY_PLUS");
-        log_info(logger, "Cola Ready Prioridad: %s", pids);
-        sem_post(&sem_array_estados[5].mutex);
-        sem_post(&sem_array_estados[5].contador);
+        if ((strcmp(algoritmo, "VRR") == 0) && pcb_encontrado->quantum > 0)
+        {
+            sem_wait(&sem_array_estados[5].mutex);
+            list_add(QUEUE_READY_PLUS, pcb_encontrado);
+            log_info(logger, "PID: %d - Estado Anterior: BLOCKED - Estado Actual: READY_PLUS", pcb_encontrado->pid);
+            pids = generar_lista_pids("QUEUE_READY_PLUS");
+            log_info(logger, "Cola Ready Prioridad: %s", pids);
+            sem_post(&sem_array_estados[5].mutex);
+            sem_post(&sem_array_estados[5].contador);
+        }
+        else
+        {
+            sem_wait(&sem_array_estados[1].mutex);
+            list_add(QUEUE_READY, pcb_encontrado);
+            log_info(logger, "PID: %d - Estado Anterior: BLOCKED - Estado Actual: READY", pcb_encontrado->pid);
+            pids = generar_lista_pids("QUEUE_READY");
+            log_info(logger, "Cola Ready: %s", pids);
+            sem_post(&sem_array_estados[1].mutex);
+            sem_post(&sem_array_estados[1].contador);
+        }
     }
-    else
-    {
-        sem_wait(&sem_array_estados[1].mutex);
-        list_add(QUEUE_READY, pcb_encontrado);
-        log_info(logger, "PID: %d - Estado Anterior: BLOCKED - Estado Actual: READY", pcb_encontrado->pid);
-        pids = generar_lista_pids("QUEUE_READY");
-        log_info(logger, "Cola Ready: %s", pids);
-        sem_post(&sem_array_estados[1].mutex);
-        sem_post(&sem_array_estados[1].contador);
-    }
-
     sem_post(&interfaz_encontrada->sem_uso);
 }
 

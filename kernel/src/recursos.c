@@ -54,7 +54,7 @@ void wait_instruccion(char *nombre_recurso, pcb_t* pcb_recibido)
         {
             list_add(recurso->procesos_bloqueados, pcb_recibido->pid);
             bloquear_proceso(pcb_recibido);
-            log_info(logger, "PID: %s - Bloqueado por: %s", pcb_recibido->pid, nombre_recurso);
+            log_info(logger, "PID: %d - Bloqueado por: %s", pcb_recibido->pid, nombre_recurso);
         }
         else
         {
@@ -179,27 +179,25 @@ void desbloquear_proceso(int pid)
     }
 
     
-    sem_wait(&sem_array_estados[3].mutex);
-    sem_wait(&sem_array_estados[1].mutex);
-    sem_wait(&sem_array_estados[5].mutex);
-    sem_wait(&sem_array_estados[3].contador);
-    pcb_t *aux = list_remove_by_condition(QUEUE_BLOCKED, _es_pid_buscado);
-    if (strcmp(algoritmo,"VRR")==0 && aux->quantum > 0){
+    pcb_t *aux = NULL;
+    aux = list_remove_by_condition(QUEUE_BLOCKED, _es_pid_buscado);
+    if(aux != NULL){
+        sem_wait(&sem_array_estados[3].contador);
+        if (strcmp(algoritmo,"VRR")==0 && aux->quantum > 0){
         list_add(QUEUE_READY_PLUS, aux);
         log_info(logger, "PID: %d - Estado Anterior: BLOCKED - Estado Actual: READY_PLUS", aux->pid);
         pids = generar_lista_pids("QUEUE_READY_PLUS");
         log_info(logger, "Cola Ready Prioridad: %s", pids);
         sem_post(&sem_array_estados[5].contador);
-    }else{
-        list_add(QUEUE_READY, aux);
-        log_info(logger, "PID: %d - Estado Anterior: BLOCKED - Estado Actual: READY", aux->pid);
-        pids = generar_lista_pids("QUEUE_READY");
-        log_info(logger, "Cola Ready: %s", pids);
-        sem_post(&sem_array_estados[1].contador);
+        }else{
+            list_add(QUEUE_READY, aux);
+            log_info(logger, "PID: %d - Estado Anterior: BLOCKED - Estado Actual: READY", aux->pid);
+            pids = generar_lista_pids("QUEUE_READY");
+            log_info(logger, "Cola Ready: %s", pids);
+            sem_post(&sem_array_estados[1].contador);
+        }
     }
-    sem_post(&sem_array_estados[5].mutex);
-    sem_post(&sem_array_estados[1].mutex);
-    sem_post(&sem_array_estados[3].mutex);
+    
 }
 
 void bloquear_proceso(pcb_t* pcb_recibido)

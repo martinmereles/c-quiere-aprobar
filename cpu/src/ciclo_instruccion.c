@@ -130,8 +130,11 @@ void check_interrupt(int socket_cliente_memoria, int socket_kernel_dispatch){
     }else if(existe_recurso){
 
         
-
-        enviar_pcb_contexto_motivo(socket_kernel_dispatch, contexto, instruccion_exec_split[0]);
+        char* nuevo_mensaje = string_new();
+        string_append(&nuevo_mensaje, instruccion_exec_split[0]);
+        string_append(&nuevo_mensaje, " ");
+        string_append(&nuevo_mensaje, instruccion_exec_split[1]);
+        enviar_pcb_contexto_motivo(socket_kernel_dispatch, contexto, nuevo_mensaje);
         log_info (logger, "PID: %s - Desalojado por syscall a recurso", string_itoa(contexto->pid));
         sem_wait(&sem_execute);
     }else if(strcmp(instruccion_exec_split[0],"EXIT") == 0){
